@@ -73,6 +73,9 @@ export const PROVENANCE_LABELS = {
   authored: "본인이 작성함",
 } as const;
 
+const MONTH_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 let fallbackId = 0;
 
 function createCareerId() {
@@ -165,7 +168,29 @@ export function getCareerErrors(entries: readonly CareerEntry[]): string[] {
     ];
   }
 
-  return [];
+  const errors: string[] = [];
+
+  for (const entry of includedEntries) {
+    const restaurantName = entry.restaurantName.trim();
+
+    if (!MONTH_PATTERN.test(entry.employmentStart)) {
+      errors.push(`${restaurantName}의 근무 시작월 형식을 확인해 주세요.`);
+      continue;
+    }
+
+    if (entry.employmentEnd && !MONTH_PATTERN.test(entry.employmentEnd)) {
+      errors.push(`${restaurantName}의 근무 종료월 형식을 확인해 주세요.`);
+      continue;
+    }
+
+    if (entry.employmentEnd && entry.employmentEnd < entry.employmentStart) {
+      errors.push(
+        `${restaurantName}의 근무 종료월은 시작월보다 빠를 수 없습니다.`,
+      );
+    }
+  }
+
+  return errors;
 }
 
 export function getEnrichmentErrors(
@@ -180,6 +205,10 @@ export function getEnrichmentErrors(
 
   if (identity.headline.trim().length === 0) {
     errors.push("이력서 제목을 입력해 주세요.");
+  }
+
+  if (identity.email.trim() && !EMAIL_PATTERN.test(identity.email.trim())) {
+    errors.push("올바른 이메일 주소를 입력해 주세요.");
   }
 
   for (const entry of entries.filter((career) => career.included)) {

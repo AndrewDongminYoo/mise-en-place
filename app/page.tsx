@@ -200,6 +200,7 @@ export default function Home() {
   const [currentStep, setCurrentStep] = useState(1);
   const [careers, setCareers] = useState<CareerEntry[]>([]);
   const [identity, setIdentity] = useState<ResumeIdentity>(EMPTY_IDENTITY);
+  const [isDemoDraft, setIsDemoDraft] = useState(false);
   const [talentPoolChoice, setTalentPoolChoice] =
     useState<TalentPoolChoice>("resume-only");
   const [errors, setErrors] = useState<string[]>([]);
@@ -221,6 +222,9 @@ export default function Home() {
 
   const currentCopy = STEP_COPY[currentStep - 1];
   const includedCareers = careers.filter((career) => career.included);
+  const hasDraft = careers.length > 0;
+  const isManualOnlyDraft =
+    currentStep === 2 && careers.every((career) => career.origin === "manual");
 
   function moveToStep(step: number) {
     setErrors([]);
@@ -228,16 +232,40 @@ export default function Home() {
   }
 
   function startManualEntry() {
+    if (
+      hasDraft &&
+      !window.confirm(
+        "새 이력서로 시작하시겠습니까? 현재 탭에서 작성한 내용은 사라집니다.",
+      )
+    ) {
+      return;
+    }
+
     setCareers([createBlankCareerEntry("manual")]);
     setIdentity(EMPTY_IDENTITY);
+    setIsDemoDraft(false);
     setTalentPoolChoice("resume-only");
     moveToStep(2);
   }
 
   function startDemo() {
+    if (
+      hasDraft &&
+      !window.confirm(
+        "예시 이력서로 바꾸시겠습니까? 현재 탭에서 작성한 내용은 사라집니다.",
+      )
+    ) {
+      return;
+    }
+
     setCareers(createDemoCareerEntries());
     setIdentity(DEMO_IDENTITY);
+    setIsDemoDraft(true);
     setTalentPoolChoice("resume-only");
+    moveToStep(2);
+  }
+
+  function continueDraft() {
     moveToStep(2);
   }
 
@@ -396,7 +424,12 @@ export default function Home() {
             <h1 id="step-heading" ref={headingRef} tabIndex={-1}>
               {currentCopy.title}
             </h1>
-            <p>{currentCopy.description}</p>
+            {isDemoDraft ? <span className="demo-tag">예시 이력서</span> : null}
+            <p>
+              {isManualOnlyDraft
+                ? "실제 레스토랑명과 근무 기간을 먼저 확인하고, 법인명은 알고 있을 때만 입력합니다."
+                : currentCopy.description}
+            </p>
           </header>
 
           {errors.length > 0 ? (
@@ -420,9 +453,9 @@ export default function Home() {
                   <p className="panel-kicker">가장 빠른 시작</p>
                   <h2>건강보험 자격득실확인서 PDF</h2>
                   <p className="panel-copy">
-                    실제 문서 샘플을 확인하기 전까지 자동 추출을 흉내 내지
-                    않습니다. 이번 버전은 파일을 읽지 않고 직접 입력으로
-                    이어집니다.
+                    텍스트를 읽을 수 있는 지원 양식을 정하기 전까지 자동
+                    추출을 흉내 내지 않습니다. 이번 버전은 파일을 읽지 않고
+                    직접 입력으로 이어집니다.
                   </p>
                 </div>
 
@@ -450,7 +483,9 @@ export default function Home() {
                     type="button"
                     onClick={startManualEntry}
                   >
-                    직접 입력으로 계속하기
+                    {hasDraft
+                      ? "새 이력서로 직접 입력하기"
+                      : "직접 입력으로 계속하기"}
                     <span aria-hidden="true">→</span>
                   </button>
                 ) : null}
@@ -464,12 +499,22 @@ export default function Home() {
                     법인명을 몰라도 괜찮습니다. 실제 레스토랑명과 근무
                     시작월부터 입력할 수 있습니다.
                   </p>
+                  {hasDraft ? (
+                    <button
+                      className="primary-button"
+                      type="button"
+                      onClick={continueDraft}
+                    >
+                      작성 이어가기
+                      <span aria-hidden="true">→</span>
+                    </button>
+                  ) : null}
                   <button
-                    className="primary-button"
+                    className={hasDraft ? "secondary-button" : "primary-button"}
                     type="button"
                     onClick={startManualEntry}
                   >
-                    직접 입력하기
+                    {hasDraft ? "새로 작성하기" : "직접 입력하기"}
                     <span aria-hidden="true">→</span>
                   </button>
                 </div>
@@ -542,11 +587,11 @@ export default function Home() {
                         label={
                           career.origin === "document"
                             ? "문서의 사업장명"
-                            : "원문 사업장명"
+                            : "법인명"
                         }
                         hint={
                           career.origin === "manual"
-                            ? "모르면 비워 두어도 됩니다."
+                            ? "알고 있다면 입력하세요."
                             : "원문을 보존하는 필드입니다."
                         }
                       >
@@ -576,38 +621,45 @@ export default function Home() {
                       </Field>
                     </div>
 
-                    <div className="date-section">
-                      <div>
-                        <p className="date-section-title">
-                          건강보험 자격일
-                          <span>문서에 있을 때만 입력합니다.</span>
-                        </p>
-                        <div className="date-grid">
-                          <Field label="자격 취득월">
-                            <input
-                              type="month"
-                              value={career.qualificationStart}
-                              onChange={(event) =>
-                                updateCareer(career.id, {
-                                  qualificationStart:
-                                    event.currentTarget.value,
-                                })
-                              }
-                            />
-                          </Field>
-                          <Field label="자격 상실월">
-                            <input
-                              type="month"
-                              value={career.qualificationEnd}
-                              onChange={(event) =>
-                                updateCareer(career.id, {
-                                  qualificationEnd: event.currentTarget.value,
-                                })
-                              }
-                            />
-                          </Field>
+                    <div
+                      className={
+                        "date-section" +
+                        (career.origin === "manual" ? " date-section-single" : "")
+                      }
+                    >
+                      {career.origin === "document" ? (
+                        <div>
+                          <p className="date-section-title">
+                            건강보험 자격일
+                            <span>문서에서 불러온 정보입니다.</span>
+                          </p>
+                          <div className="date-grid">
+                            <Field label="자격 취득월">
+                              <input
+                                type="month"
+                                value={career.qualificationStart}
+                                onChange={(event) =>
+                                  updateCareer(career.id, {
+                                    qualificationStart:
+                                      event.currentTarget.value,
+                                  })
+                                }
+                              />
+                            </Field>
+                            <Field label="자격 상실월">
+                              <input
+                                type="month"
+                                value={career.qualificationEnd}
+                                onChange={(event) =>
+                                  updateCareer(career.id, {
+                                    qualificationEnd: event.currentTarget.value,
+                                  })
+                                }
+                              />
+                            </Field>
+                          </div>
                         </div>
-                      </div>
+                      ) : null}
 
                       <div>
                         <p className="date-section-title">
@@ -873,7 +925,12 @@ export default function Home() {
               <article className="resume-sheet" data-print-root>
                 <header className="resume-header">
                   <div>
-                    <p className="resume-label">CULINARY RESUME</p>
+                    <p className="resume-label">
+                      CULINARY RESUME{" "}
+                      {isDemoDraft ? (
+                        <span className="demo-tag">예시 이력서</span>
+                      ) : null}
+                    </p>
                     <h2>{identity.name}</h2>
                     <p className="resume-headline">{identity.headline}</p>
                   </div>
