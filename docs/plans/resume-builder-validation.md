@@ -15,10 +15,16 @@ The behavioral targets are:
 
 The prototype must also prove that one selected document layout can provide an editable employment skeleton without sending the source document to a server.
 
-## Step 1: Review Real Documents
+## Step 1: Validate Real Documents Locally
 
-Ask 5 to 10 former or current culinary professionals for a personally redacted National Health Insurance qualification certificate or Work24 integrated career certificate.
-Agree on the purpose, access, retention period, and deletion point before accepting a sample.
+Start with one consented, locally held certificate from the National Health Insurance Service direct issuance flow.
+Use that certificate to implement a narrow browser-local diagnostic for one candidate layout.
+Do not label the layout as supported until at least 5 usable cases pass this step.
+
+Ask 5 to 10 former or current culinary professionals to run the diagnostic with their own directly issued certificate.
+Ask each participant to keep the default resident-registration-number masking enabled.
+The diagnostic must not upload the PDF, password, or extracted text.
+If debugging requires a redacted sample, agree on the purpose, access, retention period, and deletion point before accepting it.
 Do not commit sample documents or extracted personal data to this repository.
 
 For each sample, record only:
@@ -28,14 +34,16 @@ For each sample, record only:
 - Whether a password, encryption, scan, or unusual layout blocks extraction.
 - Available employer and date fields.
 - Layout differences that affect extraction.
+- Whether the participant confirms all extracted rows or needs corrections or exclusions.
 
-Select one text-based National Health Insurance certificate layout for the first slice.
+Use the direct-issued, password-protected text PDF with the `가입자 구분`, `사업장 명칭`, `자격 취득일`, and `자격 상실일` table headers as the diagnostic candidate.
 Route every other format to manual entry.
 
 Verify this step by confirming that:
 
-- At least 5 usable, consented samples were reviewed.
+- At least 5 usable, consented certificates were processed on participant devices.
 - One exact layout and its target fields were selected.
+- Each participant could inspect the real employer and date rows before reporting the outcome.
 - The repository contains no sample document or personal document content.
 
 ## Step 2: Test the Four-Step Workflow

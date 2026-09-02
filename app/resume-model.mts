@@ -1,13 +1,17 @@
 export type CareerOrigin = "document" | "manual";
 
-export type CareerEntry = {
+export type ImportedCareerFields = {
+  legalEmployer: string;
+  qualificationStart: string;
+  qualificationEnd: string;
+};
+
+export type CareerEntry = ImportedCareerFields & {
   id: string;
   origin: CareerOrigin;
   isDemo: boolean;
   included: boolean;
-  legalEmployer: string;
-  qualificationStart: string;
-  qualificationEnd: string;
+  importedFields: Readonly<ImportedCareerFields> | null;
   restaurantName: string;
   employmentStart: string;
   employmentEnd: string;
@@ -103,6 +107,7 @@ export function createBlankCareerEntry(
     origin,
     isDemo: false,
     included: true,
+    importedFields: null,
     legalEmployer: "",
     qualificationStart: "",
     qualificationEnd: "",
@@ -119,13 +124,18 @@ export function createBlankCareerEntry(
 }
 
 export function createDemoCareerEntries(): CareerEntry[] {
+  const importedFields: ImportedCareerFields = {
+    legalEmployer: "주식회사 엠에프지코리아",
+    qualificationStart: "2018-03-01",
+    qualificationEnd: "2019-07-01",
+  };
+
   return [
     {
       ...createBlankCareerEntry("document"),
+      ...importedFields,
       isDemo: true,
-      legalEmployer: "주식회사 엠에프지코리아",
-      qualificationStart: "2018-03",
-      qualificationEnd: "2019-07",
+      importedFields,
       restaurantName: "더 키친 살바토레 쿠오모",
       employmentStart: "2018-03",
       employmentEnd: "2019-06",
@@ -142,6 +152,27 @@ export function createDemoCareerEntries(): CareerEntry[] {
         "파스타 스테이션을 독립 운영하고 계절 메뉴 테스트와 레시피 표준화를 보조했습니다.",
     },
   ];
+}
+
+export function createImportedCareerEntries(
+  records: readonly ImportedCareerFields[],
+): CareerEntry[] {
+  return records.map((record) => ({
+    ...createBlankCareerEntry("document"),
+    ...record,
+    importedFields: { ...record },
+  }));
+}
+
+export function getImportedCareerFieldProvenance(
+  entry: CareerEntry,
+  field: keyof ImportedCareerFields,
+): keyof typeof PROVENANCE_LABELS {
+  if (entry.importedFields === null) {
+    return "authored";
+  }
+
+  return entry[field] === entry.importedFields[field] ? "imported" : "confirmed";
 }
 
 export function toggleBoundedChoice(
