@@ -52,7 +52,12 @@ Do not build account synchronization, real-time chat, recommendation algorithms,
 - `docs/specs/initial-product-scope.md` defines the current product boundaries and validation gates.
 - `docs/plans/resume-builder-validation.md` defines the resume-tool validation sequence.
 - `docs/plans/founding-cohort-validation.md` defines the hiring-network validation sequence.
+- `docs/specs/resume-review-workflow.md` proposes the resume-review operating model that the first product milestone requires. Draft, pending operator approval.
+- `docs/specs/employer-verification-procedure.md` defines how the minimum employer verification is carried out and recorded. Draft, pending operator approval.
 - `docs/notes/2026-08-market-research.md` records market observations and their evidence status.
+- `docs/notes/2026-09-02-korean-employment-law-sources.md` owns the statutory figures and citations that employer verification reads.
+- `docs/notes/2026-09-02-employment-service-legal-sources.md` holds the employment-service legal sources and the open questions for a qualified reviewer.
+- `docs/notes/2026-09-02-founding-cohort-interview-guides.md` holds the Track B interview guides, anonymization rules, and note template.
 - `docs/notes/` stores working evidence and research.
 - `docs/plans/` stores approved execution plans.
 - `docs/specs/` stores approved product and technical requirements.
