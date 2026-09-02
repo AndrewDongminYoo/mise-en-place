@@ -6,6 +6,7 @@ import {
   createDemoCareerEntries,
   formatMonthRange,
   getCareerErrors,
+  getEmployerLabel,
   getEnrichmentErrors,
   toggleBoundedChoice,
   type ResumeIdentity,
@@ -55,6 +56,31 @@ test("accepts a complete manual career", () => {
   assert.deepEqual(getCareerErrors([entry]), []);
 });
 
+test("rejects a malformed employment start month", () => {
+  const entry = {
+    ...createBlankCareerEntry("manual"),
+    restaurantName: "작은 파스타 바",
+    employmentStart: "2024-13",
+  };
+
+  assert.deepEqual(getCareerErrors([entry]), [
+    "작은 파스타 바의 근무 시작월 형식을 확인해 주세요.",
+  ]);
+});
+
+test("rejects an employment end month before the start month", () => {
+  const entry = {
+    ...createBlankCareerEntry("manual"),
+    restaurantName: "작은 파스타 바",
+    employmentStart: "2025-03",
+    employmentEnd: "2024-03",
+  };
+
+  assert.deepEqual(getCareerErrors([entry]), [
+    "작은 파스타 바의 근무 종료월은 시작월보다 빠를 수 없습니다.",
+  ]);
+});
+
 test("requires authored resume essentials before preview", () => {
   const entry = {
     ...createBlankCareerEntry("manual"),
@@ -81,6 +107,36 @@ test("requires authored resume essentials before preview", () => {
   assert.deepEqual(getEnrichmentErrors(completeIdentity, [entry]), []);
 });
 
+test("rejects a supplied malformed email", () => {
+  const entry = {
+    ...createBlankCareerEntry("manual"),
+    restaurantName: "작은 파스타 바",
+    employmentStart: "2024-03",
+    role: "Chef de Partie",
+    responsibilities: ["스테이션 운영"],
+  };
+
+  assert.deepEqual(
+    getEnrichmentErrors({ ...completeIdentity, email: "not-an-email" }, [entry]),
+    ["올바른 이메일 주소를 입력해 주세요."],
+  );
+});
+
+test("allows a blank optional email", () => {
+  const entry = {
+    ...createBlankCareerEntry("manual"),
+    restaurantName: "작은 파스타 바",
+    employmentStart: "2024-03",
+    role: "Chef de Partie",
+    responsibilities: ["스테이션 운영"],
+  };
+
+  assert.deepEqual(
+    getEnrichmentErrors({ ...completeIdentity, email: "" }, [entry]),
+    [],
+  );
+});
+
 test("formats an open employment period as current", () => {
   assert.equal(formatMonthRange("2024-03", ""), "2024.03 - 현재");
 });
@@ -99,4 +155,9 @@ test("stores equipment separately from skills", () => {
 
   assert.deepEqual(entry.skills, ["제면", "생선 손질", "수비드"]);
   assert.deepEqual(entry.equipment, ["콤비오븐"]);
+});
+
+test("labels employer names according to their source", () => {
+  assert.equal(getEmployerLabel("document"), "원문 사업장명");
+  assert.equal(getEmployerLabel("manual"), "법인명");
 });

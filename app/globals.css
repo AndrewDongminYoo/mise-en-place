@@ -209,6 +209,7 @@ button {
   font-family: var(--font-editorial);
   font-size: 1.5rem;
   line-height: 1.32;
+  word-break: keep-all;
 }
 
 .step-list {
@@ -328,6 +329,7 @@ button {
   letter-spacing: -0.045em;
   line-height: 1.02;
   text-wrap: balance;
+  word-break: keep-all;
 }
 
 .workspace-heading h1:focus {
@@ -425,6 +427,7 @@ button {
   font-family: var(--font-editorial);
   font-weight: 500;
   letter-spacing: -0.025em;
+  word-break: keep-all;
 }
 
 .import-panel h2 {
@@ -546,6 +549,10 @@ button {
   font-size: 0.86rem;
   line-height: 1.7;
   word-break: keep-all;
+}
+
+.manual-callout .secondary-button {
+  margin-top: 10px;
 }
 
 .primary-button,
@@ -861,6 +868,10 @@ fieldset {
   padding-top: 26px;
   margin-top: 26px;
   border-top: 1px dashed var(--line);
+}
+
+.date-section-single {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .date-section-title {
