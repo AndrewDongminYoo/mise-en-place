@@ -16,6 +16,7 @@ Generic PDF extraction is only an input shortcut.
 The long-term opportunity remains a professional hiring network where culinary professionals and verified restaurants evaluate concrete fit before they meet.
 The operator reports that compensation and working conditions often remain undisclosed until the final interview stage, while some well-known restaurants attract applicants despite reported compensation below the statutory minimum.
 This repository has not independently measured the prevalence of that practice.
+A public-page check on 2026-09-02 narrowed part of this premise, because a domestic listing template does carry the working-condition fields and an employer can fill them; see `docs/notes/2026-09-02-competitor-lead-check.md`.
 
 ## Employment-Import Baseline
 

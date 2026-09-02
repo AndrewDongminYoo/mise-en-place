@@ -40,8 +40,9 @@ In the posting inspected, every one of those fields carried a concrete value, in
 The listing index tells a different story.
 Compensation there appears sometimes as a concrete monthly figure and sometimes as `협의후결정` or `협의가능`, and working conditions appear only occasionally in the summary.
 
-So the incumbent template already asks for most of what `docs/specs/initial-product-scope.md` requires, and some employers fill it in.
-What varies is whether an employer answers, not whether the field exists.
+So a domestic listing template can carry most of what `docs/specs/initial-product-scope.md` requires, and an employer can fill every field with a concrete value.
+One posting detail was inspected, so whether that template is uniform across the site is `[UNKNOWN]` at this depth.
+What the index does show is that a placeholder is one of the answers an employer may give, and that some give it.
 
 `docs/notes/2026-08-market-research.md` currently frames the opportunity partly on conditions being undisclosed.
 That framing needs narrowing rather than discarding: the gap is not the absence of fields, it is that nothing prevents a required field from being answered with `협의후결정`, and nothing checks an answer that is given.
