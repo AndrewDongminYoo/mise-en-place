@@ -18,7 +18,7 @@ The original document stays in the browser and is not sent to the application se
 Manual entry is the fallback when extraction fails.
 OCR, direct government-service integration, multiple templates, automated career claims, public profiles, job recommendations, and mobile apps are outside the first slice.
 
-Resume review remains required for the first product milestone, but its reviewer and operating model need a separate approved specification.
+Resume review remains required for the first product milestone, and its reviewer and operating model are specified in [Resume Review Workflow](docs/specs/resume-review-workflow.md).
 
 ## Two Validation Tracks
 

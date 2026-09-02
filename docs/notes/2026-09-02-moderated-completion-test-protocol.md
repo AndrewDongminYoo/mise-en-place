@@ -29,7 +29,11 @@ A participant can only use in an application what they walked out with, so what 
 
 ## Recruiting and Screening
 
-Recruit to the initial segment in `docs/specs/initial-product-scope.md`: cooks and pastry chefs with 1 to 10 years of experience.
+Recruit working cooks and pastry chefs.
+Do not filter by years of experience.
+The 1-to-10-year band in `docs/specs/initial-product-scope.md` belongs to the Track B initial segment, which `AGENTS.md` calls a hypothesis until the network gate passes, and neither the Track A gate nor `docs/plans/resume-builder-validation.md` step 3 restricts participants by experience.
+Filtering Track A by it would measure the resume tool on a pool chosen by an unvalidated Track B guess.
+Record each participant's experience in months so the band can be examined afterwards rather than assumed beforehand.
 
 Screen out:
 
@@ -52,18 +56,35 @@ It states:
 1. 무엇을 하는지: 요리사용 이력서 도구를 직접 써 보시고, 제가 옆에서 지켜봅니다.
 2. 평가 대상: 도구를 평가하는 자리이고, 사용하시는 분을 평가하지 않습니다. 막히는 지점이 나오면 그게 저희가 찾던 결과입니다.
 3. 무엇을 기록하는지: 어디서 막히셨는지, 무엇을 고치셨는지, 어떤 말씀을 하셨는지를 적습니다.
-4. 무엇을 기록하지 않는지: 성함, 연락처, 근무하신 업장 이름, 그리고 서류에 들어 있는 개인정보는 적지 않습니다.
-5. 화면 녹화: 하지 않습니다.
-6. 서류: 가져오신 서류는 이 컴퓨터 밖으로 나가지 않고, 저희 서버로도 전송되지 않습니다.
-7. 중단과 삭제: 언제든 그만두실 수 있고, 끝난 뒤에도 기록 삭제를 요청하실 수 있습니다.
-8. 보상 여부: 있으면 그 내용, 없으면 없다는 사실.
+4. 무엇을 기록하지 않는지: 성함, 근무하신 업장 이름, 그리고 서류에 들어 있는 개인정보는 적지 않습니다.
+5. 연락처: 14일 뒤에 한 가지만 여쭤보려고 연락처를 따로 보관하고, 그 질문이 끝나면 삭제합니다. 보관을 원하지 않으셔도 오늘 참여에는 아무 영향이 없습니다.
+6. 화면 녹화: 하지 않습니다.
+7. 서류: 가져오신 서류는 이 컴퓨터 밖으로 나가지 않고, 저희 서버로도 전송되지 않습니다. 오늘 세션이 끝나면 이 컴퓨터에서도 지웁니다.
+8. 보관 기간: 관찰 기록은 조사가 끝난 뒤 90일이 지나면 삭제합니다.
+9. 중단과 삭제: 언제든 그만두실 수 있고, 그 전에도 기록 삭제를 요청하실 수 있습니다.
+10. 보상 여부: 있으면 그 내용, 없으면 없다는 사실.
+
+Item 5 is the one exception to the anonymization rules, and it exists because the day-14 follow-up below cannot otherwise happen.
+Keep the contact detail with the identifier mapping, outside this repository, and delete it as soon as the follow-up is answered or the attempt is abandoned.
+A participant who declines still takes part; record them as no-follow-up rather than dropping them.
+
+Item 8's 90-day point is the one stated in `docs/notes/2026-09-02-founding-cohort-interview-guides.md`, which owns it.
+
+Item 7 is an absolute technical claim, so verify it before the first session of each build rather than asserting it.
+Open the browser devtools network panel, run one import, and confirm that no request leaves the page.
+Record that check on the sheet. An added error reporter or analytics tag would falsify the promise silently.
 
 If a participant brings their own qualification certificate, the document boundary in `docs/specs/initial-product-scope.md` section "Privacy and Security Boundary" applies to the session exactly as it applies to the product.
-Do not photograph the screen while the document is open, do not copy any extracted value into the notes, and do not keep the file.
+Do not photograph the screen while the document is open, and do not copy any extracted value into the notes.
+
+Deleting the file is a step, not an intention.
+A participant who mails the certificate to themselves and opens it leaves the PDF in the browser download directory, in the download history, and in any folder that syncs to a cloud drive.
+After the import, delete the file from where it landed, clear it from the trash, and record that on the sheet.
+The consent promises that the document does not leave the machine, which says nothing about the copy left on it, so the participant's actual exposure is worse than what they agreed to until this step runs.
 
 ## Session Structure
 
-One participant, one moderator, one sitting, about 60 minutes.
+One participant, one moderator, one sitting: 60 minutes, or 75 when the participant accepts a review.
 
 | Phase | Minutes | What happens |
 | --- | --- | --- |
@@ -73,6 +94,12 @@ One participant, one moderator, one sitting, about 60 minutes.
 | Post-task questions | 10 | Threshold questions below, in the fixed order given. |
 | Talent-pool choice | 5 | Observed, not asked about, until it has been made. |
 | Debrief | 5 | Open questions, then explain the product if they ask. |
+| Review offer | 15 | Offer a review. If the participant accepts, run it in this sitting. |
+
+The review phase is why the session may run to 75 minutes.
+`docs/specs/resume-review-workflow.md` restricts review to moderated sessions until draft continuity is resolved, and its gate counts participants who request a review after completing a resume.
+Without this phase that gate has no session to occur in, and the approved review milestone would have no run path at all.
+Offer the review, do not schedule it: the participant asks or does not, and either answer is the measurement.
 
 The task instruction is exactly this, and nothing more:
 
@@ -117,8 +144,16 @@ Counted when the participant reaches the resume preview with no outstanding vali
 Reaching the preview without producing the output is recorded as partial, not as completion.
 The output is what leaves the room, and the constraint section above is why that matters.
 
-Completion is counted regardless of the help level used, and the help level is reported alongside it.
-Report completions that needed level 4 or 5 separately, so a count carried by moderator intervention is visible rather than hidden inside the total.
+Two further exclusions, because without them the threshold can be reached without the product working:
+
+- The resume must be built from the participant's own employment data.
+  A run that reaches the output on the built-in demo data is partial, because the task instruction asks for 본인 이력서 and a demo resume is nobody's.
+- A step performed by the moderator at help level 5 did not complete.
+  A session that needed level 5 to reach the output is partial.
+
+So completion is counted at help levels 0 through 4, on the participant's own data.
+Report the level-4 completions separately, so a count carried by heavy prompting stays visible inside the total.
+That count, and not the raw number of sessions that produced a PDF, is the figure the Track A threshold in `docs/specs/initial-product-scope.md` is measured against.
 
 ### Used or Intends to Use
 
@@ -130,8 +165,18 @@ Two separate outcomes, recorded separately, never merged into one number.
 
 The answer counts only when it names a concrete use: a kind of place, a timing, or an application they already have in mind.
 Record it verbatim.
-A general approval such as "괜찮네요" or "잘 만들었네요" does not count, and neither does an answer given after the moderator suggests a use.
-Ask nothing further; do not offer examples.
+The answer must name a kind of establishment **and** a timeframe, or an application already underway.
+Fix these examples before the first session so the coding does not drift:
+
+- Counts: "다음 달에 동네 비스트로 몇 군데 넣어보려고요."
+- Counts: "지금 지원 중인 데가 있는데 거기 다시 낼 거예요."
+- Does not count: "괜찮네요." and "잘 만들었네요."
+- Does not count: "나중에 다른 데 넣어볼 수도 있죠." The place and the time are both unspecified.
+
+An answer given after the moderator suggests a use does not count either.
+Ask nothing further; do not offer examples to the participant.
+The question is asked in the room, minutes after the moderator has been helping, so acquiescence pressure runs the same direction as the count.
+That is the reason for the strictness.
 
 **Used**, recorded at a follow-up 14 days later, requires the participant to state that they submitted or showed the resume somewhere.
 Ask once:
@@ -154,9 +199,18 @@ Record the selection, the time taken, whether they re-read the options, and a on
 If the participant asks what an option means, read the option text again and say nothing else.
 Explaining the options makes the choice the moderator's.
 
+The option wording is owned by the application, in the talent-pool options in `app/page.tsx`.
+Do not paraphrase it and do not restate it here; read what the build under test displays, and record the build commit so the instrument is known afterwards.
+
+One known defect in that wording, which the moderator must not smooth over: the private-profile option offers exposure to verified restaurants, and none has been verified, because `docs/specs/employer-verification-procedure.md` blocks verification until the Track B legal review is recorded.
+If a participant asks whether such restaurants exist, answer that none do yet, answer with nothing else, and record that the question was asked.
+
 ## Observation Sheet
 
-One file per session, `docs/notes/session-RP-01.md`.
+One file per session, named `session-RP-01.md`, kept outside this repository beside the identifier mapping.
+This repository is public, and the consent script tells the participant what is recorded without telling them it is published.
+`.gitignore` refuses `docs/notes/session-*.md` as a backstop; the rule is that the sheet is never created inside the repository at all.
+Only the reconciliation summary below is committed.
 
 ```markdown
 # Session RP-01
@@ -164,7 +218,10 @@ One file per session, `docs/notes/session-RP-01.md`.
 - Date:
 - Consent given: yes
 - Build: commit sha
+- Network check before this build's first session: pass / fail
 - Input path: manual entry / own certificate / demo data
+- Source file deleted:
+- Contact retained for follow-up: yes / declined
 - Duration:
 
 ## Prior Resume
@@ -193,14 +250,16 @@ One line per field the participant could not answer, with what they said while s
 
 ## Thresholds
 
-- Completed:  (yes / partial / no)
+- Completed:  (yes / partial / no), with the highest help level used
 - Intent, verbatim:
 - Talent-pool selection:  (time taken, re-read yes/no, reason if unprompted)
+- Review requested:  (yes / no), and whether it ran in this sitting
 
 ## Follow-up (day 14)
 
 - Reached:
 - Used:
+- Contact detail deleted:
 
 ## Moderator Notes
 
@@ -215,9 +274,12 @@ A sheet written the next day records what the moderator remembers, which is the 
 Do not change the prototype between participants.
 Ten sessions across three builds are not ten sessions of one product, and the gate cannot be reconciled across them.
 
-The exception is a defect that prevents completion outright.
-When that happens: stop, fix, record the change and the commit, and restart the count.
-Sessions run before the fix are reported separately and do not count toward the gate.
+The exception is a defect that prevents completion outright, which is observable rather than judged: two or more participants cannot reach the output at help level 4.
+One stuck participant is a finding, not a defect that stops the run.
+
+When the threshold is met: stop, fix, record the change and the commit, and restart the count.
+The gate's 10 sessions are then the 10 that ran after the fix, and the earlier sessions are reported separately.
+Recruiting 10 more participants draws on the same segment Track B needs 30 of, so treat a restart as expensive and find defects in a dry run before session 1.
 
 Record the build commit on every sheet so this is checkable afterwards rather than remembered.
 
@@ -230,7 +292,9 @@ A count with no identifiers behind it is not reconciled.
 
 Report alongside it, because each one changes how the counts should be read:
 
-- How many completions needed help at level 4 or 5.
+- How many completions needed help at level 4.
+- How many sessions were partial because of demo data or a level-5 intervention.
+- How many participants requested a review, which is the count `docs/specs/resume-review-workflow.md` reads for its own gate.
 - How many participants reached preview but produced no output.
 - How many follow-ups went unanswered.
 - Which fields blocked completion for more than one participant.
@@ -241,8 +305,12 @@ Do not adjust a definition after seeing the counts; if a definition turns out to
 
 ## Privacy Check Before Declaring the Step Done
 
-Run the same check that closes the interview step, and record that it was run:
+Run both searches that close the interview step in `docs/notes/2026-09-02-founding-cohort-interview-guides.md`, which owns them, and record that both were run.
+Do not restate its list here, because it had already drifted between the two documents once.
 
-- 10 session sheets exist, each with a consent line and a build commit.
-- A search across the sheets finds no personal name, phone number, email address, employer name, resident registration number, or certificate number.
+Then check what is specific to these sessions:
+
+- 10 session sheets exist, each with a consent line, a build commit, a network-check line, and a source-file deletion line.
 - No source document, screenshot, or extracted document text was retained anywhere.
+  Look in the browser download directory, the download history, and the trash, not only in the notes.
+- Every retained contact detail was deleted after its follow-up, or the participant declined to give one.

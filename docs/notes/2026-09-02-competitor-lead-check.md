@@ -2,7 +2,8 @@
 
 ## Scope and Depth
 
-`docs/notes/2026-08-market-research.md` section "Research Leads" names six domestic services and three international product patterns and states that they were not independently checked.
+`docs/notes/2026-08-market-research.md` section "Research Leads" names six domestic services and three international product patterns, and states that those comparisons were not independently checked.
+Foodscout is the exception among the six: that note records direct observations of it, and they are not repeated here.
 This note records a check of some of them on 2026-09-02, and it is deliberately narrow.
 
 **Depth: public pages only.**
@@ -12,8 +13,6 @@ Every finding below therefore describes what a service publishes, not what it do
 This distinction decides what the findings can support.
 Observing that a homepage carries no verification claim is evidence about the homepage.
 It is not evidence that the service performs no verification, and this note never uses it that way.
-
-The Foodscout observations already recorded in `docs/notes/2026-08-market-research.md` are not repeated here.
 
 ## What Was Checked
 
@@ -53,7 +52,8 @@ This makes two things in the approved scope more load-bearing than they looked:
 - The rule that employer confirmation alone is not sufficient, because a filled field is not a checked field.
 
 It also weakens one hypothesis that was never approved anyway: that simply collecting working-condition fields is a differentiator.
-It is not. Refusing to publish without them, and checking them, might be.
+It is not.
+Refusing to publish without them, and checking the answers that are given, might be.
 
 ## Finding: Two Template Fields Mise en Place Has Not Decided About
 

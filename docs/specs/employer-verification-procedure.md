@@ -4,7 +4,7 @@
 
 Approved by the operator on 2026-09-02.
 
-It does not define what must be verified.
+This procedure does not define what must be verified.
 `docs/specs/initial-product-scope.md` section "Minimum Employer Verification" owns the required-field list, the four no-publish conditions, and the rule that employer confirmation alone is not sufficient.
 This document adds what that section leaves open: which evidence satisfies a field, how the statutory calculation is performed, what the verification record contains, where it is kept, and how a refusal and a re-verification are handled.
 
@@ -12,7 +12,8 @@ When the two disagree, `docs/specs/initial-product-scope.md` governs and this do
 
 ## Prerequisite
 
-`docs/plans/founding-cohort-validation.md` blocks Track B recruitment and introductions until the operating model has been reviewed against current official guidance or by qualified counsel.
+`docs/plans/founding-cohort-validation.md` blocks introductions and payment testing until the operating model has been reviewed against current official guidance or by qualified counsel, and requires the reviewed model recorded before external operation.
+Approaching an employer for evidence is external operation, so it waits for that record too.
 `docs/notes/2026-09-02-employment-service-legal-sources.md` holds the sources and the open questions for that review.
 
 Running this procedure on a real employer is part of Track B operation.
@@ -38,18 +39,22 @@ A field with no artifact is not verified, whatever the employer has said about i
 | --- | --- | --- |
 | 사업자등록증 | Business identity. | Check that the business name, registration number, and representative match every other document. |
 | 영업신고증 or the equivalent food-service permit | Worksite identity. | The permitted address is the worksite claim to check the role against. |
-| A written 근로계약서 or a draft offer for the specific opening | Employment type, probation terms, compensation, workdays, hours, breaks, days off, overtime handling, trial terms, benefits, deductions. | 근로기준법 제17조 already requires a written document covering the wage components, calculation method, payment method, 소정근로시간, 휴일, and 연차 유급휴가, so those fields exist in writing before Mise en Place asks. The remaining fields in this row are not covered by that article and have to be asked for. |
+| A written 근로계약서 or a draft offer for the specific opening | Employment type, probation terms, compensation, workdays, hours, breaks, days off, overtime handling, trial terms, benefits, deductions. | 근로기준법 제17조 already requires some of these in writing; the source table lists which. The rest are not covered by that article and have to be asked for. |
 | 취업규칙, where the employer has one | Schedule confirmation timing, overtime and late-close handling, break practice. | Required by law above a size threshold; its absence is not itself a finding. |
 | A recent payslip for the same role, with personal identifiers removed | Whether the stated compensation matches what is actually paid. | Ask for the role, not the person. Do not accept a document carrying a resident registration number. |
 | A named recruiting contact reachable at a business channel | Recruiting contact. | A personal messenger handle with no business identity behind it does not satisfy this. |
 | The employer's stated 상시 근로자 수 and the basis for it | Which 근로기준법 provisions apply. | Recount it; see the statutory calculation below. |
-| A written statement of the reason for the opening | Reason for the opening. | Compare against tenure of the previous holder when the employer will state it. |
+| A written statement of the reason for the opening | Reason for the opening. | Compare against tenure of the previous holder when the employer will state it. Record that tenure in months only. The previous employee is not a party to this verification and did not consent to anything, so nothing else about them enters the record. |
 
 Anything the employer supplies as an image or a scan is evidence of the same rank as a document, provided the reviewer can read every field being relied on.
 A verbal statement is not evidence and never closes a field on its own.
 
+Every artifact must arrive with the personal identifiers of any individual removed.
+This applies to the 근로계약서 and the 취업규칙 as much as to the payslip: an executed contract routinely carries the employee's name, resident registration number or date of birth, address, and signature, and none of that is evidence for any required field.
+
 Do not accept, and do not store, any document containing a resident registration number, a bank account number, or an identity-verification image.
 If one arrives, ask for a redacted replacement and delete the original immediately.
+Immediate deletion overrides the agreed retention point below, in both the published and the refused paths.
 
 ## Statutory Calculation
 
@@ -70,7 +75,7 @@ Perform these in order, and record each result.
    This decides whether the working-time, overtime-premium, and annual-leave rules apply at all.
 
 3. **Reduce the offer to an hourly figure.**
-   Use the offer's own 소정근로시간, not the 209-hour monthly basis, unless the schedule actually matches it.
+   Use the offer's own 소정근로시간. The monthly figure in the source table rests on a stated weekly basis, so do not reuse it for a schedule that does not match.
    Exclude any component that is not counted toward the minimum wage.
    When the offer states a range, use the bottom of the range.
 
@@ -78,13 +83,13 @@ Perform these in order, and record each result.
    A start date in the following calendar year is measured against that year's figure.
 
 5. **Check any probation reduction against the occupation.**
-   The reduction is available only for a contract of 1 year or more and only within 3 months of the probation start.
-   It is not available at all for an occupation in 한국표준직업분류 대분류 9, which includes 주방보조원 and 조리사 보조원.
+   Read the contract-length and probation-window conditions, and the excluded occupation class, from the source table rather than from memory.
    Classify by the work actually described in the offer, not by the title in the listing.
+   A 조리보조 role misclassified as a 조리사 is the most likely wage error in this segment, and it goes in the direction that underpays.
 
 6. **Check hours, breaks, and the weekly paid rest day.**
-   For a workplace of 5 or more, check the weekly and daily limits, the overtime ceiling, and the premium rates.
-   For a workplace of 4 or fewer, check breaks and the weekly paid rest day, which apply regardless of size, and record that the size-limited provisions were not applicable rather than leaving those lines blank.
+   The source table's annex section says which provisions the counted headcount switches off.
+   Check every provision that applies at the counted size, and record the ones that do not apply as not applicable rather than leaving those lines blank.
 
 7. **Check the stated trial or stage terms.**
    An unpaid trial shift is a compensation claim like any other and is measured the same way.
@@ -106,7 +111,7 @@ These are the comparisons that surface it.
 - Compensation in the offer against the payslip for the same role.
 - Hours in the offer against the restaurant's published opening hours and the stated 서비스 volume.
 - The number of staff implied by the kitchen size and service volume against the counted 상시 근로자 수.
-- The reason for the opening against the previous holder's tenure, when stated.
+- The reason for the opening against the previous holder's tenure in months, when stated.
 
 A mismatch is not automatically disqualifying.
 Ask once, record the explanation, and record whether the explanation is substantiated.
@@ -140,7 +145,7 @@ The record adds these so it can be reproduced and re-checked later:
 | Reviewer | The named reviewer. |
 | Review date | The date the verification result was reached. |
 | Evidence list | One line per artifact received: what it was, the date received, and whether it was readable for the fields relied on. |
-| Field results | One line per required field: the value evidenced, the artifact it came from, and whether it is closed or missing. |
+| Field results | One line per required field: the value evidenced, the artifact it came from, and whether it is closed, missing, or not reached. Stopping a review at the field that triggered a refusal records every later field as not reached, because recording them as missing would overstate the refusal basis in a record that later rounds cannot edit. |
 | Counted headcount | The 상시 근로자 수 the reviewer counted and the count date. |
 | Statutory basis | Which year's minimum wage was applied, and the date the source table was read. |
 | Calculation | The arithmetic for the compensation and hours checks, in enough detail to reproduce. |
@@ -152,7 +157,8 @@ The record is kept outside this repository.
 The repository holds this procedure, the template, and aggregate counts only.
 Do not commit an employer's evidence documents, recruiting contact details, or payslips, for the same reason that `docs/plans/resume-builder-validation.md` keeps source documents out of the repository.
 
-Delete the received evidence documents at the retention point agreed with the employer, and record that date.
+Agree a retention point in writing when the evidence is requested, and default to 30 days after the verification result when the employer states no preference.
+Delete the received evidence documents at that point and record the date.
 Keep the record itself, because `docs/plans/founding-cohort-validation.md` requires every published role to have a dated verification record and every count to reconcile to it.
 
 ## Refusal
@@ -163,6 +169,9 @@ When one is met:
 1. Stop the review. Do not continue verifying the remaining fields to produce a fuller picture.
 2. Record the result as refused, with the specific condition and the exact wording or figure that met it.
 3. Tell the employer which field or condition caused the refusal, in one message, without proposing how to satisfy it.
+   State it as the comparison that was performed, not as a verdict: the offer's hourly figure measured against the published minimum wage for the relevant year, or the required field that carried no answer.
+   The reviewer is not a lawyer and classified the occupation themselves, so a message that reads as a finding of non-compliance claims an authority this procedure does not have.
+   `docs/notes/2026-09-02-employment-service-legal-sources.md` carries the question of what a non-lawyer may state here.
 4. Do not publish the role, do not introduce any culinary professional, and do not keep the role in a pending state that reads as forthcoming.
 5. Delete the received evidence documents on the same schedule as a completed review.
 
@@ -176,7 +185,9 @@ A refusal for terms below statutory requirements is not reopened by the employer
 Detecting a change needs both of these, because the first alone assumes the employer will report it:
 
 - The employer agrees, in writing at the first verification, to report a change to any required field before the role continues to be listed.
-- The reviewer re-confirms every required field on a fixed cadence while the role is listed. Weekly during the founding cohort, matching the introduction cadence in `docs/plans/founding-cohort-validation.md`.
+- The reviewer sends one change-check message on a fixed cadence while the role is listed, asking whether any required field has changed. Weekly during the founding cohort, matching the introduction cadence in `docs/plans/founding-cohort-validation.md`.
+  A full re-verification of every field for every listed employer, every week, will be abandoned by the second week, and a cadence that is abandoned leaves roles listed behind records that are silently stale. That is the failure this cadence exists to prevent, so the cadence is deliberately small.
+- A full re-verification runs on the trigger events below, not on the cadence.
 
 Re-verify without waiting for the cadence when any of these happen:
 

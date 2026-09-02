@@ -44,7 +44,7 @@ Rejected alternatives:
 | --- | --- |
 | Peer review by another culinary professional | Requires a participant pool that does not exist yet, and exposes one participant's resume to another before any consent model is defined. |
 | Paid professional resume writer | Introduces a payment flow, a contractor relationship, and a rewriting incentive that conflicts with the authored-content rule below. |
-| AI-generated review | `docs/specs/initial-product-scope.md` excludes AI-authored or embellished career claims, and the privacy boundary forbids sending resume content to an AI service. |
+| AI-generated review | `docs/specs/initial-product-scope.md` excludes AI-authored or embellished career claims in its deferred scope, which carries this row on its own. Its privacy boundary separately forbids sending the source document or extracted document text to an AI service, and does not reach authored resume content. |
 | Head chef or restaurant reviewer | Mixes Track A with Track B, and makes an employer a gatekeeper of a document the person has not chosen to share with employers. |
 
 Revisit this decision only when completion evidence shows that review affects whether participants use the resume.
@@ -73,6 +73,10 @@ When the committed limit cannot be met, the operator tells the person the new da
 These numbers are a starting commitment for a single reviewer with at most 10 participants.
 They are not a service level for any later product.
 
+They also do not apply yet.
+While the draft-continuity prerequisite below is open, review runs inside the moderated session and feedback is returned in the room, so there is no turnaround to measure.
+The 2-day target and the 3-day limit take effect when a participant can leave and return to a saved draft.
+
 ## Decision 4: Payment Model
 
 **Decision.** Review is free during Track A validation, for every participant, with no future-payment commitment stated or implied.
@@ -93,8 +97,9 @@ Rules for the validation slice:
 - The person sends that export to the operator through a channel the person already controls and chooses.
 - The application does not upload the resume, does not transmit it to a review service, and does not gain a server-side review store.
 - The original source document is never part of a review request, and the reviewer never asks for it.
-- The person removes the identity and contact fields from the export before sending it when they prefer to, and review still works without them.
-- The operator deletes the received export at the agreed deletion point recorded in the validation consent, and records that deletion date in the review queue entry.
+- The person removes the identity and contact fields from the export before sending it. Review works without them, so removal is the default rather than an option the person has to think of.
+- The operator deletes the received export at the retention point stated in the consent, which `docs/notes/2026-09-02-founding-cohort-interview-guides.md` owns, and records that deletion date in the review queue entry.
+- Deletion covers the operator's local copy **and** the message thread on whichever channel carried it. A deletion that leaves the file in a chat history has not happened.
 - Review feedback is returned as text, not as a rewritten resume file.
 
 This keeps the review loop inside the existing browser-local boundary and needs no new persistence, no account, and no new dependency.
@@ -118,8 +123,10 @@ Nothing in a feedback item changes the resume until the person edits their own r
 
 ### Provenance After Acceptance
 
-An accepted suggestion keeps the "Written by the person" label.
-The label describes the source of the information, and the information still comes from the person: the reviewer may reword only facts the person already supplied.
+An accepted suggestion keeps whatever label the field already carried.
+A reworded responsibility or achievement stays "Written by the person"; a reworded role or employment date stays "Confirmed by the person"; an imported employer name or qualification date is not something the reviewer may reword at all.
+The labels in `docs/specs/initial-product-scope.md` are field-level, so a rule that stamped one label on every accepted suggestion would relabel the fields it touched.
+In every case the label still describes the source of the information, because the reviewer may reword only facts the person already supplied.
 
 Because that rule carries the label, it is enforced on the reviewer, not on the person.
 See the conduct limits below.
@@ -167,6 +174,7 @@ This milestone passes when all of the following hold:
 - No returned review contains a fact that the person did not supply.
 - Every accepted change was applied by the person, in their own resume, and no accepted change altered an imported employer name or qualification date.
 - At least 5 participants request a review after completing a resume.
+  The request is offered in the review phase of `docs/notes/2026-09-02-moderated-completion-test-protocol.md`, which is where this count is produced.
 - At least 3 of those participants change their resume after reading the feedback.
 - No participant reports that the review made a claim they could not stand behind.
 
@@ -192,4 +200,4 @@ Do not build these for the validation slice:
 | Draft continuity mechanism for asynchronous review | `[UNKNOWN]` — see the prerequisite section above. |
 | Whether review remains free after Track A | `[UNKNOWN]` — depends on the Track A outcome and the Track B revenue hypothesis. |
 | Reviewer type after validation | `[UNKNOWN]` — reconsider only with evidence that review changed resume usefulness. |
-| Consent wording for sending a resume export to the operator | `[UNKNOWN]` — draft it with the validation consent in `docs/plans/resume-builder-validation.md` step 3. |
+| Consent wording for sending a resume export to the operator | `[UNKNOWN]` — draft it into the consent script in `docs/notes/2026-09-02-moderated-completion-test-protocol.md`, which is where participant consent is actually stated. `docs/plans/resume-builder-validation.md` step 3 has no consent step. |
