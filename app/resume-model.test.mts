@@ -6,6 +6,7 @@ import {
   createDemoCareerEntries,
   formatMonthRange,
   getCareerErrors,
+  getEmployerLabel,
   getEnrichmentErrors,
   toggleBoundedChoice,
   type ResumeIdentity,
@@ -147,4 +148,9 @@ test("keeps demo provenance and employer names explicit", () => {
   assert.equal(entry.isDemo, true);
   assert.equal(entry.legalEmployer, "주식회사 엠에프지코리아");
   assert.equal(entry.restaurantName, "더 키친 살바토레 쿠오모");
+});
+
+test("labels employer names according to their source", () => {
+  assert.equal(getEmployerLabel("document"), "원문 사업장명");
+  assert.equal(getEmployerLabel("manual"), "법인명");
 });

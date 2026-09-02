@@ -18,6 +18,7 @@ import {
   createDemoCareerEntries,
   formatMonthRange,
   getCareerErrors,
+  getEmployerLabel,
   getEnrichmentErrors,
   toggleBoundedChoice,
   type CareerEntry,
@@ -584,11 +585,7 @@ export default function Home() {
                     </legend>
                     <div className="field-grid">
                       <Field
-                        label={
-                          career.origin === "document"
-                            ? "문서의 사업장명"
-                            : "법인명"
-                        }
+                        label={getEmployerLabel(career.origin)}
                         hint={
                           career.origin === "manual"
                             ? "알고 있다면 입력하세요."
@@ -966,7 +963,10 @@ export default function Home() {
                               )}
                             </p>
                             {career.legalEmployer ? (
-                              <small>원문 사업장명: {career.legalEmployer}</small>
+                              <small>
+                                {getEmployerLabel(career.origin)}:{" "}
+                                {career.legalEmployer}
+                              </small>
                             ) : null}
                           </div>
                           <div className="resume-provenance">

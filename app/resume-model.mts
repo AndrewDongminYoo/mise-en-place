@@ -73,6 +73,10 @@ export const PROVENANCE_LABELS = {
   authored: "본인이 작성함",
 } as const;
 
+export function getEmployerLabel(origin: CareerOrigin) {
+  return origin === "document" ? "원문 사업장명" : "법인명";
+}
+
 const MONTH_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
