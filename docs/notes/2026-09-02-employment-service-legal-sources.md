@@ -23,7 +23,7 @@ These are the facts as `docs/specs/initial-product-scope.md` and `docs/plans/fou
 | What is published | Verified restaurant profiles with open positions and required qualifications. |
 | Who pays | The revenue hypothesis is a restaurant profile or job-posting fee. Culinary professionals do not pay. |
 | Success fee | The initial model does not collect a success fee. |
-| Employment relationship | Mise en Place does not employ, supply, or dispatch anyone. |
+| Employment relationship | Mise en Place does not employ, supply, or dispatch anyone. **Not in either document.** This is the operator's stated intent, written here so counsel can see the assumption, and it is the row question 1 leans on hardest. Add it to `docs/specs/initial-product-scope.md` as an operating commitment, or put it to counsel as an open fact rather than a settled one. |
 
 Track A, the resume builder, involves no introduction and no employer relationship at all.
 Keep the two tracks separate in any question put to counsel, because they may not receive the same answer.
@@ -38,11 +38,11 @@ The definitions that the questions turn on, quoted from that article:
 
 | Term | Definition |
 | --- | --- |
-| 직업소개 | 구인 또는 구직의 신청을 받아 구직자 또는 구인자를 탐색하거나 구직자를 모집하여 구인자와 구직자 간에 고용계약이 성립되도록 알선하는 것 |
+| 직업소개 | 구인 또는 구직의 신청을 받아 구직자 또는 구인자(求人者)를 탐색하거나 구직자를 모집하여 구인자와 구직자 간에 고용계약이 성립되도록 알선하는 것 |
 | 무료직업소개사업 | 수수료, 회비 또는 그 밖의 어떠한 금품도 받지 아니하고 하는 직업소개사업 |
 | 유료직업소개사업 | 무료직업소개사업이 아닌 직업소개사업 |
 | 직업정보제공사업 | 신문, 잡지, 그 밖의 간행물 또는 유선·무선방송이나 컴퓨터통신 등으로 구인·구직 정보 등 직업정보를 제공하는 사업 |
-| 근로자공급사업 | 공급계약에 따라 근로자를 타인에게 사용하게 하는 사업. 파견근로자 보호 등에 관한 법률의 근로자파견사업은 제외한다. |
+| 근로자공급사업 | 공급계약에 따라 근로자를 타인에게 사용하게 하는 사업. 다만, 「파견근로자 보호 등에 관한 법률」 제2조제2호에 따른 근로자파견사업은 제외한다. |
 
 Two features of these definitions are worth recording, as observations about the text and not as conclusions:
 
@@ -54,19 +54,32 @@ Two features of these definitions are worth recording, as observations about the
 ### Registration and Notification
 
 `PRIMARY` — 직업안정법 시행령 제21조, "유료직업소개사업의 등록요건 등", 시행 2026-03-24, 대통령령 제36220호, read at [국가법령정보센터](https://www.law.go.kr/LSW/lumLsLinkPop.do?lspttninfSeq=81969).
-The article opens by naming who may register under 법 제19조제1항, which confirms 직업안정법 제19조제1항 as the registration provision for 유료직업소개사업.
+Its 제1항 opens by naming who may register under 법 제19조제1항, and its 제5항 sets a facility requirement by 고용노동부령.
+It contains no 준수사항.
 
-`SEARCH` — the following were read from 국가법령정보센터 and 고용노동부 search results only, and each needs confirmation at the source before use:
+`PRIMARY` — read through the 국가법령정보 open API:
 
-| Item | What the search result stated | Where to confirm |
-| --- | --- | --- |
-| 직업안정법 제18조 | Governs 무료직업소개사업. | [직업안정법](https://www.law.go.kr/lsInfoP.do?lsId=001765) |
-| 직업안정법 제19조 | Governs 유료직업소개사업, with 시행령 제21조 setting 등록요건 and 준수사항. | Same |
-| 유료직업소개사업 등록신청서 | 직업안정법 시행규칙 별지 제14호서식. | [직업안정법 시행규칙](https://www.law.go.kr/lsInfoP.do?lsiSeq=88285) |
-| 직업정보제공사업신고업무처리규정 | 노동부예규 제604호, 2009-10-16. | [행정규칙](https://law.go.kr/admRulLsInfoP.do?admRulSeq=2000000011375) |
+| Provision | What it does |
+| --- | --- |
+| 직업안정법 제18조 | 무료직업소개사업, by 신고. |
+| 직업안정법 제19조제1항 | 유료직업소개사업, by 등록. |
+| 직업안정법 제23조제1항 | 직업정보제공사업, by 신고 to the 고용노동부장관, change of a notified item included. It expressly excludes a person already operating 무료직업소개사업 under 제18조 or 유료직업소개사업 under 제19조, so the three forms are alternatives rather than a stack. |
 
-The article number for 직업정보제공사업 notification inside 직업안정법 is `[UNKNOWN]` from this pass.
-Read the Act's table of contents at the link above rather than assuming it.
+`SEARCH` — the 유료직업소개사업 등록신청서 is 직업안정법 시행규칙 별지 제14호서식.
+The current regulation is 시행 2024-06-12, 고용노동부령 제416호; an earlier note cited the 2008 version by mistake.
+
+### The Administrative Rule That Draws the Line Question 4 Asks About
+
+`PRIMARY` — 직업정보제공사업 신고업무 처리 규정, 고용노동부예규 제142호, 발령 2018-12-03, 시행 2019-01-01, read through the 국가법령정보 open API.
+This replaced the 노동부예규 제604호 of 2009 that an earlier version of this note cited.
+
+Its 제3조 (직업소개사업과의 구별) states the administrative distinction directly:
+
+> 직업소개사업은 특정의 구인자와 구직자를 직접 연결하여 고용계약의 성립을 알선하는 것이나, 직업정보제공사업은 불특정다수의 잠재적 구인자와 구직자에게 직업정보를 제공하여 구인·구직자가 스스로 구인 또는 구직하도록 하는 것을 말한다.
+
+Put this in front of the reviewer with question 4, because it is the closest official statement of the line that question asks about.
+It is an administrative rule about notification handling, not a ruling on this product, and this note draws no conclusion from it.
+The observation worth recording is only that the distinction it draws turns on 특정 versus 불특정다수 and on who performs the 연결, which are facts about how Mise en Place would operate rather than about how it describes itself.
 
 ## Personal-Information Sources
 
@@ -104,10 +117,11 @@ Each one names the activity rather than asking for a label, because a label with
 
 13. Does publishing an employer verification result, as `docs/specs/initial-product-scope.md` defines it, create any duty or liability toward the culinary professional who relies on it?
 14. What wording keeps the published result limited to the reviewed facts rather than reading as an endorsement of the employer?
+15. When a verification finds that an offer's compensation falls below the published minimum wage, what may a non-lawyer state to the employer and record about it? `docs/specs/employer-verification-procedure.md` now phrases a refusal as the comparison performed rather than as a finding of non-compliance; confirm that is the right line, including where the reviewer has classified the occupation under 한국표준직업분류 themselves.
 
 ### Listing Content
 
-15. May a published role state a required or preferred 성별 or 나이, and what applies to a service that publishes an employer's answer rather than writing it? Domestic listing templates carry both fields; see `docs/notes/2026-09-02-competitor-lead-check.md`. The product scope neither lists nor excludes them, so this is an open decision rather than a settled one.
+16. May a published role state a required or preferred 성별 or 나이, and what applies to a service that publishes an employer's answer rather than writing it? Domestic listing templates carry both fields; see `docs/notes/2026-09-02-competitor-lead-check.md`. The product scope neither lists nor excludes them, so this is an open decision rather than a settled one.
 
 ## What Has to Happen Before External Operation
 
