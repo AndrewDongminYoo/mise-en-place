@@ -14,6 +14,7 @@ function textItem(str: string, x: number, y: number): NhisTextItem {
 function pageWithRows(
   rows: Array<{
     number: string;
+    subscriberType?: string;
     employer: string;
     acquiredOn: string;
     lostOn: string;
@@ -31,7 +32,7 @@ function pageWithRows(
     const y = 565.1 - index * 30.9;
     items.push(
       textItem(row.number, 46.6, y),
-      textItem("직장가입자", 62.9, y),
+      textItem(row.subscriberType ?? "직장가입자", 62.9, y),
       textItem(row.employer, 157, y),
       textItem(row.acquiredOn, 396.7, y),
       textItem(row.lostOn, 491.6, y),
@@ -93,6 +94,29 @@ test("falls back when a page has neither rows nor a blank marker", () => {
         },
       ]),
       pageWithRows([]),
+    ]),
+    {
+      status: "manual-fallback",
+      reason: "unsupported-layout",
+    },
+  );
+});
+
+test("falls back when rows follow a blank-marker page", () => {
+  const blankPage = pageWithRows([]);
+  blankPage.items.push(textItem("이하 여백", 232.9, 565.1));
+
+  assert.deepEqual(
+    parseNhisQualificationPages([
+      blankPage,
+      pageWithRows([
+        {
+          number: "1",
+          employer: "주식회사 가상키친",
+          acquiredOn: "2022.03.14",
+          lostOn: "2023.08.21",
+        },
+      ]),
     ]),
     {
       status: "manual-fallback",
@@ -193,6 +217,53 @@ test("falls back when serial numbering repeats or skips across pages", () => {
         pageWithRows([
           {
             number: nextPageNumber,
+            employer: "가상다이닝 유한회사",
+            acquiredOn: "2023.09.01",
+            lostOn: "",
+          },
+        ]),
+      ]),
+      {
+        status: "manual-fallback",
+        reason: "unsupported-layout",
+      },
+    );
+  }
+});
+
+test("falls back when the first observed serial does not start at one", () => {
+  assert.deepEqual(
+    parseNhisQualificationPages([
+      pageWithRows([
+        {
+          number: "2",
+          employer: "주식회사 가상키친",
+          acquiredOn: "2022.03.14",
+          lostOn: "2023.08.21",
+        },
+      ]),
+    ]),
+    {
+      status: "manual-fallback",
+      reason: "unsupported-layout",
+    },
+  );
+});
+
+test("falls back when a subscriber label is empty or unrecognized", () => {
+  for (const subscriberType of ["", "알 수 없는 가입자"]) {
+    assert.deepEqual(
+      parseNhisQualificationPages([
+        pageWithRows([
+          {
+            number: "1",
+            employer: "주식회사 가상키친",
+            acquiredOn: "2022.03.14",
+            lostOn: "2023.08.21",
+          },
+          {
+            number: "2",
+            subscriberType,
             employer: "가상다이닝 유한회사",
             acquiredOn: "2023.09.01",
             lostOn: "",

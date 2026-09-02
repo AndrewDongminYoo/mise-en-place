@@ -154,7 +154,7 @@ export function parseNhisQualificationPages(
   const records: NhisQualificationRecord[] = [];
   let previousSerialNumber: number | null = null;
 
-  for (const page of pages) {
+  for (const [pageIndex, page] of pages.entries()) {
     const subscriberHeader = findLabel(page.items, "가입자구분");
     const employerHeader = findLabel(page.items, "사업장명칭");
     const acquiredHeader = findLabel(page.items, "자격취득일");
@@ -204,17 +204,20 @@ export function parseNhisQualificationPages(
     }
 
     if (serialItems.length === 0) {
-      if (!findLabel(page.items, "이하여백")) {
+      if (
+        !findLabel(page.items, "이하여백") ||
+        pageIndex !== pages.length - 1
+      ) {
         return fallback;
       }
 
       continue;
     }
 
-    if (
-      previousSerialNumber !== null &&
-      serialNumbers[0] !== previousSerialNumber + 1
-    ) {
+    const expectedFirstSerialNumber =
+      previousSerialNumber === null ? 1 : previousSerialNumber + 1;
+
+    if (serialNumbers[0] !== expectedFirstSerialNumber) {
       return fallback;
     }
 
@@ -233,7 +236,7 @@ export function parseNhisQualificationPages(
       );
 
       if (normalizeLabel(subscriberType) !== "직장가입자") {
-        continue;
+        return fallback;
       }
 
       const legalEmployer = joinText(
