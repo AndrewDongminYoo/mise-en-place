@@ -170,64 +170,105 @@ export function parseNhisQualificationPages(
       (itemX(employerHeader) + itemX(acquiredHeader)) / 2;
     const lostBoundary = (itemX(acquiredHeader) + itemX(lostHeader)) / 2;
     const headerY = itemY(employerHeader);
-    const serialItems = page.items
+    const tableItems = page.items
       .filter((item) => {
         const x = itemX(item);
         const y = itemY(item);
 
         return (
+          normalizeLabel(item.str) !== "" &&
           x >= 35 &&
-          x <= 55 &&
           y > TABLE_BOTTOM &&
-          y < headerY - TABLE_TOP_OFFSET &&
-          /^\d{1,3}$/.test(normalizeLabel(item.str))
+          y < headerY - TABLE_TOP_OFFSET
         );
       })
       .sort((left, right) => itemY(right) - itemY(left));
-    const serialNumbers = serialItems.map((item) =>
-      Number(normalizeLabel(item.str)),
+    const tableRows: NhisTextItem[][] = [];
+
+    for (const item of tableItems) {
+      const currentRow = tableRows[tableRows.length - 1];
+
+      if (
+        !currentRow ||
+        Math.abs(itemY(currentRow[0]) - itemY(item)) > ROW_TOLERANCE
+      ) {
+        tableRows.push([item]);
+      } else {
+        currentRow.push(item);
+      }
+    }
+
+    const isBlankMarkerRow = (rowItems: readonly NhisTextItem[]) =>
+      normalizeLabel(
+        joinText(
+          rowItems.filter((item) => {
+            const x = itemX(item);
+            return x >= 35 && x <= 55;
+          }),
+        ),
+      ) === "" &&
+      normalizeLabel(
+        joinText(
+          rowItems.filter((item) => {
+            const x = itemX(item);
+            return x > 55 && x < subscriberBoundary;
+          }),
+        ),
+      ) === "----------" &&
+      normalizeLabel(
+        joinText(
+          rowItems.filter((item) => {
+            const x = itemX(item);
+            return x >= subscriberBoundary && x < acquiredBoundary;
+          }),
+        ),
+      ) === "이하여백" &&
+      normalizeLabel(
+        joinText(
+          rowItems.filter((item) => {
+            const x = itemX(item);
+            return x >= acquiredBoundary && x < lostBoundary;
+          }),
+        ),
+      ) === "----------" &&
+      normalizeLabel(
+        joinText(rowItems.filter((item) => itemX(item) >= lostBoundary)),
+      ) === "----------";
+    const dataRows = tableRows.filter(
+      (rowItems) => !isBlankMarkerRow(rowItems),
     );
+    const blankMarkerCount = tableRows.length - dataRows.length;
 
     if (
-      serialItems.length > MAX_SERIAL_ROWS_PER_PAGE ||
-      serialNumbers.some(
-        (value, index) =>
-          index > 0 && value !== serialNumbers[index - 1] + 1,
-      ) ||
-      serialItems.some(
-        (item, index) =>
-          index > 0 &&
-          Math.abs(itemY(item) - itemY(serialItems[index - 1])) <= ROW_TOLERANCE,
-      )
+      tableRows.length === 0 ||
+      dataRows.length > MAX_SERIAL_ROWS_PER_PAGE ||
+      blankMarkerCount > 1 ||
+      (blankMarkerCount === 1 &&
+        (pageIndex !== pages.length - 1 ||
+          !isBlankMarkerRow(tableRows[tableRows.length - 1])))
     ) {
       return fallback;
     }
 
-    if (serialItems.length === 0) {
-      if (
-        !findLabel(page.items, "이하여백") ||
-        pageIndex !== pages.length - 1
-      ) {
+    for (const rowItems of dataRows) {
+      const serialItems = rowItems.filter((item) => {
+        const x = itemX(item);
+        return x >= 35 && x <= 55;
+      });
+      const serialText = normalizeLabel(joinText(serialItems));
+
+      if (serialItems.length !== 1 || !/^\d{1,3}$/.test(serialText)) {
         return fallback;
       }
 
-      continue;
-    }
+      const serialNumber = Number(serialText);
+      const expectedSerialNumber: number =
+        previousSerialNumber === null ? 1 : previousSerialNumber + 1;
 
-    const expectedFirstSerialNumber =
-      previousSerialNumber === null ? 1 : previousSerialNumber + 1;
+      if (serialNumber !== expectedSerialNumber) {
+        return fallback;
+      }
 
-    if (serialNumbers[0] !== expectedFirstSerialNumber) {
-      return fallback;
-    }
-
-    previousSerialNumber = serialNumbers[serialNumbers.length - 1];
-
-    for (const serialItem of serialItems) {
-      const rowY = itemY(serialItem);
-      const rowItems = page.items.filter(
-        (item) => Math.abs(itemY(item) - rowY) <= ROW_TOLERANCE,
-      );
       const subscriberType = joinText(
         rowItems.filter((item) => {
           const x = itemX(item);
@@ -273,6 +314,7 @@ export function parseNhisQualificationPages(
         qualificationStart,
         qualificationEnd,
       });
+      previousSerialNumber = serialNumber;
     }
   }
 
