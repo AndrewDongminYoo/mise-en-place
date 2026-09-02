@@ -22,12 +22,13 @@ The culinary professional supplies and confirms the role, station, responsibilit
 
 ### Supported Inputs
 
-The first implementation slice supports:
+The first implementation slice evaluates:
 
-- One text-based National Health Insurance qualification certificate layout selected after reviewing real samples.
+- One candidate text-based National Health Insurance qualification certificate layout from the direct issuance flow.
 - Manual entry as the fallback for unsupported or failed documents.
 
-The exact supported layout remains `[UNKNOWN]` until the sample review in `docs/plans/resume-builder-validation.md` is complete.
+The candidate is a password-protected PDF with the `가입자 구분`, `사업장 명칭`, `자격 취득일`, and `자격 상실일` table headers.
+The exact supported layout remains `[UNKNOWN]` until at least 5 usable cases pass the local validation in `docs/plans/resume-builder-validation.md`.
 Do not add OCR or a generic document adapter for the first slice.
 A user-provided Work24 integrated career certificate is a candidate second format after samples justify it.
 Direct Work24 or National Health Insurance service integration is not approved, and the access path for private platforms remains `[UNKNOWN]`.
@@ -147,6 +148,7 @@ The first implementation slice excludes:
 
 The resume-tool gate requires all of these results:
 
+- At least 5 usable, consented certificates match the selected layout in browser-local tests.
 - One National Health Insurance qualification certificate layout is processed.
 - Original employer name, qualification acquisition date, and qualification loss date are extracted.
 - Every extracted record can be corrected or excluded.
