@@ -21,7 +21,8 @@ Ask each participant about:
 - Information that would have prevented a poor match.
 - Conditions that they will not accept.
 
-Store anonymized notes in `docs/notes/`.
+Store anonymized notes outside this repository, because it is public and the consent script promises that the interview will not be disclosed externally.
+Commit only the coded counts. See `docs/notes/2026-09-02-founding-cohort-interview-guides.md`.
 
 Verify this step by confirming that 20 interviews have source notes and that the notes contain no unnecessary personal data.
 

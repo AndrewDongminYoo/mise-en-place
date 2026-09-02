@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# research notes holding participant answers - this repository is public
+/docs/notes/interview-*.md
+/docs/notes/session-*.md

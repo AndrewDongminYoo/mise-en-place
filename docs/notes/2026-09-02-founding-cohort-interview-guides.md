@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`docs/plans/founding-cohort-validation.md` step 1 requires 20 interviews, 10 with culinary professionals and 10 with restaurant operators or head chefs, each covering five named topics, with anonymized notes in `docs/notes/`.
+`docs/plans/founding-cohort-validation.md` step 1 requires 20 interviews, 10 with culinary professionals and 10 with restaurant operators or head chefs, each covering five named topics, with anonymized notes retained.
 Step 2 then allows a profile field to be added only when the same problem appears in at least 5 interviews.
 
 That threshold is what shapes these guides.
@@ -38,8 +38,13 @@ The consent script states, in plain Korean:
 2. 무엇을 기록하는지: 답변 내용만 기록하고, 이름과 근무하신 업장 이름은 기록하지 않습니다.
 3. 녹음 여부: 녹음은 하지 않습니다. 메모만 남깁니다.
 4. 어디에 쓰이는지: 서비스를 만들지 결정하는 데에만 사용하고, 외부에 공개하지 않습니다.
-5. 중단과 삭제: 언제든 답변을 그만두실 수 있고, 인터뷰 후에도 삭제를 요청하실 수 있습니다.
-6. 보상 여부: 있으면 그 내용, 없으면 없다는 사실.
+5. 보관 기간: 메모는 조사가 끝난 뒤 90일이 지나면 삭제합니다.
+6. 중단과 삭제: 언제든 답변을 그만두실 수 있고, 그 전에도 삭제를 요청하실 수 있습니다.
+7. 보상 여부: 있으면 그 내용, 없으면 없다는 사실.
+
+The 90-day retention point is a chosen default, not a requirement read from a source.
+It exists because four deletion rules across these documents referred to an agreed point that no step produced.
+Change it here and the references follow, because this is the only place it is stated.
 
 Do not record audio.
 A recording is source material that has to be stored, protected, and deleted, and the coding lines below do not need it.
@@ -65,10 +70,21 @@ Record instead:
 - Restaurant as a shape: 좌석 수 구간, 주방 인원 구간, 업태 (양식, 한식, 제과 등), 독립 매장 여부.
 - Tenure as a duration in months.
 - Compensation as a band, in 50만원 steps, and only when the participant offers it.
-- Region no finer than 서울 자치구 단위, and omit it when the restaurant would be identifiable from it.
+- Region no finer than 서울 자치구 단위.
 
-Keep the identifier-to-person mapping outside this repository, and delete it at the retention point stated in the consent.
-The repository holds only the anonymized notes.
+Then apply the identifiability test to the recorded fields **together**, not to any one of them.
+Before saving a note, ask whether 업태, 좌석 수 구간, 주방 인원 구간, 독립 매장 여부 and region could single out one restaurant between them, or whether 경력 개월 수, 역할 and 스테이션 could single out one person.
+An independent pastry kitchen of a stated size in a stated 자치구 may be the only one, and the same file then records which conditions that operator withholds from postings.
+When the set narrows that far, coarsen a field or drop it.
+
+Keep the interview notes and the identifier-to-person mapping outside this repository, and delete both at the retention point stated in the consent.
+
+`AndrewDongminYoo/mise-en-place` is a public GitHub repository, verified on 2026-09-02.
+The consent script promises that the interview will not be disclosed externally, so committing a note file here would falsify that promise however well the note is anonymized, because publication itself is what was promised against.
+`.gitignore` refuses `docs/notes/interview-*.md` as a backstop, but the rule is that the file is never created inside the repository at all.
+`docs/plans/founding-cohort-validation.md` step 1 previously said to store anonymized notes in `docs/notes/`; that instruction is narrowed here and in the plan itself.
+
+Only the coded counts in the counting section below are committed, and those carry participant identifiers rather than answers.
 
 A note that cannot be written without an identifying detail is a note that should not be written.
 
@@ -90,7 +106,10 @@ Code: 경력 개월 수, 현재 역할, 담당 스테이션, 업태, 주방 인�
 - 옮기기로 마음먹은 계기가 무엇이었는지, 그때 상황부터 말씀해 주세요.
 - 결정하고 나서 실제로 옮기기까지 얼마나 걸렸나요?
 
-Probes: 그만두기 전에 다음 자리를 먼저 구하셨나요? 중간에 쉬는 기간이 있었나요?
+Probes:
+
+- 그만두기 전에 다음 자리를 먼저 구하셨나요?
+- 중간에 쉬는 기간이 있었나요?
 
 Code: 이직 시점, 계기 분류, 탐색 기간, 공백 유무.
 
@@ -100,7 +119,10 @@ Code: 이직 시점, 계기 분류, 탐색 기간, 공백 유무.
 - 그 방법 말고 같이 써보신 게 있나요?
 - 그중에 실제로 지금 자리로 이어진 건 어느 쪽이었나요?
 
-Probes: 아는 사람 소개였다면, 소개해 준 사람과는 어떤 관계였나요? 구인 사이트를 쓰셨다면 어디였나요?
+Probes:
+
+- 아는 사람 소개였다면, 소개해 준 사람과는 어떤 관계였나요?
+- 구인 사이트를 쓰셨다면 어디였나요?
 
 Code: 사용한 채널 목록, 실제로 성사된 채널, 채널별 만족 여부.
 
@@ -110,9 +132,15 @@ Code: 사용한 채널 목록, 실제로 성사된 채널, 채널별 만족 여�
 - 어떤 점이 언제 달랐는지, 기억나는 대로 말씀해 주세요.
 - 그때 어떻게 하셨나요?
 
-Probes: 급여, 근무 시간, 쉬는 날, 마감 시간, 맡기로 한 자리, 인원. Ask each only if the participant has stopped volunteering and has not covered it.
+Probes: 급여, 근무 시간, 쉬는 날, 마감 시간, 맡기로 한 자리, 인원.
+Ask each only if the participant has stopped volunteering and has not covered it.
 
-Code: 차이가 발생한 항목별로 한 줄씩. 차이를 알게 된 시점. 대응 (참음, 협의, 퇴사, 기타). 이 항목이 이 인터뷰에서 문제로 언급되었는지 여부.
+Code:
+
+- 차이가 발생한 항목별로 한 줄씩.
+- 차이를 알게 된 시점.
+- 대응 (참음, 협의, 퇴사, 기타).
+- 이 항목이 이 인터뷰에서 문제로 언급되었는지 여부.
 
 This question carries the most weight for the threshold in step 2.
 Code every item separately, because "근무 시간이 달랐다" and "급여가 달랐다" are two counts, not one.
@@ -125,7 +153,11 @@ Code every item separately, because "근무 시간이 달랐다" and "급여가 
 
 Probes: 물어보기 어려웠던 항목이 있었나요?
 
-Code: 사전에 필요했던 정보 항목. 면접에서 물었는지 여부. 묻기 어려웠던 이유.
+Code:
+
+- 사전에 필요했던 정보 항목.
+- 면접에서 물었는지 여부.
+- 묻기 어려웠던 이유.
 
 The "묻기 어려웠던 이유" line matters more than the information list.
 A field that a person cannot ask about themselves is a field the product has to supply.
@@ -136,7 +168,10 @@ A field that a person cannot ask about themselves is a field the product has to 
 - 그 조건을 겪어 보신 적이 있나요?
 - 반대로, 조건이 조금 나빠도 감수할 만한 자리는 어떤 자리인가요?
 
-Code: 거절 조건 목록. 각 항목이 경험에서 나왔는지 여부. 감수 가능 조건.
+Code:
+
+- 거절 조건 목록, 각 항목이 경험에서 나왔는지 표시.
+- 감수 가능 조건.
 
 ### A6. Close
 
@@ -193,9 +228,14 @@ Code: 불일치 항목, 발견 시점, 재직 기간, 이탈 여부.
 - 이력서에서 확인이 안 되는 건 주로 어떤 부분인가요?
 - 면접이나 트라이얼에서 그걸 어떻게 확인하시나요?
 
-Probes: 트라이얼을 하신다면 몇 시간이고 급여는 어떻게 하시나요? Record the answer as stated; this is an interview, not a verification review.
+Probes: 트라이얼을 하신다면 몇 시간이고 급여는 어떻게 하시나요?
+Record the answer as stated; this is an interview, not a verification review.
 
-Code: 이력서로 확인 불가능한 항목. 대체 확인 방법. 트라이얼 운영 방식.
+Code:
+
+- 이력서로 확인 불가능한 항목.
+- 대체 확인 방법.
+- 트라이얼 운영 방식.
 
 ### B5. Deal-Breakers and Disclosure
 
@@ -203,7 +243,11 @@ Code: 이력서로 확인 불가능한 항목. 대체 확인 방법. 트라이�
 - 공고에 미리 밝히기 어려운 조건이 있나요? 있다면 왜 어려운지도 말씀해 주세요.
 - 급여나 근무 시간을 공고에 적으실 때, 어디까지 적으시나요?
 
-Code: 거절 조건. 공개하기 어려운 항목과 그 이유. 공고 기재 범위.
+Code:
+
+- 거절 조건.
+- 공개하기 어려운 항목과 그 이유.
+- 공고 기재 범위.
 
 The "밝히기 어려운 이유" line is the employer-side counterpart of A4's "묻기 어려웠던 이유."
 `docs/specs/initial-product-scope.md` forbids placeholders in required fields, so an employer's reason for withholding a field is direct evidence about whether that rule is workable.
@@ -214,7 +258,7 @@ The "밝히기 어려운 이유" line is the employer-side counterpart of A4's "
 
 ## Note Template
 
-One file per interview, in `docs/notes/`, named `interview-CP-01.md` or `interview-OP-01.md`.
+One file per interview, kept outside this repository next to the mapping, named `interview-CP-01.md` or `interview-OP-01.md`.
 
 ```markdown
 # Interview CP-01
@@ -274,6 +318,8 @@ Count it this way:
 - The unit is an interview, not a mention. Five mentions by one participant is one.
 - The unit is a problem the participant experienced or acted on, not a feature they asked for.
 - Count the two sides separately. Five culinary professionals and five operators are two separate thresholds, and a field that only one side raises is a field only one side needs.
+  This is stricter than `docs/plans/founding-cohort-validation.md` step 2, which counts 5 interviews out of the pool of 20 with no side split, so 3 and 3 clears the plan and fails this rule.
+  Record both counts and apply the stricter one, so a field that splits the two rules is visible as a decision rather than settled by arithmetic.
 - Record the count with the interview identifiers behind it, so the trace back to evidence that step 2 requires is possible.
 
 A problem that reaches 5 does not automatically become a field.
@@ -286,5 +332,7 @@ It becomes a candidate that has to be traceable to those interviews when the pro
 Check both before declaring the step complete:
 
 - 20 note files exist, 10 with guide A and 10 with guide B, each with a consent line.
-- A search across the note files finds no phone number, no email address, no restaurant name, and no personal name.
-  Run the search rather than relying on having been careful, and record that it was run.
+- A regular-expression search across the note files finds no phone number, no email address, and no resident registration number.
+- A fixed-string search finds no proper noun. Names carry no pattern, so a regular expression cannot read this class and will report clean on a note that names an employer.
+  During each interview, add every personal name, restaurant name, and brand the participant says to a nouns file kept beside the mapping, then run `grep -F -f <nouns-file>` across the notes.
+- Run both searches rather than relying on having been careful, and record that both were run.
