@@ -40,6 +40,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# real qualification certificates and other source documents - never commit
+/.samples/
+*.pdf
+
 # research notes holding participant answers - this repository is public
 /docs/notes/interview-*.md
 /docs/notes/session-*.md
