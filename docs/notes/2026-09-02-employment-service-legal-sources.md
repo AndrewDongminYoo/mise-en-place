@@ -105,6 +105,10 @@ Each one names the activity rather than asking for a label, because a label with
 13. Does publishing an employer verification result, as `docs/specs/initial-product-scope.md` defines it, create any duty or liability toward the culinary professional who relies on it?
 14. What wording keeps the published result limited to the reviewed facts rather than reading as an endorsement of the employer?
 
+### Listing Content
+
+15. May a published role state a required or preferred 성별 or 나이, and what applies to a service that publishes an employer's answer rather than writing it? Domestic listing templates carry both fields; see `docs/notes/2026-09-02-competitor-lead-check.md`. The product scope neither lists nor excludes them, so this is an open decision rather than a settled one.
+
 ## What Has to Happen Before External Operation
 
 `docs/plans/founding-cohort-validation.md` gates Track B's introductions and any payment test on this review.

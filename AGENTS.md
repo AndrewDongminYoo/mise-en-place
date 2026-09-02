@@ -59,6 +59,7 @@ Do not build account synchronization, real-time chat, recommendation algorithms,
 - `docs/notes/2026-09-02-employment-service-legal-sources.md` holds the employment-service legal sources and the open questions for a qualified reviewer.
 - `docs/notes/2026-09-02-founding-cohort-interview-guides.md` holds the Track B interview guides, anonymization rules, and note template.
 - `docs/notes/2026-09-02-moderated-completion-test-protocol.md` holds the Track A session protocol and the observable definitions of the gate's behavioral thresholds.
+- `docs/notes/2026-09-02-competitor-lead-check.md` records a public-page check of the research leads and what that depth can and cannot support.
 - `docs/notes/` stores working evidence and research.
 - `docs/plans/` stores approved execution plans.
 - `docs/specs/` stores approved product and technical requirements.
