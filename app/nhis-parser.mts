@@ -152,6 +152,7 @@ export function parseNhisQualificationPages(
   }
 
   const records: NhisQualificationRecord[] = [];
+  let previousSerialNumber: number | null = null;
 
   for (const page of pages) {
     const subscriberHeader = findLabel(page.items, "가입자구분");
@@ -209,6 +210,15 @@ export function parseNhisQualificationPages(
 
       continue;
     }
+
+    if (
+      previousSerialNumber !== null &&
+      serialNumbers[0] !== previousSerialNumber + 1
+    ) {
+      return fallback;
+    }
+
+    previousSerialNumber = serialNumbers[serialNumbers.length - 1];
 
     for (const serialItem of serialItems) {
       const rowY = itemY(serialItem);

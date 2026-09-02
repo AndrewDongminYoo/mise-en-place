@@ -178,6 +178,35 @@ test("falls back when separate table rows reuse one serial number", () => {
   });
 });
 
+test("falls back when serial numbering repeats or skips across pages", () => {
+  for (const nextPageNumber of ["1", "3"]) {
+    assert.deepEqual(
+      parseNhisQualificationPages([
+        pageWithRows([
+          {
+            number: "1",
+            employer: "주식회사 가상키친",
+            acquiredOn: "2022.03.14",
+            lostOn: "2023.08.21",
+          },
+        ]),
+        pageWithRows([
+          {
+            number: nextPageNumber,
+            employer: "가상다이닝 유한회사",
+            acquiredOn: "2023.09.01",
+            lostOn: "",
+          },
+        ]),
+      ]),
+      {
+        status: "manual-fallback",
+        reason: "unsupported-layout",
+      },
+    );
+  }
+});
+
 test("returns manual fallback instead of partially importing a mismatched row", () => {
   const page = pageWithRows([
     {
