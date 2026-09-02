@@ -112,6 +112,9 @@ These are the comparisons that surface it.
 - Hours in the offer against the restaurant's published opening hours and the stated 서비스 volume.
 - The number of staff implied by the kitchen size and service volume against the counted 상시 근로자 수.
 - The reason for the opening against the previous holder's tenure in months, when stated.
+- The offered compensation against the average implied by the employer's published 국민연금 data, where the workplace appears in it.
+  `docs/notes/2026-09-02-korean-employment-law-sources.md` holds the source and its three limits: much of this segment is below the dataset's coverage threshold, the figure is censored at the contribution ceiling, and it averages every role at the workplace.
+  Treat a gap as a question to ask, never as a finding, and never show the figure to a culinary professional beside a specific offer.
 
 A mismatch is not automatically disqualifying.
 Ask once, record the explanation, and record whether the explanation is substantiated.
@@ -130,6 +133,54 @@ Treat these as the same refusal in other words:
 
 Record the exact wording the employer used.
 The wording is the evidence for the refusal, and a paraphrase is not.
+
+## What a Listing Is
+
+A verified listing is one vacancy, not a standing advertisement.
+
+- The listing names the number of people being hired for it. Two openings are two listings or one listing stating two.
+- The listing expires 30 days after publication. A continuing vacancy is re-published as a new round with a new record, not extended.
+- An employer whose listing for the same role has been continuously open for more than 90 days is not re-published without a stated explanation of why the vacancy persists, recorded in the round.
+- The listing states what the person does in their first week: the station they own or assist on, the shift pattern, and who they report to.
+
+The last item is the one that closes the gap this product exists for.
+Compensation and hours can be verified from documents; what the work actually is arrives on the first day, and 채용절차의 공정화에 관한 법률 제4조제3항 names exactly that harm without reaching an employer of this size.
+See `docs/notes/2026-09-02-korean-employment-law-sources.md`.
+
+`docs/specs/initial-product-scope.md` does not yet list the first-week description among the required fields, and its section on minimum employer verification owns that list.
+Add it there before treating this as a required field rather than a verification practice.
+
+## Removal and Suspension
+
+Not publishing a role and removing an employer are different acts, and conflating them is how a removal becomes arbitrary.
+
+| Situation | Consequence |
+| --- | --- |
+| A required field is blank or carries a placeholder | The role is not published. No removal. The employer may supply the field. |
+| A stated fact is contradicted by the employer's own evidence during verification | The round is refused and recorded. No removal on a first instance. |
+| The same field is misstated again in a later round, after a refusal on it | Suspension. |
+| A placed culinary professional reports that a stated condition differs from what they were told, and re-verification confirms it | Suspension. |
+
+The last row is the one that matters, because it is the only trigger that reads the employer's behaviour rather than their paperwork, and it is the harm the statute leaves unaddressed at this size.
+
+A suspension requires all of these, recorded in the round:
+
+- The specific field, the statement made, and the evidence that contradicts it.
+- The date, and the reviewer who decided.
+- Notice to the employer stating the field and the contradiction, and nothing further.
+- A stated end date. The default is 180 days; the operator sets it.
+- A route back: the employer supplies corrected evidence and passes a fresh verification round.
+
+While suspended, the employer's roles are not published and no introduction is made.
+Do not silently keep a suspended employer's listing in a pending state, and do not describe a suspension publicly.
+The suspension is between the operator and the employer; publishing it is a claim about a named business that this procedure does not support.
+
+`[UNKNOWN]` — the 180-day default, and whether an appeal exists beyond re-verification, are operator decisions and are not settled here.
+
+Two things to settle before the first suspension:
+
+- The revenue hypothesis charges the employer, so a suspension withdraws a paid service. Whatever the employer agrees to when they pay has to state this consequence in advance, or the first suspension is a dispute rather than a rule.
+- `docs/notes/2026-09-02-employment-service-legal-sources.md` carries the question of what the platform may assert and act on when it finds a false statement, given that the Act granting that standing does not apply below 30 employees.
 
 ## The Verification Record
 

@@ -119,9 +119,13 @@ Each one names the activity rather than asking for a label, because a label with
 14. What wording keeps the published result limited to the reviewed facts rather than reading as an endorsement of the employer?
 15. When a verification finds that an offer's compensation falls below the published minimum wage, what may a non-lawyer state to the employer and record about it? `docs/specs/employer-verification-procedure.md` now phrases a refusal as the comparison performed rather than as a finding of non-compliance; confirm that is the right line, including where the reviewer has classified the occupation under 한국표준직업분류 themselves.
 
+### Enforcement
+
+16. 채용절차의 공정화에 관한 법률 제4조 prohibits a false advertisement and an unfavourable post-hire change of the advertised conditions, but 제3조 applies the Act only to workplaces of 30 or more, which excludes most of the initial segment. On what basis may the platform require those same things of a smaller employer, and what may it do when it finds a false statement: refuse a listing, suspend the employer, tell an affected culinary professional, or none of these?
+17. If the platform suspends an employer who pays a listing or profile fee, what has to be in the employer's agreement beforehand for that to be a term rather than a dispute, and what record has to exist?
 ### Listing Content
 
-16. May a published role state a required or preferred 성별 or 나이, and what applies to a service that publishes an employer's answer rather than writing it? Domestic listing templates carry both fields; see `docs/notes/2026-09-02-competitor-lead-check.md`. The product scope neither lists nor excludes them, so this is an open decision rather than a settled one.
+18. May a published role state a required or preferred 성별 or 나이, and what applies to a service that publishes an employer's answer rather than writing it? Domestic listing templates carry both fields; see `docs/notes/2026-09-02-competitor-lead-check.md`. The product scope neither lists nor excludes them, so this is an open decision rather than a settled one.
 
 ## What Has to Happen Before External Operation
 

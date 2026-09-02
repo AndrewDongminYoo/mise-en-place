@@ -136,6 +136,47 @@ Read that article and apply it rather than accepting the employer's own headcoun
 A workplace at or near the 5-employee line can cross it between reviews, which changes the applicable rules.
 Record the counted number and the count date in the verification record, not just the resulting side of the line.
 
+## False Job Advertisements
+
+`PRIMARY` — 채용절차의 공정화에 관한 법률, 시행 2020-05-26, 법률 제17326호, read through the 국가법령정보 open API.
+
+| Article | Rule |
+| --- | --- |
+| 제3조 적용범위 | 이 법은 **상시 30명 이상**의 근로자를 사용하는 사업 또는 사업장의 채용절차에 적용한다. |
+| 제4조제1항 | 채용을 가장하여 아이디어를 수집하거나 사업장을 홍보하기 위한 목적 등으로 거짓의 채용광고를 내서는 아니 된다. |
+| 제4조제2항 | 정당한 사유 없이 채용광고의 내용을 구직자에게 불리하게 변경하여서는 아니 된다. |
+| 제4조제3항 | 구직자를 채용한 후에 정당한 사유 없이 채용광고에서 제시한 근로조건을 구직자에게 불리하게 변경하여서는 아니 된다. |
+| 제16조 | 제4조제1항 위반: 5년 이하의 징역 또는 2천만원 이하의 벌금. |
+| 제17조제2항제1호 | 제4조제2항 또는 제3항 위반: 500만원 이하의 과태료. |
+
+제4조제3항 describes the exact abuse this product exists to reduce: conditions presented in the advertisement, then changed to the worker's disadvantage after they start.
+
+**The 30-employee threshold in 제3조 is the finding that matters.**
+The initial segment in `docs/specs/initial-product-scope.md` is independent, chef-driven restaurants, which are almost entirely below it.
+So for the employers this product will actually list, none of these prohibitions apply and neither penalty is available.
+
+Do not describe a listing rule as enforcing this Act.
+The Act is the reason the rule has to exist rather than its authority: at this size the statutory deterrent is absent, so whatever the platform requires is the only thing operating.
+Read 제4조 as the description of the harm to design against, and take the requirements themselves from `docs/specs/employer-verification-procedure.md`.
+
+`docs/notes/2026-09-02-employment-service-legal-sources.md` carries the question of what the platform may do about a false statement, since the Act gives it no standing here.
+
+## Wage Evidence From Published Pension Data
+
+`PRIMARY` — 국민연금공단 "국민연금 가입 사업장 내역", [공공데이터포털](https://www.data.go.kr/data/3046071/openapi.do), read 2026-09-02.
+
+The dataset publishes, per workplace, 가입자 수, 당월고지금액, 신규취득자수, and 상실가입자수.
+Dividing the notified amount by the subscriber count and the contribution rate gives an approximate average wage that does not come from the employer.
+
+Three limits decide where this is usable:
+
+- **Coverage.** The dataset states its scope as "가입자 수 3인 이상 법인사업장, 가입자 수 10인 이상 개인사업장(2025.7.이후)". An independent restaurant run as a 개인사업장 with fewer than 10 subscribers is simply absent, and that describes much of the initial segment.
+- **The ceiling.** "국민연금법 시행령 제5조에 의거 기준소득월액 상한액 적용으로 실제소득과 고지금액은 상이할 수 있음". The figure is censored at the cap.
+- **Granularity.** The figure is one average across every insured person at the workplace, so a kitchen's 조리사, 주방보조 and hall staff are mixed into one number. It says nothing about the wage attached to one role.
+
+Use it as a reviewer cross-check, never as a published figure.
+It is an independent source, which is what `docs/specs/initial-product-scope.md` asks for when it says employer confirmation alone is not sufficient, and it is a bad number to show a candidate beside a specific offer.
+
 ## Severance
 
 `SEARCH` — 근로자퇴직급여 보장법 제4조제1항 requires the employer to set up at least one 퇴직급여제도 for departing workers, and excludes a worker whose 계속근로기간 is under 1 year and a worker whose 소정근로시간 averages under 15 hours per week over 4 weeks.
