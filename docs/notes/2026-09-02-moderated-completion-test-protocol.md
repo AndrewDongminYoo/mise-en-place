@@ -77,6 +77,10 @@ Record that check on the sheet. An added error reporter or analytics tag would f
 If a participant brings their own qualification certificate, the document boundary in `docs/specs/initial-product-scope.md` section "Privacy and Security Boundary" applies to the session exactly as it applies to the product.
 Do not photograph the screen while the document is open, and do not copy any extracted value into the notes.
 
+Two rules follow from the candidate layout that `docs/plans/resume-builder-validation.md` step 1 selected.
+The certificate is password-protected, so the participant types a password in front of the moderator: never ask for it, never write it down, and look away while it is entered.
+Ask the participant to keep the default resident-registration-number masking enabled when they issue the document, which is the same request step 1 makes.
+
 Deleting the file is a step, not an intention.
 A participant who mails the certificate to themselves and opens it leaves the PDF in the browser download directory, in the download history, and in any folder that syncs to a cloud drive.
 After the import, delete the file from where it landed, clear it from the trash, and record that on the sheet.
