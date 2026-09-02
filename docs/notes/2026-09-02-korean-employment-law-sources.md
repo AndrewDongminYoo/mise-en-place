@@ -73,7 +73,7 @@ All rows below are 근로기준법, 시행 2026-08-20, 법률 제21373호.
 | 제53조제1항 | By agreement between the parties, 제50조 hours may be extended by up to 12 hours per week. | `SEARCH` — [조문](https://www.law.go.kr/lsLinkCommonInfo.do?lsJoLnkSeq=1023660279&chrClsCd=010202&ancYnChk=) |
 | 제53조제3항 | An employer using fewer than 30 regular employees may extend by up to a further 8 hours per week under a written agreement with the 근로자대표. | `SEARCH` — same link |
 | 제54조 휴게 | At least 30 minutes of break for 4 hours of work and at least 1 hour for 8 hours, given during working hours and freely usable by the worker. | `SEARCH` — [조문](https://www.law.go.kr/lsLawLinkInfo.do?lsJoLnkSeq=1000993065&chrClsCd=010202) |
-| 제55조제1항 | At least one paid rest day per week on average. | `SEARCH` — same source family as 제54조 |
+| 제55조제1항 | At least one paid rest day per week on average. | `SEARCH` — [국가법령정보센터 조문](https://www.law.go.kr/%EB%B2%95%EB%A0%B9/%EA%B7%BC%EB%A1%9C%EA%B8%B0%EC%A4%80%EB%B2%95/%EC%A0%9C55%EC%A1%B0). The 별표 1 below independently confirms that only 제1항 applies below 5 employees. |
 | 제56조 | At least 50 percent of 통상임금 added for extended work, for night work between 22:00 and 06:00, and for holiday work. | `SEARCH` — [조문](https://www.law.go.kr/LSW/lsLawLinkInfo.do?lsJoLnkSeq=900550493&chrClsCd=010202) |
 | 제60조 | 연차 유급휴가. | `SEARCH` — referenced by 제17조 primary text |
 
@@ -103,7 +103,7 @@ What this means for verification of a restaurant with 4 or fewer regular employe
 - 제17조 written statement of working conditions still applies.
 - 제54조 breaks and 제55조제1항 weekly paid rest day still apply.
 - 제50조 working-time limits, 제53조 overtime limits, 제56조 premium pay, and 제60조 annual paid leave do **not** apply.
-- 제55조제2항, the paid public holidays, does not apply, because the annex lists only 제55조제1항.
+- Only 제55조제1항 is listed, so nothing else in 제55조 applies at this size. What the remaining paragraphs of 제55조 cover was not read in this pass and is `[UNKNOWN]` here.
 - The minimum wage still applies in full, because 최저임금법 has its own applicability rule.
 
 `PRIMARY` — 상시 근로자 수 is counted under 근로기준법 시행령 제7조의2, "상시 사용하는 근로자 수의 산정 방법", read at [국가법령정보센터](https://www.law.go.kr/LSW/lumLsLinkPop.do?lspttninfSeq=70859&chrClsCd=010202).
