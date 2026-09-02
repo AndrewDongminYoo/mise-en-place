@@ -93,3 +93,10 @@ test("keeps demo provenance and employer names explicit", () => {
   assert.equal(entry.legalEmployer, "주식회사 엠에프지코리아");
   assert.equal(entry.restaurantName, "더 키친 살바토레 쿠오모");
 });
+
+test("stores equipment separately from skills", () => {
+  const [entry] = createDemoCareerEntries();
+
+  assert.deepEqual(entry.skills, ["제면", "생선 손질", "수비드"]);
+  assert.deepEqual(entry.equipment, ["콤비오븐"]);
+});

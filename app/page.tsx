@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import {
+  EQUIPMENT_OPTIONS,
   PROVENANCE_LABELS,
   RESPONSIBILITY_OPTIONS,
   ROLE_SUGGESTIONS,
@@ -309,7 +310,7 @@ export default function Home() {
 
   function toggleCareerChoice(
     id: string,
-    field: "stations" | "responsibilities" | "skills",
+    field: "stations" | "responsibilities" | "skills" | "equipment",
     value: string,
     limit?: number,
   ) {
@@ -796,11 +797,21 @@ export default function Home() {
                   />
 
                   <ChoiceGroup
-                    legend="다뤄본 기술과 장비"
+                    legend="다뤄본 기술"
                     options={SKILL_OPTIONS}
                     selected={career.skills}
                     onToggle={(option) =>
                       toggleCareerChoice(career.id, "skills", option)
+                    }
+                    hint="실제로 사용해 본 항목만 선택하세요."
+                  />
+
+                  <ChoiceGroup
+                    legend="다뤄본 장비"
+                    options={EQUIPMENT_OPTIONS}
+                    selected={career.equipment}
+                    onToggle={(option) =>
+                      toggleCareerChoice(career.id, "equipment", option)
                     }
                     hint="실제로 사용해 본 항목만 선택하세요."
                   />
@@ -933,7 +944,8 @@ export default function Home() {
                         </ul>
 
                         {career.stations.length > 0 ||
-                        career.skills.length > 0 ? (
+                        career.skills.length > 0 ||
+                        career.equipment.length > 0 ? (
                           <dl className="resume-skills">
                             {career.stations.length > 0 ? (
                               <div>
@@ -943,8 +955,14 @@ export default function Home() {
                             ) : null}
                             {career.skills.length > 0 ? (
                               <div>
-                                <dt>Skills & Equipment</dt>
+                                <dt>Skills</dt>
                                 <dd>{career.skills.join(" · ")}</dd>
+                              </div>
+                            ) : null}
+                            {career.equipment.length > 0 ? (
+                              <div>
+                                <dt>Equipment</dt>
+                                <dd>{career.equipment.join(" · ")}</dd>
                               </div>
                             ) : null}
                           </dl>

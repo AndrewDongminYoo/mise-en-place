@@ -15,6 +15,7 @@ export type CareerEntry = {
   stations: string[];
   responsibilities: string[];
   skills: string[];
+  equipment: string[];
   representativeExperience: string;
 };
 
@@ -64,6 +65,9 @@ export const SKILL_OPTIONS = [
   "발효",
   "제면",
   "생선 손질",
+] as const;
+
+export const EQUIPMENT_OPTIONS = [
   "콤비오븐",
 ] as const;
 
@@ -102,6 +106,7 @@ export function createBlankCareerEntry(
     stations: [],
     responsibilities: [],
     skills: [],
+    equipment: [],
     representativeExperience: "",
   };
 }
@@ -124,7 +129,8 @@ export function createDemoCareerEntries(): CareerEntry[] {
         "스테이션 운영",
         "메뉴 개발",
       ],
-      skills: ["제면", "생선 손질", "수비드", "콤비오븐"],
+      skills: ["제면", "생선 손질", "수비드"],
+      equipment: ["콤비오븐"],
       representativeExperience:
         "파스타 스테이션을 독립 운영하고 계절 메뉴 테스트와 레시피 표준화를 보조했습니다.",
     },
