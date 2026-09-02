@@ -9,6 +9,7 @@ import {
   getCareerErrors,
   getEmployerLabel,
   getEnrichmentErrors,
+  getImportedCareerFieldProvenance,
   toggleBoundedChoice,
   type ResumeIdentity,
 } from "./resume-model.mts";
@@ -167,6 +168,59 @@ test("keeps imported qualification dates exact and separate from employment date
   assert.equal(entry.restaurantName, "");
   assert.equal(entry.employmentStart, "");
   assert.equal(entry.employmentEnd, "");
+});
+
+test("tracks imported field provenance through corrections and reverts", () => {
+  const importedFields = {
+    legalEmployer: "주식회사 가상키친",
+    qualificationStart: "2022-03-14",
+    qualificationEnd: "2023-08-21",
+  };
+  const [entry] = createImportedCareerEntries([importedFields]);
+
+  assert.deepEqual(entry.importedFields, importedFields);
+  assert.equal(
+    getImportedCareerFieldProvenance(entry, "legalEmployer"),
+    "imported",
+  );
+  assert.equal(
+    getImportedCareerFieldProvenance(entry, "qualificationStart"),
+    "imported",
+  );
+
+  const correctedEntry = {
+    ...entry,
+    legalEmployer: "가상키친",
+  };
+  assert.equal(
+    getImportedCareerFieldProvenance(correctedEntry, "legalEmployer"),
+    "confirmed",
+  );
+  assert.equal(
+    getImportedCareerFieldProvenance(correctedEntry, "qualificationStart"),
+    "imported",
+  );
+  assert.equal(
+    getImportedCareerFieldProvenance(
+      { ...entry, qualificationStart: "2022-03-15" },
+      "qualificationStart",
+    ),
+    "confirmed",
+  );
+  assert.equal(
+    getImportedCareerFieldProvenance(
+      { ...correctedEntry, legalEmployer: importedFields.legalEmployer },
+      "legalEmployer",
+    ),
+    "imported",
+  );
+
+  const manualEntry = createBlankCareerEntry("manual");
+  assert.equal(manualEntry.importedFields, null);
+  assert.equal(
+    getImportedCareerFieldProvenance(manualEntry, "legalEmployer"),
+    "authored",
+  );
 });
 
 test("stores equipment separately from skills", () => {

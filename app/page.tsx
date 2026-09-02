@@ -28,6 +28,7 @@ import {
   getCareerErrors,
   getEmployerLabel,
   getEnrichmentErrors,
+  getImportedCareerFieldProvenance,
   toggleBoundedChoice,
   type CareerEntry,
   type ResumeIdentity,
@@ -161,11 +162,13 @@ function ChoiceGroup({
 function Field({
   label,
   hint,
+  provenance,
   children,
   required,
 }: {
   label: string;
   hint?: string;
+  provenance?: keyof typeof PROVENANCE_LABELS;
   children: ReactNode;
   required?: boolean;
 }) {
@@ -176,6 +179,11 @@ function Field({
         {required ? <span aria-hidden="true"> *</span> : null}
       </span>
       {children}
+      {provenance ? (
+        <span className="field-provenance">
+          <ProvenanceTag kind={provenance} />
+        </span>
+      ) : null}
       {hint ? <span className="field-hint">{hint}</span> : null}
     </label>
   );
@@ -737,16 +745,11 @@ export default function Home() {
                       <span className="career-count">
                         CAREER {String(index + 1).padStart(2, "0")}
                       </span>
-                      <div className="tag-row">
-                        {career.isDemo ? (
+                      {career.isDemo ? (
+                        <div className="tag-row">
                           <span className="demo-tag">예시 데이터</span>
-                        ) : null}
-                        {career.origin === "document" ? (
-                          <ProvenanceTag kind="imported" />
-                        ) : (
-                          <ProvenanceTag kind="authored" />
-                        )}
-                      </div>
+                        </div>
+                      ) : null}
                     </div>
                     <label className="include-toggle">
                       <input
@@ -769,10 +772,14 @@ export default function Home() {
                     <div className="field-grid">
                       <Field
                         label={getEmployerLabel(career.origin)}
+                        provenance={getImportedCareerFieldProvenance(
+                          career,
+                          "legalEmployer",
+                        )}
                         hint={
                           career.origin === "manual"
                             ? "알고 있다면 입력하세요."
-                            : "원문을 보존하는 필드입니다."
+                            : "수정해도 원문 값은 별도로 보존합니다."
                         }
                       >
                         <input
@@ -811,10 +818,16 @@ export default function Home() {
                         <div>
                           <p className="date-section-title">
                             건강보험 자격일
-                            <span>문서에서 불러온 정보입니다.</span>
+                            <span>문서 값과 수정 여부를 구분합니다.</span>
                           </p>
                           <div className="date-grid">
-                            <Field label="자격 취득일">
+                            <Field
+                              label="자격 취득일"
+                              provenance={getImportedCareerFieldProvenance(
+                                career,
+                                "qualificationStart",
+                              )}
+                            >
                               <input
                                 type="date"
                                 value={career.qualificationStart}
@@ -826,7 +839,13 @@ export default function Home() {
                                 }
                               />
                             </Field>
-                            <Field label="자격 상실일">
+                            <Field
+                              label="자격 상실일"
+                              provenance={getImportedCareerFieldProvenance(
+                                career,
+                                "qualificationEnd",
+                              )}
+                            >
                               <input
                                 type="date"
                                 value={career.qualificationEnd}
@@ -1156,18 +1175,25 @@ export default function Home() {
                               )}
                             </p>
                             {career.legalEmployer ? (
-                              <small>
-                                {getEmployerLabel(career.origin)}:{" "}
-                                {career.legalEmployer}
+                              <small className="resume-employer">
+                                <span>
+                                  {getEmployerLabel(career.origin)}:{" "}
+                                  {career.legalEmployer}
+                                </span>
+                                {career.origin === "document" ? (
+                                  <ProvenanceTag
+                                    kind={getImportedCareerFieldProvenance(
+                                      career,
+                                      "legalEmployer",
+                                    )}
+                                  />
+                                ) : null}
                               </small>
                             ) : null}
                           </div>
                           <div className="resume-provenance">
                             {career.isDemo ? (
                               <span className="demo-tag">예시 데이터</span>
-                            ) : null}
-                            {career.origin === "document" ? (
-                              <ProvenanceTag kind="imported" />
                             ) : null}
                             <ProvenanceTag kind="confirmed" />
                           </div>

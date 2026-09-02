@@ -884,6 +884,10 @@ fieldset {
   line-height: 1.45;
 }
 
+.field-provenance {
+  display: flex;
+}
+
 .field input,
 .field textarea {
   width: 100%;
@@ -1200,6 +1204,13 @@ fieldset {
 .resume-career header small {
   color: #777c74;
   font-size: 0.66rem;
+}
+
+.resume-employer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
 }
 
 .resume-provenance {
