@@ -5,8 +5,14 @@ import {
   useRef,
   useState,
   type ChangeEvent,
+  type FormEvent,
   type ReactNode,
 } from "react";
+
+import {
+  MAX_NHIS_PDF_BYTES,
+  importNhisQualificationPdf,
+} from "./nhis-parser.mts";
 
 import {
   EQUIPMENT_OPTIONS,
@@ -17,6 +23,7 @@ import {
   STATION_OPTIONS,
   createBlankCareerEntry,
   createDemoCareerEntries,
+  createImportedCareerEntries,
   formatMonthRange,
   getCareerErrors,
   getEmployerLabel,
@@ -209,8 +216,14 @@ export default function Home() {
   const [fileNotice, setFileNotice] = useState<{
     tone: "neutral" | "error";
     message: string;
+    manualFallback?: boolean;
   } | null>(null);
+  const [hasSelectedPdf, setHasSelectedPdf] = useState(false);
+  const [isImportingPdf, setIsImportingPdf] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+  const selectedPdfRef = useRef<File | null>(null);
   const previousStep = useRef(currentStep);
 
   useEffect(() => {
@@ -221,6 +234,21 @@ export default function Home() {
     previousStep.current = currentStep;
     headingRef.current?.focus();
   }, [currentStep]);
+
+  useEffect(
+    () => () => {
+      selectedPdfRef.current = null;
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      if (passwordInputRef.current) {
+        passwordInputRef.current.value = "";
+      }
+    },
+    [],
+  );
 
   const currentCopy = STEP_COPY[currentStep - 1];
   const includedCareers = careers.filter((career) => career.included);
@@ -233,7 +261,24 @@ export default function Home() {
     setCurrentStep(step);
   }
 
+  function clearDocumentInputs() {
+    selectedPdfRef.current = null;
+    setHasSelectedPdf(false);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+
+    if (passwordInputRef.current) {
+      passwordInputRef.current.value = "";
+    }
+  }
+
   function startManualEntry() {
+    if (isImportingPdf) {
+      return;
+    }
+
     if (
       hasDraft &&
       !window.confirm(
@@ -243,6 +288,8 @@ export default function Home() {
       return;
     }
 
+    clearDocumentInputs();
+    setFileNotice(null);
     setCareers([createBlankCareerEntry("manual")]);
     setIdentity(EMPTY_IDENTITY);
     setIsDemoDraft(false);
@@ -251,6 +298,10 @@ export default function Home() {
   }
 
   function startDemo() {
+    if (isImportingPdf) {
+      return;
+    }
+
     if (
       hasDraft &&
       !window.confirm(
@@ -260,6 +311,8 @@ export default function Home() {
       return;
     }
 
+    clearDocumentInputs();
+    setFileNotice(null);
     setCareers(createDemoCareerEntries());
     setIdentity(DEMO_IDENTITY);
     setIsDemoDraft(true);
@@ -268,6 +321,12 @@ export default function Home() {
   }
 
   function continueDraft() {
+    if (isImportingPdf) {
+      return;
+    }
+
+    clearDocumentInputs();
+    setFileNotice(null);
     moveToStep(2);
   }
 
@@ -278,29 +337,120 @@ export default function Home() {
       return;
     }
 
+    if (passwordInputRef.current) {
+      passwordInputRef.current.value = "";
+    }
+
     const isPdf =
       selectedFile.type === "application/pdf" ||
       selectedFile.name.toLowerCase().endsWith(".pdf");
-    const fileDescription =
-      selectedFile.name + " · " + formatFileSize(selectedFile.size);
 
-    event.currentTarget.value = "";
-
-    if (!isPdf) {
+    if (
+      !isPdf ||
+      selectedFile.size === 0 ||
+      selectedFile.size > MAX_NHIS_PDF_BYTES
+    ) {
+      selectedPdfRef.current = null;
+      setHasSelectedPdf(false);
+      event.currentTarget.value = "";
       setFileNotice({
         tone: "error",
         message:
-          "PDF 파일만 선택할 수 있습니다. 파일은 읽거나 전송하지 않았습니다.",
+          "10MB 이하의 PDF 파일만 선택할 수 있습니다. 파일은 읽거나 전송하지 않았습니다.",
       });
       return;
     }
 
+    selectedPdfRef.current = selectedFile;
+    setHasSelectedPdf(true);
     setFileNotice({
       tone: "neutral",
       message:
-        fileDescription +
-        "을 선택했습니다. 이번 프로토타입은 문서 내용을 읽지 않으므로, 원본을 보관하지 않고 직접 입력으로 이어갑니다.",
+        formatFileSize(selectedFile.size) +
+        " PDF를 선택했습니다. 아직 파일을 읽거나 전송하지 않았습니다.",
     });
+    passwordInputRef.current?.focus();
+  }
+
+  async function handlePdfImport(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (isImportingPdf) {
+      return;
+    }
+
+    const selectedFile = selectedPdfRef.current;
+    const password = passwordInputRef.current?.value ?? "";
+
+    if (!selectedFile) {
+      setFileNotice({
+        tone: "error",
+        message: "먼저 PDF 파일을 선택해 주세요.",
+      });
+      return;
+    }
+
+    if (!password) {
+      setFileNotice({
+        tone: "error",
+        message: "PDF 비밀번호를 입력해 주세요.",
+      });
+      passwordInputRef.current?.focus();
+      return;
+    }
+
+    if (
+      hasDraft &&
+      !window.confirm(
+        "문서에서 새 이력서를 불러오시겠습니까? 현재 탭에서 작성한 내용은 사라집니다.",
+      )
+    ) {
+      return;
+    }
+
+    setIsImportingPdf(true);
+    setFileNotice({
+      tone: "neutral",
+      message: "이 브라우저에서 문서의 근무 이력만 확인하고 있습니다.",
+    });
+
+    const result = await importNhisQualificationPdf(selectedFile, password);
+
+    if (passwordInputRef.current) {
+      passwordInputRef.current.value = "";
+    }
+
+    setIsImportingPdf(false);
+
+    if (result.status === "password-error") {
+      setFileNotice({
+        tone: "error",
+        message: "PDF 비밀번호가 맞지 않습니다. 다시 입력해 주세요.",
+      });
+      passwordInputRef.current?.focus();
+      return;
+    }
+
+    clearDocumentInputs();
+
+    if (result.status === "manual-fallback") {
+      setFileNotice({
+        tone: "error",
+        message:
+          result.reason === "unsupported-layout"
+            ? "현재 진단 중인 국민건강보험공단 직접 발급 양식과 다릅니다. 문서는 저장하지 않았으며 직접 입력으로 계속할 수 있습니다."
+            : "이 PDF를 안전하게 읽을 수 없습니다. 문서는 저장하지 않았으며 직접 입력으로 계속할 수 있습니다.",
+        manualFallback: true,
+      });
+      return;
+    }
+
+    setFileNotice(null);
+    setCareers(createImportedCareerEntries(result.records));
+    setIdentity(EMPTY_IDENTITY);
+    setIsDemoDraft(false);
+    setTalentPoolChoice("resume-only");
+    moveToStep(2);
   }
 
   function updateCareer(id: string, patch: Partial<CareerEntry>) {
@@ -452,23 +602,48 @@ export default function Home() {
                   01
                 </div>
                 <div>
-                  <p className="panel-kicker">가장 빠른 시작</p>
-                  <h2>건강보험 자격득실확인서 PDF</h2>
+                  <p className="panel-kicker">검증 중인 빠른 시작</p>
+                  <h2>국민건강보험공단 직접 발급 PDF</h2>
                   <p className="panel-copy">
-                    텍스트를 읽을 수 있는 지원 양식을 정하기 전까지 자동
-                    추출을 흉내 내지 않습니다. 이번 버전은 파일을 읽지 않고
-                    직접 입력으로 이어집니다.
+                    공단에서 직접 발급한 텍스트 PDF 한 양식만 진단합니다.
+                    정부24 발급본이나 다른 양식은 직접 입력으로 이어집니다.
                   </p>
                 </div>
 
-                <label className="file-picker">
-                  <span>PDF 선택하기</span>
-                  <input
-                    type="file"
-                    accept=".pdf,application/pdf"
-                    onChange={handleFileSelection}
-                  />
-                </label>
+                <form className="pdf-import-form" onSubmit={handlePdfImport}>
+                  <label className="file-picker">
+                    <span>{hasSelectedPdf ? "PDF 다시 선택하기" : "PDF 선택하기"}</span>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".pdf,application/pdf"
+                      onChange={handleFileSelection}
+                      disabled={isImportingPdf}
+                    />
+                  </label>
+
+                  <label className="pdf-password-field">
+                    <span>PDF 비밀번호</span>
+                    <input
+                      ref={passwordInputRef}
+                      type="password"
+                      autoComplete="off"
+                      maxLength={128}
+                      disabled={isImportingPdf}
+                    />
+                    <small>직접 발급본에 설정된 비밀번호를 입력해 주세요.</small>
+                  </label>
+
+                  <button
+                    className="import-button"
+                    type="submit"
+                    disabled={isImportingPdf}
+                  >
+                    {isImportingPdf
+                      ? "이 브라우저에서 확인 중"
+                      : "이 브라우저에서 불러오기"}
+                  </button>
+                </form>
 
                 {fileNotice ? (
                   <div
@@ -479,15 +654,15 @@ export default function Home() {
                   </div>
                 ) : null}
 
-                {fileNotice?.tone === "neutral" ? (
+                {fileNotice?.manualFallback ? (
                   <button
                     className="text-button"
                     type="button"
                     onClick={startManualEntry}
                   >
                     {hasDraft
-                      ? "새 이력서로 직접 입력하기"
-                      : "직접 입력으로 계속하기"}
+                        ? "새 이력서로 직접 입력하기"
+                        : "직접 입력으로 계속하기"}
                     <span aria-hidden="true">→</span>
                   </button>
                 ) : null}
@@ -506,6 +681,7 @@ export default function Home() {
                       className="primary-button"
                       type="button"
                       onClick={continueDraft}
+                      disabled={isImportingPdf}
                     >
                       작성 이어가기
                       <span aria-hidden="true">→</span>
@@ -515,13 +691,19 @@ export default function Home() {
                     className={hasDraft ? "secondary-button" : "primary-button"}
                     type="button"
                     onClick={startManualEntry}
+                    disabled={isImportingPdf}
                   >
                     {hasDraft ? "새로 작성하기" : "직접 입력하기"}
                     <span aria-hidden="true">→</span>
                   </button>
                 </div>
 
-                <button className="demo-button" type="button" onClick={startDemo}>
+                <button
+                  className="demo-button"
+                  type="button"
+                  onClick={startDemo}
+                  disabled={isImportingPdf}
+                >
                   <span>
                     <strong>예시 데이터로 흐름 보기</strong>
                     <small>실제 경력으로 오해하지 않도록 계속 표시합니다.</small>
@@ -533,9 +715,9 @@ export default function Home() {
               <div className="privacy-strip">
                 <strong>원본 문서 처리 원칙</strong>
                 <ul>
-                  <li>서버로 전송하지 않습니다.</li>
+                  <li>PDF와 비밀번호는 현재 탭에서만 처리합니다.</li>
+                  <li>서버·로그·분석 도구·AI로 전송하지 않습니다.</li>
                   <li>브라우저 저장소에 남기지 않습니다.</li>
-                  <li>AI와 분석 도구에 전달하지 않습니다.</li>
                 </ul>
               </div>
             </section>
@@ -632,9 +814,9 @@ export default function Home() {
                             <span>문서에서 불러온 정보입니다.</span>
                           </p>
                           <div className="date-grid">
-                            <Field label="자격 취득월">
+                            <Field label="자격 취득일">
                               <input
-                                type="month"
+                                type="date"
                                 value={career.qualificationStart}
                                 onChange={(event) =>
                                   updateCareer(career.id, {
@@ -644,9 +826,9 @@ export default function Home() {
                                 }
                               />
                             </Field>
-                            <Field label="자격 상실월">
+                            <Field label="자격 상실일">
                               <input
-                                type="month"
+                                type="date"
                                 value={career.qualificationEnd}
                                 onChange={(event) =>
                                   updateCareer(career.id, {

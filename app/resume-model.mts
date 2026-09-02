@@ -27,6 +27,11 @@ export type ResumeIdentity = {
   summary: string;
 };
 
+type ImportedCareerRecord = Pick<
+  CareerEntry,
+  "legalEmployer" | "qualificationStart" | "qualificationEnd"
+>;
+
 export type TalentPoolChoice =
   | "resume-only"
   | "selected-only"
@@ -124,8 +129,8 @@ export function createDemoCareerEntries(): CareerEntry[] {
       ...createBlankCareerEntry("document"),
       isDemo: true,
       legalEmployer: "주식회사 엠에프지코리아",
-      qualificationStart: "2018-03",
-      qualificationEnd: "2019-07",
+      qualificationStart: "2018-03-01",
+      qualificationEnd: "2019-07-01",
       restaurantName: "더 키친 살바토레 쿠오모",
       employmentStart: "2018-03",
       employmentEnd: "2019-06",
@@ -142,6 +147,15 @@ export function createDemoCareerEntries(): CareerEntry[] {
         "파스타 스테이션을 독립 운영하고 계절 메뉴 테스트와 레시피 표준화를 보조했습니다.",
     },
   ];
+}
+
+export function createImportedCareerEntries(
+  records: readonly ImportedCareerRecord[],
+): CareerEntry[] {
+  return records.map((record) => ({
+    ...createBlankCareerEntry("document"),
+    ...record,
+  }));
 }
 
 export function toggleBoundedChoice(

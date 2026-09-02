@@ -382,7 +382,7 @@ button {
 .import-panel {
   position: relative;
   display: flex;
-  min-height: 430px;
+  min-height: 560px;
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
@@ -484,6 +484,70 @@ button {
 .file-picker:focus-within {
   outline: 3px solid rgba(230, 154, 138, 0.48);
   outline-offset: 3px;
+}
+
+.pdf-import-form {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 12px;
+}
+
+.pdf-password-field {
+  display: grid;
+  gap: 7px;
+  color: rgba(255, 249, 239, 0.86);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.pdf-password-field input {
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 249, 239, 0.42);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff9ef;
+  font: inherit;
+}
+
+.pdf-password-field input:focus {
+  border-color: #fff9ef;
+  outline: 3px solid rgba(230, 154, 138, 0.48);
+  outline-offset: 2px;
+}
+
+.pdf-password-field small {
+  color: rgba(255, 249, 239, 0.62);
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.import-button {
+  min-height: 50px;
+  padding: 12px 18px;
+  border: 1px solid #e69a8a;
+  border-radius: 2px;
+  background: #e69a8a;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+}
+
+.import-button:hover:not(:disabled) {
+  background: #fff9ef;
+}
+
+.import-button:focus-visible {
+  outline: 3px solid rgba(230, 154, 138, 0.48);
+  outline-offset: 3px;
+}
+
+.import-button:disabled,
+.file-picker:has(input:disabled) {
+  cursor: wait;
+  opacity: 0.62;
 }
 
 .file-notice {
@@ -1398,7 +1462,7 @@ button:disabled {
   }
 
   .import-panel {
-    min-height: 430px;
+    min-height: 560px;
     padding: 28px 22px;
   }
 

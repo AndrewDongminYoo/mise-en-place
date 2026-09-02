@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   createBlankCareerEntry,
   createDemoCareerEntries,
+  createImportedCareerEntries,
   formatMonthRange,
   getCareerErrors,
   getEmployerLabel,
@@ -148,6 +149,24 @@ test("keeps demo provenance and employer names explicit", () => {
   assert.equal(entry.isDemo, true);
   assert.equal(entry.legalEmployer, "주식회사 엠에프지코리아");
   assert.equal(entry.restaurantName, "더 키친 살바토레 쿠오모");
+});
+
+test("keeps imported qualification dates exact and separate from employment dates", () => {
+  const [entry] = createImportedCareerEntries([
+    {
+      legalEmployer: "주식회사 가상키친",
+      qualificationStart: "2022-03-14",
+      qualificationEnd: "2023-08-21",
+    },
+  ]);
+
+  assert.equal(entry.origin, "document");
+  assert.equal(entry.legalEmployer, "주식회사 가상키친");
+  assert.equal(entry.qualificationStart, "2022-03-14");
+  assert.equal(entry.qualificationEnd, "2023-08-21");
+  assert.equal(entry.restaurantName, "");
+  assert.equal(entry.employmentStart, "");
+  assert.equal(entry.employmentEnd, "");
 });
 
 test("stores equipment separately from skills", () => {
