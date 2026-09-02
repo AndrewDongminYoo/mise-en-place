@@ -2,14 +2,13 @@
 
 ## Status
 
-This document is a draft operating specification.
-It is not approved until the operator accepts it.
+Approved by the operator on 2026-09-02.
 
 `docs/specs/initial-product-scope.md` section "Resume Review Milestone" records resume review as a required part of the first product milestone and defers four decisions to a separate specification: reviewer type, assignment model, response time, and payment model.
-This document proposes those four decisions for the validation slice only, and adds the review data boundary and feedback model that the four decisions depend on.
+This document settles those four decisions for the validation slice only, and adds the review data boundary and feedback model that the four decisions depend on.
 
-The recommendations here are chosen defaults, not evidence.
-Each one names the alternative it rejected so a later decision can reverse it cheaply.
+The four decisions are approved, but the reasoning behind each one is a chosen default rather than evidence.
+Each names the alternative it rejected, so a later decision can reverse it cheaply once Track A produces evidence.
 
 ## Scope
 

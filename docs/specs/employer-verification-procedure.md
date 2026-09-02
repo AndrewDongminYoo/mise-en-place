@@ -2,8 +2,7 @@
 
 ## Status
 
-This document is a draft operating procedure.
-It is not approved until the operator accepts it.
+Approved by the operator on 2026-09-02.
 
 It does not define what must be verified.
 `docs/specs/initial-product-scope.md` section "Minimum Employer Verification" owns the required-field list, the four no-publish conditions, and the rule that employer confirmation alone is not sufficient.

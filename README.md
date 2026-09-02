@@ -51,7 +51,7 @@ They are not feature checklists.
 - [Resume Builder Validation Plan](docs/plans/resume-builder-validation.md) defines the immediate validation steps.
 - [Founding Cohort Validation Plan](docs/plans/founding-cohort-validation.md) defines the later hiring-network validation.
 - [Initial Product Scope](docs/specs/initial-product-scope.md) defines both product boundaries and their independent gates.
-- [Resume Review Workflow](docs/specs/resume-review-workflow.md) proposes the review model that the first milestone requires.
+- [Resume Review Workflow](docs/specs/resume-review-workflow.md) defines the review model that the first milestone requires.
 - [Employer Verification Procedure](docs/specs/employer-verification-procedure.md) defines how a restaurant passes minimum verification.
 
 ## Development
