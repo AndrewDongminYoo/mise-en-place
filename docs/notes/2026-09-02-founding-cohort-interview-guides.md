@@ -27,6 +27,9 @@ Revise it after the first two interviews if a question repeatedly fails to produ
 - Record a participant's request for a feature as a request, never as a problem.
   The threshold counts problems.
 - Do not correct a participant's account, and do not argue about whether something was lawful.
+- **Any answer that arrives from a probe is prompted, in every section, not only where a probe lists candidates.**
+  Code it as prompted and keep it out of the threshold count. Only what the participant raised against the open question counts.
+  This is the rule; the per-section coding lines and the note template below carry the field, and a section that forgets it is a defect in that section rather than an exception.
 
 ## Consent and Recruiting
 
@@ -84,7 +87,10 @@ The consent script promises that the interview will not be disclosed externally,
 `.gitignore` refuses `docs/notes/interview-*.md` as a backstop, but the rule is that the file is never created inside the repository at all.
 `docs/plans/founding-cohort-validation.md` step 1 previously said to store anonymized notes in `docs/notes/`; that instruction is narrowed here and in the plan itself.
 
-Only the coded counts in the counting section below are committed, and those carry participant identifiers rather than answers.
+**No committed artifact associates a participant identifier with an answer or an outcome.**
+Only the counts in the counting section below are committed. The identifiers behind each count stay with the notes, outside the repository.
+A pseudonym attached to a published answer is still that person's answer, and the consent promises the answers are not disclosed externally.
+This applies to `docs/notes/2026-09-02-moderated-completion-test-protocol.md` too, which delegates its anonymization here.
 
 A note that cannot be written without an identifying detail is a note that should not be written.
 
@@ -221,8 +227,15 @@ Code: 사용한 채널, 채널별 지원 수 구간, 면접 전환, 최종 성�
 - 그분은 지금도 계신가요? 아니라면 얼마나 계셨나요?
 
 Probes: 기술이 달랐나요, 태도였나요, 근무 조건에 대한 기대가 달랐나요?
+Ask these one at a time, only after the operator has stopped volunteering, and never as a list read aloud.
 
-Code: 불일치 항목, 발견 시점, 재직 기간, 이탈 여부.
+Code:
+
+- 불일치 항목.
+- 각 항목이 자발적으로 나온 것인지, 물어봐서 나온 것인지 (spontaneous 또는 prompted).
+- 발견 시점.
+- 재직 기간.
+- 이탈 여부.
 
 ### B4. Information That Would Have Prevented It
 
@@ -288,8 +301,10 @@ One file per interview, kept outside this repository next to the mapping, named 
 - 성사:
 
 ### A3 What differed after starting
-| 항목 | 어떻게 달랐는지 | 알게 된 시점 | 대응 |
-| --- | --- | --- | --- |
+| 항목 | 자발/유도 | 어떻게 달랐는지 | 알게 된 시점 | 대응 |
+| --- | --- | --- | --- | --- |
+
+The 자발/유도 column is required wherever a coded item can arrive from a probe, in guide B as well as here.
 
 ### A4 Information that would have prevented it
 - 필요했던 정보:

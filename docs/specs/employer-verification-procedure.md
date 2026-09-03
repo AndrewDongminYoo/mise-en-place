@@ -39,11 +39,12 @@ A field with no artifact is not verified, whatever the employer has said about i
 | --- | --- | --- |
 | 사업자등록증 | Business identity. | Check that the business name, registration number, and representative match every other document. |
 | 영업신고증 or the equivalent food-service permit | Worksite identity. | The permitted address is the worksite claim to check the role against. |
-| A written 근로계약서 or a draft offer for the specific opening | Employment type, probation terms, compensation, workdays, hours, breaks, days off, overtime handling, trial terms, benefits, deductions. | 근로기준법 제17조 already requires some of these in writing; the source table lists which. The rest are not covered by that article and have to be asked for. |
+| A written 근로계약서 or a draft offer for the specific opening | Employment type, probation terms, compensation, workdays, hours, breaks, days off, schedule confirmation timing, overtime handling, trial terms, benefits, deductions. | 근로기준법 제17조 already requires some of these in writing; the source table lists which. The rest are not covered by that article and have to be asked for. |
 | 취업규칙, where the employer has one | Schedule confirmation timing, overtime and late-close handling, break practice. | Required by law above a size threshold; its absence is not itself a finding. |
 | A recent payslip for the same role, with personal identifiers removed | Whether the stated compensation matches what is actually paid. | Ask for the role, not the person. Do not accept a document carrying a resident registration number. |
 | A named recruiting contact reachable at a business channel | Recruiting contact. | A personal messenger handle with no business identity behind it does not satisfy this. |
 | The employer's stated 상시 근로자 수 and the basis for it | Which 근로기준법 provisions apply. | Recount it; see the statutory calculation below. |
+| A written statement from the employer on any required field no other artifact carries | That field. | This row exists so no required field is structurally impossible to close. An employer below the size threshold has no 취업규칙, and without this the schedule-confirmation-timing field could never be evidenced and the employer could never pass. It is written and attributable, which a verbal statement is not. |
 | A written statement of the reason for the opening | Reason for the opening. | Compare against tenure of the previous holder when the employer will state it. Record that tenure in months only. The previous employee is not a party to this verification and did not consent to anything, so nothing else about them enters the record. |
 
 Anything the employer supplies as an image or a scan is evidence of the same rank as a document, provided the reviewer can read every field being relied on.
@@ -100,6 +101,11 @@ Perform these in order, and record each result.
 
 8. **Record the arithmetic, not only the verdict.**
    Another person has to be able to reproduce the calculation from the record without asking the reviewer what was assumed.
+
+Nothing in these steps checks social-insurance enrolment or the deduction rates.
+`docs/notes/2026-09-02-korean-employment-law-sources.md` marks both as not covered, so there is no source to calculate against.
+Record those fields as **disclosed, not checked**, never as verified, and do not let a published result imply otherwise.
+Adding the source rows so they can be calculated is outstanding work, and until it is done this is a known hole rather than a silent one.
 
 When a calculation cannot be completed because a field is missing, the field is missing.
 Do not fill it with a typical value for the segment.
@@ -200,7 +206,7 @@ The record adds these so it can be reproduced and re-checked later:
 | Reviewer | The named reviewer. |
 | Review date | The date the verification result was reached. |
 | Evidence list | One line per artifact received: what it was, the date received, and whether it was readable for the fields relied on. |
-| Field results | One line per required field: the value evidenced, the artifact it came from, and whether it is closed, missing, or not reached. Stopping a review at the field that triggered a refusal records every later field as not reached, because recording them as missing would overstate the refusal basis in a record that later rounds cannot edit. |
+| Field results | One line per required field: the value evidenced, the artifact it came from, and whether it is closed, disclosed but not statutorily checked, missing, or not reached. Stopping a review at the field that triggered a refusal records every later field as not reached, because recording them as missing would overstate the refusal basis in a record that later rounds cannot edit. |
 | Counted headcount | The 상시 근로자 수 the reviewer counted and the count date. |
 | Statutory basis | Which year's minimum wage was applied, and the date the source table was read. |
 | Calculation | The arithmetic for the compensation and hours checks, in enough detail to reproduce. |

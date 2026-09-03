@@ -314,8 +314,9 @@ Record the build commit on every sheet so this is checkable afterwards rather th
 
 `docs/plans/resume-builder-validation.md` step 3 is verified by reconciling all 10 participant outcomes against the Track A gate.
 
-Produce one summary that, for each of the three behavioral thresholds, lists the participant identifiers on each side of it.
-A count with no identifiers behind it is not reconciled.
+Produce one summary that, for each of the three behavioral thresholds, gives the count on each side of it.
+Keep the identifiers behind those counts with the session sheets, outside this repository, and reconcile against that offline record.
+A count that cannot be reconciled offline is not reconciled; a committed summary naming which participant completed, intended to apply, or chose the private profile is a respondent-level outcome, and the consent script never said it would be published.
 
 Report alongside it, because each one changes how the counts should be read:
 
