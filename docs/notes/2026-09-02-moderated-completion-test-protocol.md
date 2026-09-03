@@ -71,7 +71,7 @@ When the review phase below is enabled, these items are read as well, before the
 13. 보내실 때 이름과 연락처는 지우고 보내주세요. 검토에는 지장이 없고, 저에게 남는 정보를 줄이기 위한 것입니다.
 14. 검토를 받지 않으셔도 오늘 참여에는 아무 영향이 없습니다.
 
-Items 11 to 14 are drafted here and are not approved.
+Items 11 to 14 are drafted here and are not approved, and item 13 additionally depends on an export path the product does not yet have; see the identity-free export prerequisite in `docs/specs/resume-review-workflow.md`.
 They exist because `docs/specs/resume-review-workflow.md` opens a path that sends resume content to the operator while leaving its consent wording undefined, which would take a transfer the participant never agreed to.
 Do not enable the review phase until these are approved together with the sequencing decision.
 

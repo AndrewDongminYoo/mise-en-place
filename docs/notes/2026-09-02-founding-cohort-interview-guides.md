@@ -354,6 +354,8 @@ Check both before declaring the step complete:
 
 - 20 note files exist, 10 with guide A and 10 with guide B, each with a consent line.
 - A regular-expression search across the note files finds no phone number, no email address, and no resident registration number.
-- A fixed-string search finds no proper noun. Names carry no pattern, so a regular expression cannot read this class and will report clean on a note that names an employer.
-  During each interview, add every personal name, restaurant name, and brand the participant says to a nouns file kept beside the mapping, then run `grep -F -f <nouns-file>` across the notes.
-- Run both searches rather than relying on having been careful, and record that both were run.
+- The interviewer reads each note back before saving it, looking for any proper noun that reached the page.
+  There is no list to search against, and there must not be one: a file of the names participants said is exactly what consent item 2 and the never-record list forbid, so building it to protect the notes would breach the promise it was meant to keep.
+  This is a human control with a known ceiling — it catches what the reader notices. The compensating rule is the one above it: the note is written without names in the first place, not cleaned afterwards.
+- A second regular-expression pass flags likely business names by their suffixes (식당, 레스토랑, 베이커리, 카페, 주점 and similar) and any quoted span, as candidates for the reader to look at. It stores nothing.
+- Run both passes and the read-back rather than relying on having been careful, and record that all three were done.

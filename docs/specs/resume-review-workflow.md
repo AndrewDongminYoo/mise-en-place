@@ -168,6 +168,17 @@ The second option is the smaller long-term cost, but it is an application change
 The decision is `[UNKNOWN]` until the operator selects one.
 Until then, review runs in moderated sessions only.
 
+## Prerequisite: An Identity-Free Export
+
+The data boundary requires the participant to remove identity and contact fields before sending the export, and consent item 13 asks them to.
+The current build cannot do it.
+`getEnrichmentErrors` in `app/resume-model.mts` rejects an empty name, so a resume without one cannot reach preview, and the print sheet in `app/page.tsx` always renders `identity.name`.
+Removing the name to satisfy the boundary therefore removes the participant's ability to produce the export at all.
+
+So the review path has two implementation prerequisites, not one: draft continuity above, and an export that can omit the identity fields.
+Both are application changes and neither is in this document's scope.
+Until the export exists, do not enable the review phase, and do not read consent item 13 to a participant, because it asks for something the product cannot do.
+
 ## Review Validation Gate
 
 Review is measured against the resume it changes, not against reviewer output volume.
