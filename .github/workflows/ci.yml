@@ -18,14 +18,17 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # Installs pnpm from packageManager and Node from devEngines.runtime,
-      # then runs `pnpm install --frozen-lockfile`, so the lockfile is checked
-      # by the same step that installs.
+      # Installs pnpm from packageManager and Node from devEngines.runtime, and
+      # restores the store cache. Its own install is turned off so the
+      # lockfile check is an explicit step whose flag is visible here: the
+      # action's `require-lockfile` input is documented in its README but is
+      # not accepted by the released v2, which ignores it with a warning.
       - uses: pnpm/setup@v2
         with:
           cache: true
-          require-lockfile: true
+          install: false
 
+      - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
