@@ -40,10 +40,15 @@ The consent script states, in plain Korean:
 1. 무엇을 위한 인터뷰인지: 요리사 채용과 이직 경험을 이해하기 위한 조사입니다.
 2. 무엇을 기록하는지: 답변 내용만 기록하고, 이름과 근무하신 업장 이름은 기록하지 않습니다.
 3. 녹음 여부: 녹음은 하지 않습니다. 메모만 남깁니다.
-4. 어디에 쓰이는지: 서비스를 만들지 결정하는 데에만 사용하고, 외부에 공개하지 않습니다.
-5. 보관 기간: 메모는 조사가 끝난 뒤 90일이 지나면 삭제합니다.
-6. 중단과 삭제: 언제든 답변을 그만두실 수 있고, 그 전에도 삭제를 요청하실 수 있습니다.
-7. 보상 여부: 있으면 그 내용, 없으면 없다는 사실.
+4. 어디에 쓰이는지: 서비스를 만들지 결정하는 데에만 사용합니다. 하신 말씀 자체는 어디에도 공개하지 않습니다.
+5. 공개되는 것: 몇 분이 같은 문제를 말씀하셨는지 같은 합계만 공개된 기록에 남깁니다. 누가 무엇을 말씀하셨는지, 어떤 표현을 쓰셨는지는 남지 않습니다. 원하지 않으시면 합계에서도 빼드립니다.
+6. 보관 기간: 메모는 조사가 끝난 뒤 90일이 지나면 삭제합니다.
+7. 중단과 삭제: 언제든 답변을 그만두실 수 있고, 그 전에도 삭제를 요청하실 수 있습니다.
+8. 보상 여부: 있으면 그 내용, 없으면 없다는 사실.
+
+Item 5 exists because the counting section commits its totals to a public repository.
+Removing the identifiers does not make that publication consented to; item 4's promise covers the answers, and item 5 is what covers the totals drawn from them.
+A participant who declines is left out of the totals and still takes part.
 
 The 90-day retention point is a chosen default, not a requirement read from a source.
 It exists because four deletion rules across these documents referred to an agreed point that no step produced.

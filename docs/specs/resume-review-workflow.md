@@ -101,7 +101,7 @@ Rules for the validation slice:
 - The application does not upload the resume, does not transmit it to a review service, and does not gain a server-side review store.
 - The original source document is never part of a review request, and the reviewer never asks for it.
 - The person removes the identity and contact fields from the export before sending it. Review works without them, so removal is the default rather than an option the person has to think of.
-- The operator deletes the received export **as soon as the review is returned**, which is what consent item 12 promises, and records that deletion date in the review queue entry.
+- The operator deletes the received export **as soon as the review is returned**, which is what consent item 13 promises, and records that deletion date in the review queue entry.
   This is not the 90-day point that `docs/notes/2026-09-02-founding-cohort-interview-guides.md` sets for research notes. A resume export is the participant's own document, not a coded note, and it is deleted on completion rather than on that schedule.
 - Deletion covers the operator's local copy **and** the message thread on whichever channel carried it. A deletion that leaves the file in a chat history has not happened.
 - Review feedback is returned as text, not as a rewritten resume file.
@@ -170,14 +170,14 @@ Until then, review runs in moderated sessions only.
 
 ## Prerequisite: An Identity-Free Export
 
-The data boundary requires the participant to remove identity and contact fields before sending the export, and consent item 13 asks them to.
+The data boundary requires the participant to remove identity and contact fields before sending the export, and consent item 14 asks them to.
 The current build cannot do it.
 `getEnrichmentErrors` in `app/resume-model.mts` rejects an empty name, so a resume without one cannot reach preview, and the print sheet in `app/page.tsx` always renders `identity.name`.
 Removing the name to satisfy the boundary therefore removes the participant's ability to produce the export at all.
 
 So the review path has two implementation prerequisites, not one: draft continuity above, and an export that can omit the identity fields.
 Both are application changes and neither is in this document's scope.
-Until the export exists, do not enable the review phase, and do not read consent item 13 to a participant, because it asks for something the product cannot do.
+Until the export exists, do not enable the review phase, and do not read consent item 14 to a participant, because it asks for something the product cannot do.
 
 ## Review Validation Gate
 

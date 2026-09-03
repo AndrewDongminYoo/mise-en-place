@@ -61,17 +61,18 @@ It states:
 6. 화면 녹화: 하지 않습니다.
 7. 서류: 가져오신 서류는 이 컴퓨터 밖으로 나가지 않고, 저희 서버로도 전송되지 않습니다. 오늘 세션이 끝나면 이 컴퓨터에서도 지웁니다.
 8. 보관 기간: 관찰 기록은 조사가 끝난 뒤 90일이 지나면 삭제합니다.
-9. 중단과 삭제: 언제든 그만두실 수 있고, 그 전에도 기록 삭제를 요청하실 수 있습니다.
-10. 보상 여부: 있으면 그 내용, 없으면 없다는 사실.
+9. 공개되는 것: 열 분의 결과를 합친 숫자만 공개된 기록에 남기고, 누가 어땠는지는 남기지 않습니다. 원하지 않으시면 합계에서도 빼드립니다.
+10. 중단과 삭제: 언제든 그만두실 수 있고, 그 전에도 기록 삭제를 요청하실 수 있습니다.
+11. 보상 여부: 있으면 그 내용, 없으면 없다는 사실.
 
 When the review phase below is enabled, these items are read as well, before the review is offered:
 
-11. 검토를 원하시면 완성된 이력서를 직접 내보내서, 원하시는 방법으로 저에게 보내주시게 됩니다. 앱이 자동으로 보내는 것은 없습니다.
-12. 보내주신 이력서는 검토가 끝나면 삭제하고, 삭제한 날짜를 기록합니다. 주고받은 대화방에 남은 파일도 함께 지웁니다.
-13. 보내실 때 이름과 연락처는 지우고 보내주세요. 검토에는 지장이 없고, 저에게 남는 정보를 줄이기 위한 것입니다.
-14. 검토를 받지 않으셔도 오늘 참여에는 아무 영향이 없습니다.
+12. 검토를 원하시면 완성된 이력서를 직접 내보내서, 원하시는 방법으로 저에게 보내주시게 됩니다. 앱이 자동으로 보내는 것은 없습니다.
+13. 보내주신 이력서는 검토가 끝나면 삭제하고, 삭제한 날짜를 기록합니다. 주고받은 대화방에 남은 파일도 함께 지웁니다.
+14. 보내실 때 이름과 연락처는 지우고 보내주세요. 검토에는 지장이 없고, 저에게 남는 정보를 줄이기 위한 것입니다.
+15. 검토를 받지 않으셔도 오늘 참여에는 아무 영향이 없습니다.
 
-Items 11 to 14 are drafted here and are not approved, and item 13 additionally depends on an export path the product does not yet have; see the identity-free export prerequisite in `docs/specs/resume-review-workflow.md`.
+Items 12 to 15 are drafted here and are not approved, and item 14 additionally depends on an export path the product does not yet have; see the identity-free export prerequisite in `docs/specs/resume-review-workflow.md`.
 They exist because `docs/specs/resume-review-workflow.md` opens a path that sends resume content to the operator while leaving its consent wording undefined, which would take a transfer the participant never agreed to.
 Do not enable the review phase until these are approved together with the sequencing decision.
 
@@ -80,6 +81,9 @@ Keep the contact detail with the identifier mapping, outside this repository, an
 A participant who declines still takes part; record them as no-follow-up rather than dropping them.
 
 Item 8's 90-day point is the one stated in `docs/notes/2026-09-02-founding-cohort-interview-guides.md`, which owns it.
+
+Item 9 covers the reconciliation summary, which is the only thing from these sessions that is committed, and this repository is public.
+Removing the identifiers does not make publishing the totals something the participant agreed to; item 9 is what covers them.
 
 Item 7 is an absolute technical claim, so verify it before the first session of each build rather than asserting it.
 Open the browser devtools network panel, run one import, and confirm that no request leaves the page.
