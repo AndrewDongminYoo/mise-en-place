@@ -2,8 +2,10 @@
 
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ChangeEvent,
   type FormEvent,
   type ReactNode,
@@ -18,6 +20,7 @@ import {
   EQUIPMENT_OPTIONS,
   PROVENANCE_LABELS,
   RESPONSIBILITY_OPTIONS,
+  RESUME_DRAFT_STORAGE_KEY,
   ROLE_SUGGESTIONS,
   SKILL_OPTIONS,
   STATION_OPTIONS,
@@ -29,6 +32,8 @@ import {
   getEmployerLabel,
   getEnrichmentErrors,
   getImportedCareerFieldProvenance,
+  parseResumeDraft,
+  serializeResumeDraft,
   toggleBoundedChoice,
   type CareerEntry,
   type ResumeIdentity,
@@ -213,6 +218,32 @@ function formatFileSize(bytes: number) {
   return (bytes / (1024 * 1024)).toFixed(1) + " MB";
 }
 
+const storedDraftListeners = new Set<() => void>();
+
+function readStoredDraft() {
+  try {
+    return window.localStorage.getItem(RESUME_DRAFT_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function subscribeToStoredDraft(onStoreChange: () => void) {
+  storedDraftListeners.add(onStoreChange);
+  window.addEventListener("storage", onStoreChange);
+
+  return () => {
+    storedDraftListeners.delete(onStoreChange);
+    window.removeEventListener("storage", onStoreChange);
+  };
+}
+
+function notifyStoredDraftChanged() {
+  for (const listener of storedDraftListeners) {
+    listener();
+  }
+}
+
 export default function Home() {
   const [currentStep, setCurrentStep] = useState(1);
   const [careers, setCareers] = useState<CareerEntry[]>([]);
@@ -228,6 +259,15 @@ export default function Home() {
   } | null>(null);
   const [hasSelectedPdf, setHasSelectedPdf] = useState(false);
   const [isImportingPdf, setIsImportingPdf] = useState(false);
+  const storedDraftRaw = useSyncExternalStore(
+    subscribeToStoredDraft,
+    readStoredDraft,
+    () => null,
+  );
+  const storedDraft = useMemo(
+    () => parseResumeDraft(storedDraftRaw),
+    [storedDraftRaw],
+  );
   const headingRef = useRef<HTMLHeadingElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
@@ -242,6 +282,27 @@ export default function Home() {
     previousStep.current = currentStep;
     headingRef.current?.focus();
   }, [currentStep]);
+
+  useEffect(() => {
+    if (careers.length === 0) {
+      return;
+    }
+
+    try {
+      window.localStorage.setItem(
+        RESUME_DRAFT_STORAGE_KEY,
+        serializeResumeDraft({
+          careers,
+          identity,
+          isDemoDraft,
+          talentPoolChoice,
+        }),
+      );
+    } catch {
+      // Storage can be unavailable in a private window or with site data
+      // blocked. The draft is a convenience, not the product.
+    }
+  }, [careers, identity, isDemoDraft, talentPoolChoice]);
 
   useEffect(
     () => () => {
@@ -326,6 +387,49 @@ export default function Home() {
     setIsDemoDraft(true);
     setTalentPoolChoice("resume-only");
     moveToStep(2);
+  }
+
+  function restoreStoredDraft() {
+    if (isImportingPdf || storedDraft === null) {
+      return;
+    }
+
+    clearDocumentInputs();
+    setFileNotice(null);
+    setCareers(storedDraft.careers);
+    setIdentity(storedDraft.identity);
+    setIsDemoDraft(storedDraft.isDemoDraft);
+    setTalentPoolChoice(storedDraft.talentPoolChoice);
+    moveToStep(2);
+  }
+
+  function discardStoredDraft() {
+    if (isImportingPdf) {
+      return;
+    }
+
+    if (
+      !window.confirm(
+        "이 기기에 저장된 작성 중인 내용을 지우시겠습니까? 되돌릴 수 없습니다.",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      window.localStorage.removeItem(RESUME_DRAFT_STORAGE_KEY);
+      notifyStoredDraftChanged();
+    } catch {
+      // Nothing to recover from; the state reset below is what the person sees.
+    }
+
+    clearDocumentInputs();
+    setFileNotice(null);
+    setCareers([]);
+    setIdentity(EMPTY_IDENTITY);
+    setIsDemoDraft(false);
+    setTalentPoolChoice("resume-only");
+    moveToStep(1);
   }
 
   function continueDraft() {
@@ -684,6 +788,24 @@ export default function Home() {
                     법인명을 몰라도 괜찮습니다. 실제 레스토랑명과 근무
                     시작월부터 입력할 수 있습니다.
                   </p>
+                  {!hasDraft && storedDraft ? (
+                    <p className="file-notice">
+                      이 기기에 저장해 둔 작성 중인 내용이 있습니다. 이력서
+                      내용은 이 브라우저에만 저장되고 서버로 전송되지 않습니다.
+                      가져오신 서류는 저장되지 않습니다.
+                    </p>
+                  ) : null}
+                  {!hasDraft && storedDraft ? (
+                    <button
+                      className="primary-button"
+                      type="button"
+                      onClick={restoreStoredDraft}
+                      disabled={isImportingPdf}
+                    >
+                      저장된 내용 이어가기
+                      <span aria-hidden="true">→</span>
+                    </button>
+                  ) : null}
                   {hasDraft ? (
                     <button
                       className="primary-button"
@@ -696,14 +818,28 @@ export default function Home() {
                     </button>
                   ) : null}
                   <button
-                    className={hasDraft ? "secondary-button" : "primary-button"}
+                    className={
+                      hasDraft || storedDraft
+                        ? "secondary-button"
+                        : "primary-button"
+                    }
                     type="button"
                     onClick={startManualEntry}
                     disabled={isImportingPdf}
                   >
-                    {hasDraft ? "새로 작성하기" : "직접 입력하기"}
+                    {hasDraft || storedDraft ? "새로 작성하기" : "직접 입력하기"}
                     <span aria-hidden="true">→</span>
                   </button>
+                  {storedDraft ? (
+                    <button
+                      className="text-button"
+                      type="button"
+                      onClick={discardStoredDraft}
+                      disabled={isImportingPdf}
+                    >
+                      이 기기에서 지우기
+                    </button>
+                  ) : null}
                 </div>
 
                 <button
