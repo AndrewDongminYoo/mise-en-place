@@ -259,6 +259,7 @@ export default function Home() {
   } | null>(null);
   const [hasSelectedPdf, setHasSelectedPdf] = useState(false);
   const [isImportingPdf, setIsImportingPdf] = useState(false);
+  const [hasConfirmedCareers, setHasConfirmedCareers] = useState(false);
   const storedDraftRaw = useSyncExternalStore(
     subscribeToStoredDraft,
     readStoredDraft,
@@ -284,7 +285,7 @@ export default function Home() {
   }, [currentStep]);
 
   useEffect(() => {
-    if (careers.length === 0) {
+    if (!hasConfirmedCareers || careers.length === 0) {
       return;
     }
 
@@ -302,7 +303,7 @@ export default function Home() {
       // Storage can be unavailable in a private window or with site data
       // blocked. The draft is a convenience, not the product.
     }
-  }, [careers, identity, isDemoDraft, talentPoolChoice]);
+  }, [hasConfirmedCareers, careers, identity, isDemoDraft, talentPoolChoice]);
 
   useEffect(
     () => () => {
@@ -363,6 +364,7 @@ export default function Home() {
     setIdentity(EMPTY_IDENTITY);
     setIsDemoDraft(false);
     setTalentPoolChoice("resume-only");
+    setHasConfirmedCareers(false);
     moveToStep(2);
   }
 
@@ -386,6 +388,7 @@ export default function Home() {
     setIdentity(DEMO_IDENTITY);
     setIsDemoDraft(true);
     setTalentPoolChoice("resume-only");
+    setHasConfirmedCareers(false);
     moveToStep(2);
   }
 
@@ -400,6 +403,7 @@ export default function Home() {
     setIdentity(storedDraft.identity);
     setIsDemoDraft(storedDraft.isDemoDraft);
     setTalentPoolChoice(storedDraft.talentPoolChoice);
+    setHasConfirmedCareers(true);
     moveToStep(2);
   }
 
@@ -429,6 +433,7 @@ export default function Home() {
     setIdentity(EMPTY_IDENTITY);
     setIsDemoDraft(false);
     setTalentPoolChoice("resume-only");
+    setHasConfirmedCareers(false);
     moveToStep(1);
   }
 
@@ -586,6 +591,7 @@ export default function Home() {
     setErrors(nextErrors);
 
     if (nextErrors.length === 0) {
+      setHasConfirmedCareers(true);
       moveToStep(3);
     }
   }
@@ -1038,6 +1044,14 @@ export default function Home() {
                 <span aria-hidden="true">＋</span>
                 근무 이력 추가하기
               </button>
+
+              {hasConfirmedCareers ? null : (
+                <p className="file-notice">
+                  다음 단계로 넘어가면 확인하신 내용이 이 기기의 브라우저에
+                  저장되어, 창을 닫았다 열어도 이어서 쓰실 수 있습니다. 서버로는
+                  전송되지 않고, 시작 화면에서 언제든 지우실 수 있습니다.
+                </p>
+              )}
 
               <div className="form-actions">
                 <button
