@@ -266,6 +266,17 @@ test("restores a saved draft through a serialize and parse round trip", () => {
   assert.deepEqual(parseResumeDraft(serializeResumeDraft(draft)), draft);
 });
 
+// The page decides whether the draft on screen is the one on the device by
+// comparing the stored string against a fresh serialization. That comparison
+// is only meaningful if a restored draft serializes back to the same bytes.
+test("re-serializes a restored draft to the same string", () => {
+  const raw = serializeResumeDraft(completeDraft());
+  const restored = parseResumeDraft(raw);
+
+  assert.notEqual(restored, null);
+  assert.equal(serializeResumeDraft(restored!), raw);
+});
+
 test("serializes only the confirmed draft fields", () => {
   const stored: unknown = JSON.parse(serializeResumeDraft(completeDraft()));
 

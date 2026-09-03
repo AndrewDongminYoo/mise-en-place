@@ -269,6 +269,16 @@ export default function Home() {
     () => parseResumeDraft(storedDraftRaw),
     [storedDraftRaw],
   );
+  const currentDraftRaw = useMemo(
+    () =>
+      serializeResumeDraft({
+        careers,
+        identity,
+        isDemoDraft,
+        talentPoolChoice,
+      }),
+    [careers, identity, isDemoDraft, talentPoolChoice],
+  );
   const headingRef = useRef<HTMLHeadingElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
@@ -290,22 +300,15 @@ export default function Home() {
     }
 
     try {
-      window.localStorage.setItem(
-        RESUME_DRAFT_STORAGE_KEY,
-        serializeResumeDraft({
-          careers,
-          identity,
-          isDemoDraft,
-          talentPoolChoice,
-        }),
-      );
+      window.localStorage.setItem(RESUME_DRAFT_STORAGE_KEY, currentDraftRaw);
       notifyStoredDraftChanged();
     } catch {
       // Storage can be unavailable in a private window or with site data
-      // blocked. Nothing is notified, so `draftIsStored` below stays false and
-      // the interface stops claiming the draft survives a reload.
+      // blocked. Nothing is notified, so whatever was already on the device
+      // stays the snapshot, which is why `draftIsStored` below compares that
+      // snapshot against this draft instead of only checking it exists.
     }
-  }, [hasConfirmedCareers, careers, identity, isDemoDraft, talentPoolChoice]);
+  }, [hasConfirmedCareers, careers, currentDraftRaw]);
 
   useEffect(
     () => () => {
@@ -322,9 +325,12 @@ export default function Home() {
     [],
   );
 
-  // Read from the store rather than from `hasConfirmedCareers`, so a failed
-  // write cannot leave the page promising that the draft survives a reload.
-  const draftIsStored = hasConfirmedCareers && storedDraft !== null;
+  // Compare what is on the device against this draft, not merely that
+  // something is stored. A failed write leaves an earlier draft in place, so
+  // an existence check would keep promising a reload is safe while the newest
+  // work is exactly the part that was never saved.
+  const draftIsStored =
+    hasConfirmedCareers && storedDraftRaw === currentDraftRaw;
   const currentCopy = STEP_COPY[currentStep - 1];
   const includedCareers = careers.filter((career) => career.included);
   const hasDraft = careers.length > 0;
