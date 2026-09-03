@@ -64,6 +64,17 @@ It states:
 9. 중단과 삭제: 언제든 그만두실 수 있고, 그 전에도 기록 삭제를 요청하실 수 있습니다.
 10. 보상 여부: 있으면 그 내용, 없으면 없다는 사실.
 
+When the review phase below is enabled, these items are read as well, before the review is offered:
+
+11. 검토를 원하시면 완성된 이력서를 직접 내보내서, 원하시는 방법으로 저에게 보내주시게 됩니다. 앱이 자동으로 보내는 것은 없습니다.
+12. 보내주신 이력서는 검토가 끝나면 삭제하고, 삭제한 날짜를 기록합니다. 주고받은 대화방에 남은 파일도 함께 지웁니다.
+13. 이름과 연락처는 지우고 보내셔도 검토에는 지장이 없습니다.
+14. 검토를 받지 않으셔도 오늘 참여에는 아무 영향이 없습니다.
+
+Items 11 to 14 are drafted here and are not approved.
+They exist because `docs/specs/resume-review-workflow.md` opens a path that sends resume content to the operator while leaving its consent wording undefined, which would take a transfer the participant never agreed to.
+Do not enable the review phase until these are approved together with the sequencing decision.
+
 Item 5 is the one exception to the anonymization rules, and it exists because the day-14 follow-up below cannot otherwise happen.
 Keep the contact detail with the identifier mapping, outside this repository, and delete it as soon as the follow-up is answered or the attempt is abandoned.
 A participant who declines still takes part; record them as no-follow-up rather than dropping them.

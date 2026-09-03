@@ -91,6 +91,9 @@ Do not present review as a trial of a paid feature, and do not collect payment d
 Review is the first workflow that requires resume content to leave the device.
 It therefore needs its own boundary, and that boundary must not weaken the one in `docs/specs/initial-product-scope.md`.
 
+This path does not run until the consent script covers it.
+`docs/notes/2026-09-02-moderated-completion-test-protocol.md` drafts the four consent items for the export, its channel, its deletion, and the option to strip identity fields; they are not approved yet, and the review phase stays off until they are.
+
 Rules for the validation slice:
 
 - The person exports the resume themselves, through the print or PDF output that the product already provides.
@@ -201,4 +204,4 @@ Do not build these for the validation slice:
 | Draft continuity mechanism for asynchronous review | `[UNKNOWN]` — see the prerequisite section above. |
 | Whether review remains free after Track A | `[UNKNOWN]` — depends on the Track A outcome and the Track B revenue hypothesis. |
 | Reviewer type after validation | `[UNKNOWN]` — reconsider only with evidence that review changed resume usefulness. |
-| Consent wording for sending a resume export to the operator | `[UNKNOWN]` — draft it into the consent script in `docs/notes/2026-09-02-moderated-completion-test-protocol.md`, which is where participant consent is actually stated. `docs/plans/resume-builder-validation.md` step 3 has no consent step. |
+| Consent wording for sending a resume export to the operator | Drafted as items 11 to 14 of the consent script in `docs/notes/2026-09-02-moderated-completion-test-protocol.md`, awaiting approval alongside the sequencing decision. `docs/plans/resume-builder-validation.md` step 3 has no consent step, which is why the wording lives in the protocol. |

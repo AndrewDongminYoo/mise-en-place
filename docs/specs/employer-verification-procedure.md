@@ -195,7 +195,8 @@ The record adds these so it can be reproduced and re-checked later:
 | Field | Content |
 | --- | --- |
 | Employer | Business name and registration number as they appear on the 사업자등록증. |
-| Round | An incrementing number, so a re-verification never overwrites a prior round. |
+| Listing | The listing this record covers. One record covers one listing, because compensation, schedule, probation terms and role are all listing-specific, and an employer with two open roles therefore has two records. `docs/plans/founding-cohort-validation.md` requires every published role to have a dated record, which a key of employer and round alone cannot provide. |
+| Round | An incrementing number **within that listing**, so a re-verification never overwrites a prior round and two listings never share one. |
 | Reviewer | The named reviewer. |
 | Review date | The date the verification result was reached. |
 | Evidence list | One line per artifact received: what it was, the date received, and whether it was readable for the fields relied on. |
