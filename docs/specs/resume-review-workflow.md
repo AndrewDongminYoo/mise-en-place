@@ -174,7 +174,8 @@ This milestone passes when all of the following hold:
 - No returned review contains a fact that the person did not supply.
 - Every accepted change was applied by the person, in their own resume, and no accepted change altered an imported employer name or qualification date.
 - At least 5 participants request a review after completing a resume.
-  The request is offered in the review phase of `docs/notes/2026-09-02-moderated-completion-test-protocol.md`, which is where this count is produced.
+  The review phase of `docs/notes/2026-09-02-moderated-completion-test-protocol.md` is where this count would be produced, and that phase is off until the operator decides whether review runs in parallel with the Track A sessions or after them.
+  `docs/plans/resume-builder-validation.md` step 4 currently sequences it after, so this gate has no run path until that decision is made.
 - At least 3 of those participants change their resume after reading the feedback.
 - No participant reports that the review made a claim they could not stand behind.
 

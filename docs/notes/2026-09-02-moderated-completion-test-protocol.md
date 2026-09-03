@@ -98,11 +98,23 @@ One participant, one moderator, one sitting: 60 minutes, or 75 when the particip
 | Post-task questions | 10 | Threshold questions below, in the fixed order given. |
 | Talent-pool choice | 5 | Observed, not asked about, until it has been made. |
 | Debrief | 5 | Open questions, then explain the product if they ask. |
-| Review offer | 15 | Offer a review. If the participant accepts, run it in this sitting. |
+| Review offer | 15 | **Only if the operator has enabled it; see below.** Offer a review, and run it in this sitting if the participant accepts. |
 
-The review phase is why the session may run to 75 minutes.
-`docs/specs/resume-review-workflow.md` restricts review to moderated sessions until draft continuity is resolved, and its gate counts participants who request a review after completing a resume.
-Without this phase that gate has no session to occur in, and the approved review milestone would have no run path at all.
+The review phase is why the session may run to 75 minutes, and it is off until the operator turns it on.
+
+`docs/plans/resume-builder-validation.md` step 4 places specifying the resume-review workflow **after** the Track A gate passes, and the Track A gate contains no review item at all.
+Running review inside step 3 therefore changes the approved sequence, and that is the operator's decision rather than this protocol's.
+What has already changed is that the review workflow was specified and approved on 2026-09-02, ahead of the point the plan schedules it, so the sequence has diverged from the plan once already.
+
+The mechanism is written down here because `docs/specs/resume-review-workflow.md` restricts review to moderated sessions until draft continuity is resolved, which leaves its gate with no other session to occur in.
+It is not run on that reasoning alone.
+Before the first session, decide one of:
+
+- Run review in parallel, and update `docs/plans/resume-builder-validation.md` step 4 and the Track A gate so the sequence and the counts match what is actually being run.
+- Leave review until after the Track A gate, as the plan currently sequences it, and run these sessions without the phase. The review gate then needs its own later sessions and a fresh participant pool.
+
+Whichever is chosen, review outcomes never count toward the three Track A thresholds.
+Those belong to the gate in `docs/specs/initial-product-scope.md`, which does not mention review, and mixing them would change what the gate measures.
 Offer the review, do not schedule it: the participant asks or does not, and either answer is the measurement.
 
 The task instruction is exactly this, and nothing more:
