@@ -39,3 +39,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# real qualification certificates and other source documents - never commit
+# the extension is spelled as a character class because a case-sensitive clone,
+# which is where this guard has to work, does not fold PDF into pdf
+/.samples/
+*.[pP][dD][fF]
+
+# research notes holding participant answers - this repository is public
+/docs/notes/interview-*.md
+/docs/notes/session-*.md
