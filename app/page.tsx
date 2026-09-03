@@ -344,6 +344,19 @@ export default function Home() {
     }
   }
 
+  function beginDraft(
+    nextCareers: CareerEntry[],
+    nextIdentity: ResumeIdentity,
+    nextIsDemo: boolean,
+  ) {
+    setCareers(nextCareers);
+    setIdentity(nextIdentity);
+    setIsDemoDraft(nextIsDemo);
+    setTalentPoolChoice("resume-only");
+    setHasConfirmedCareers(false);
+    moveToStep(2);
+  }
+
   function startManualEntry() {
     if (isImportingPdf) {
       return;
@@ -360,12 +373,7 @@ export default function Home() {
 
     clearDocumentInputs();
     setFileNotice(null);
-    setCareers([createBlankCareerEntry("manual")]);
-    setIdentity(EMPTY_IDENTITY);
-    setIsDemoDraft(false);
-    setTalentPoolChoice("resume-only");
-    setHasConfirmedCareers(false);
-    moveToStep(2);
+    beginDraft([createBlankCareerEntry("manual")], EMPTY_IDENTITY, false);
   }
 
   function startDemo() {
@@ -384,12 +392,7 @@ export default function Home() {
 
     clearDocumentInputs();
     setFileNotice(null);
-    setCareers(createDemoCareerEntries());
-    setIdentity(DEMO_IDENTITY);
-    setIsDemoDraft(true);
-    setTalentPoolChoice("resume-only");
-    setHasConfirmedCareers(false);
-    moveToStep(2);
+    beginDraft(createDemoCareerEntries(), DEMO_IDENTITY, true);
   }
 
   function restoreStoredDraft() {
@@ -563,11 +566,7 @@ export default function Home() {
     }
 
     setFileNotice(null);
-    setCareers(createImportedCareerEntries(result.records));
-    setIdentity(EMPTY_IDENTITY);
-    setIsDemoDraft(false);
-    setTalentPoolChoice("resume-only");
-    moveToStep(2);
+    beginDraft(createImportedCareerEntries(result.records), EMPTY_IDENTITY, false);
   }
 
   function updateCareer(id: string, patch: Partial<CareerEntry>) {
@@ -678,9 +677,11 @@ export default function Home() {
           <div className="rail-note">
             <span aria-hidden="true">⌁</span>
             <p>
-              입력한 내용은 새로고침하면 사라집니다.
+              {hasConfirmedCareers
+                ? "확인하신 근무 이력은 이 브라우저에 저장되어 새로고침해도 남습니다."
+                : "확인 전 입력한 내용은 새로고침하면 사라집니다."}
               <br />
-              아직 서버 저장 기능이 없습니다.
+              서버에는 저장되지 않습니다.
             </p>
           </div>
         </aside>
