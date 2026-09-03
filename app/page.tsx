@@ -299,9 +299,11 @@ export default function Home() {
           talentPoolChoice,
         }),
       );
+      notifyStoredDraftChanged();
     } catch {
       // Storage can be unavailable in a private window or with site data
-      // blocked. The draft is a convenience, not the product.
+      // blocked. Nothing is notified, so `draftIsStored` below stays false and
+      // the interface stops claiming the draft survives a reload.
     }
   }, [hasConfirmedCareers, careers, identity, isDemoDraft, talentPoolChoice]);
 
@@ -320,6 +322,9 @@ export default function Home() {
     [],
   );
 
+  // Read from the store rather than from `hasConfirmedCareers`, so a failed
+  // write cannot leave the page promising that the draft survives a reload.
+  const draftIsStored = hasConfirmedCareers && storedDraft !== null;
   const currentCopy = STEP_COPY[currentStep - 1];
   const includedCareers = careers.filter((career) => career.included);
   const hasDraft = careers.length > 0;
@@ -427,17 +432,14 @@ export default function Home() {
       window.localStorage.removeItem(RESUME_DRAFT_STORAGE_KEY);
       notifyStoredDraftChanged();
     } catch {
-      // Nothing to recover from; the state reset below is what the person sees.
+      // Nothing to recover from; the flag below is what stops the rewrite.
     }
 
-    clearDocumentInputs();
-    setFileNotice(null);
-    setCareers([]);
-    setIdentity(EMPTY_IDENTITY);
-    setIsDemoDraft(false);
-    setTalentPoolChoice("resume-only");
+    // Deletes what is on the device and nothing else. The confirmation asked
+    // only about the stored copy, so a draft the person is in the middle of
+    // writing stays on screen. Dropping the flag is what stops the save effect
+    // from writing it straight back.
     setHasConfirmedCareers(false);
-    moveToStep(1);
   }
 
   function continueDraft() {
@@ -677,9 +679,9 @@ export default function Home() {
           <div className="rail-note">
             <span aria-hidden="true">⌁</span>
             <p>
-              {hasConfirmedCareers
+              {draftIsStored
                 ? "확인하신 근무 이력은 이 브라우저에 저장되어 새로고침해도 남습니다."
-                : "확인 전 입력한 내용은 새로고침하면 사라집니다."}
+                : "아직 저장되지 않았습니다. 지금 새로고침하면 입력한 내용은 사라집니다."}
               <br />
               서버에는 저장되지 않습니다.
             </p>
