@@ -348,6 +348,10 @@ export default function Home() {
 
   function moveToStep(step: number) {
     setErrors([]);
+    // The review copy is a mode that lasts one print. `afterprint` ends it,
+    // but a browser that never fires the event would leave the sheet stripped
+    // for the next print too, so leaving the step ends it as well.
+    setIsReviewExport(false);
     setCurrentStep(step);
   }
 
@@ -362,6 +366,17 @@ export default function Home() {
     if (passwordInputRef.current) {
       passwordInputRef.current.value = "";
     }
+  }
+
+  /**
+   * Prints the resume the person keeps, with their name and contact details.
+   *
+   * Asserts the mode rather than assuming it, so a review copy whose
+   * `afterprint` never arrived cannot make this button print a stripped sheet.
+   */
+  function printResume() {
+    flushSync(() => setIsReviewExport(false));
+    window.print();
   }
 
   /**
@@ -1312,7 +1327,7 @@ export default function Home() {
                 <button
                   className="primary-button"
                   type="button"
-                  onClick={() => window.print()}
+                  onClick={printResume}
                 >
                   인쇄 · PDF 저장
                   <span aria-hidden="true">↗</span>
