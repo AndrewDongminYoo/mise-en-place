@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Installs pnpm from packageManager and Node from devEngines.runtime,
+      # then runs `pnpm install --frozen-lockfile`, so the lockfile is checked
+      # by the same step that installs.
+      - uses: pnpm/setup@v2
+        with:
+          cache: true
+          require-lockfile: true
+
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
