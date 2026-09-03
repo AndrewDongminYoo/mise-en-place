@@ -234,6 +234,27 @@ export function getCareerErrors(entries: readonly CareerEntry[]): string[] {
   return errors;
 }
 
+/**
+ * The copy a person sends to a reviewer carries no name, email, or phone.
+ *
+ * `docs/specs/resume-review-workflow.md` puts the removal on the product
+ * rather than on the person, because a boundary that depends on someone
+ * remembering to delete three fields is not a boundary. Only those three go:
+ * the headline, the summary and every career record describe the work, which
+ * is the whole point of asking for a review.
+ *
+ * The person keeps their own name in the draft. Blanking it here rather than
+ * in the stored record is what lets the same resume produce both copies.
+ */
+export function toReviewIdentity(identity: ResumeIdentity): ResumeIdentity {
+  return {
+    ...identity,
+    name: "",
+    email: "",
+    phone: "",
+  };
+}
+
 export function getEnrichmentErrors(
   identity: ResumeIdentity,
   entries: readonly CareerEntry[],

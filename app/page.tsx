@@ -10,6 +10,7 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
+import { flushSync } from "react-dom";
 
 import {
   MAX_NHIS_PDF_BYTES,
@@ -34,6 +35,7 @@ import {
   getImportedCareerFieldProvenance,
   parseResumeDraft,
   serializeResumeDraft,
+  toReviewIdentity,
   toggleBoundedChoice,
   type CareerEntry,
   type ResumeIdentity,
@@ -260,6 +262,7 @@ export default function Home() {
   const [hasSelectedPdf, setHasSelectedPdf] = useState(false);
   const [isImportingPdf, setIsImportingPdf] = useState(false);
   const [hasConfirmedCareers, setHasConfirmedCareers] = useState(false);
+  const [isReviewExport, setIsReviewExport] = useState(false);
   const storedDraftRaw = useSyncExternalStore(
     subscribeToStoredDraft,
     readStoredDraft,
@@ -331,6 +334,12 @@ export default function Home() {
   // work is exactly the part that was never saved.
   const draftIsStored =
     hasConfirmedCareers && storedDraftRaw === currentDraftRaw;
+  // The review copy renders from a stripped identity rather than from an
+  // edited draft, so the person keeps their own name while the sheet that
+  // leaves the device carries none.
+  const sheetIdentity = isReviewExport
+    ? toReviewIdentity(identity)
+    : identity;
   const currentCopy = STEP_COPY[currentStep - 1];
   const includedCareers = careers.filter((career) => career.included);
   const hasDraft = careers.length > 0;
@@ -353,6 +362,26 @@ export default function Home() {
     if (passwordInputRef.current) {
       passwordInputRef.current.value = "";
     }
+  }
+
+  /**
+   * Prints the resume without the fields that name the person.
+   *
+   * The omission has to be on screen before the print snapshot is taken, and
+   * React batches an event handler's updates, so the state change is flushed
+   * rather than left to the next render. `afterprint` puts the name back,
+   * which also covers the browsers where `window.print` returns immediately
+   * instead of blocking until the dialog closes.
+   */
+  function printReviewCopy() {
+    function restore() {
+      window.removeEventListener("afterprint", restore);
+      flushSync(() => setIsReviewExport(false));
+    }
+
+    window.addEventListener("afterprint", restore);
+    flushSync(() => setIsReviewExport(true));
+    window.print();
   }
 
   function beginDraft(
@@ -1288,7 +1317,21 @@ export default function Home() {
                   인쇄 · PDF 저장
                   <span aria-hidden="true">↗</span>
                 </button>
+                <button
+                  className="secondary-button"
+                  type="button"
+                  onClick={printReviewCopy}
+                >
+                  리뷰용 사본 · 이름과 연락처 제외
+                  <span aria-hidden="true">↗</span>
+                </button>
               </div>
+              <p className="review-export-note field-hint no-print">
+                리뷰용 사본에서는 이름, 이메일, 전화번호가 빠집니다. 이력서
+                제목과 경력 요약, 경력 기록은 그대로 남으므로, 요약에 이름을
+                적으셨다면 보내시기 전에 확인해 주세요. 인쇄 미리보기에서 실제
+                결과를 먼저 보실 수 있습니다.
+              </p>
 
               <article className="resume-sheet" data-print-root>
                 <header className="resume-header">
@@ -1299,21 +1342,32 @@ export default function Home() {
                         <span className="demo-tag">예시 이력서</span>
                       ) : null}
                     </p>
-                    <h2>{identity.name}</h2>
-                    <p className="resume-headline">{identity.headline}</p>
+                    {/* Without a name the headline becomes the sheet's own
+                        heading, so the review copy keeps the same heading
+                        levels rather than skipping from the page to h3. */}
+                    <h2>{sheetIdentity.name || sheetIdentity.headline}</h2>
+                    {sheetIdentity.name ? (
+                      <p className="resume-headline">
+                        {sheetIdentity.headline}
+                      </p>
+                    ) : null}
                   </div>
-                  {identity.email || identity.phone ? (
+                  {sheetIdentity.email || sheetIdentity.phone ? (
                     <address>
-                      {identity.email ? <span>{identity.email}</span> : null}
-                      {identity.phone ? <span>{identity.phone}</span> : null}
+                      {sheetIdentity.email ? (
+                        <span>{sheetIdentity.email}</span>
+                      ) : null}
+                      {sheetIdentity.phone ? (
+                        <span>{sheetIdentity.phone}</span>
+                      ) : null}
                     </address>
                   ) : null}
                 </header>
 
-                {identity.summary ? (
+                {sheetIdentity.summary ? (
                   <section className="resume-section resume-summary">
                     <h3>경력 요약</h3>
-                    <p>{identity.summary}</p>
+                    <p>{sheetIdentity.summary}</p>
                     <ProvenanceTag kind="authored" />
                   </section>
                 ) : null}
