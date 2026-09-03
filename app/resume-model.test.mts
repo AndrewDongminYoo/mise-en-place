@@ -10,7 +10,10 @@ import {
   getEmployerLabel,
   getEnrichmentErrors,
   getImportedCareerFieldProvenance,
+  parseResumeDraft,
+  serializeResumeDraft,
   toggleBoundedChoice,
+  type ResumeDraft,
   type ResumeIdentity,
 } from "./resume-model.mts";
 
@@ -233,4 +236,102 @@ test("stores equipment separately from skills", () => {
 test("labels employer names according to their source", () => {
   assert.equal(getEmployerLabel("document"), "원문 사업장명");
   assert.equal(getEmployerLabel("manual"), "법인명");
+});
+
+function completeDraft(): ResumeDraft {
+  const entry = createBlankCareerEntry("manual");
+
+  return {
+    careers: [
+      {
+        ...entry,
+        restaurantName: "동네 비스트로",
+        employmentStart: "2024-03",
+        role: "Chef de Partie",
+        stations: ["Hot"],
+        responsibilities: ["스테이션 운영"],
+        skills: ["수비드"],
+        equipment: ["콤비오븐"],
+      },
+    ],
+    identity: completeIdentity,
+    isDemoDraft: false,
+    talentPoolChoice: "resume-only",
+  };
+}
+
+test("restores a saved draft through a serialize and parse round trip", () => {
+  const draft = completeDraft();
+
+  assert.deepEqual(parseResumeDraft(serializeResumeDraft(draft)), draft);
+});
+
+// The page decides whether the draft on screen is the one on the device by
+// comparing the stored string against a fresh serialization. That comparison
+// is only meaningful if a restored draft serializes back to the same bytes.
+test("re-serializes a restored draft to the same string", () => {
+  const raw = serializeResumeDraft(completeDraft());
+  const restored = parseResumeDraft(raw);
+
+  assert.notEqual(restored, null);
+  assert.equal(serializeResumeDraft(restored!), raw);
+});
+
+test("serializes only the confirmed draft fields", () => {
+  const stored: unknown = JSON.parse(serializeResumeDraft(completeDraft()));
+
+  assert.deepEqual(Object.keys(stored as object).sort(), [
+    "careers",
+    "identity",
+    "isDemoDraft",
+    "talentPoolChoice",
+    "version",
+  ]);
+});
+
+test("discards a draft that is absent or unreadable", () => {
+  assert.equal(parseResumeDraft(null), null);
+  assert.equal(parseResumeDraft(""), null);
+  assert.equal(parseResumeDraft("{ not json"), null);
+  assert.equal(parseResumeDraft("[]"), null);
+});
+
+test("discards a draft written by a different schema version", () => {
+  const stored = JSON.parse(serializeResumeDraft(completeDraft()));
+  stored.version = 99;
+
+  assert.equal(parseResumeDraft(JSON.stringify(stored)), null);
+});
+
+test("discards a draft whose career entry lost a required field", () => {
+  const stored = JSON.parse(serializeResumeDraft(completeDraft()));
+  delete stored.careers[0].restaurantName;
+
+  assert.equal(parseResumeDraft(JSON.stringify(stored)), null);
+});
+
+test("discards a draft whose bounded choices are not strings", () => {
+  const stored = JSON.parse(serializeResumeDraft(completeDraft()));
+  stored.careers[0].stations = [1, 2];
+
+  assert.equal(parseResumeDraft(JSON.stringify(stored)), null);
+});
+
+test("discards a draft whose talent-pool choice is not an offered option", () => {
+  const stored = JSON.parse(serializeResumeDraft(completeDraft()));
+  stored.talentPoolChoice = "public-profile";
+
+  assert.equal(parseResumeDraft(JSON.stringify(stored)), null);
+});
+
+test("drops unknown fields instead of restoring them", () => {
+  const stored = JSON.parse(serializeResumeDraft(completeDraft()));
+  stored.sourceDocumentText = "국민건강보험 자격득실확인서 전문";
+  stored.careers[0].pdfPassword = "890101";
+
+  const restored = parseResumeDraft(JSON.stringify(stored));
+
+  assert.notEqual(restored, null);
+  assert.equal("sourceDocumentText" in (restored as object), false);
+  assert.equal("pdfPassword" in (restored as ResumeDraft).careers[0], false);
 });

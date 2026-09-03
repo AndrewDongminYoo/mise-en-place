@@ -2,8 +2,10 @@
 
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ChangeEvent,
   type FormEvent,
   type ReactNode,
@@ -18,6 +20,7 @@ import {
   EQUIPMENT_OPTIONS,
   PROVENANCE_LABELS,
   RESPONSIBILITY_OPTIONS,
+  RESUME_DRAFT_STORAGE_KEY,
   ROLE_SUGGESTIONS,
   SKILL_OPTIONS,
   STATION_OPTIONS,
@@ -29,6 +32,8 @@ import {
   getEmployerLabel,
   getEnrichmentErrors,
   getImportedCareerFieldProvenance,
+  parseResumeDraft,
+  serializeResumeDraft,
   toggleBoundedChoice,
   type CareerEntry,
   type ResumeIdentity,
@@ -213,6 +218,32 @@ function formatFileSize(bytes: number) {
   return (bytes / (1024 * 1024)).toFixed(1) + " MB";
 }
 
+const storedDraftListeners = new Set<() => void>();
+
+function readStoredDraft() {
+  try {
+    return window.localStorage.getItem(RESUME_DRAFT_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function subscribeToStoredDraft(onStoreChange: () => void) {
+  storedDraftListeners.add(onStoreChange);
+  window.addEventListener("storage", onStoreChange);
+
+  return () => {
+    storedDraftListeners.delete(onStoreChange);
+    window.removeEventListener("storage", onStoreChange);
+  };
+}
+
+function notifyStoredDraftChanged() {
+  for (const listener of storedDraftListeners) {
+    listener();
+  }
+}
+
 export default function Home() {
   const [currentStep, setCurrentStep] = useState(1);
   const [careers, setCareers] = useState<CareerEntry[]>([]);
@@ -228,6 +259,26 @@ export default function Home() {
   } | null>(null);
   const [hasSelectedPdf, setHasSelectedPdf] = useState(false);
   const [isImportingPdf, setIsImportingPdf] = useState(false);
+  const [hasConfirmedCareers, setHasConfirmedCareers] = useState(false);
+  const storedDraftRaw = useSyncExternalStore(
+    subscribeToStoredDraft,
+    readStoredDraft,
+    () => null,
+  );
+  const storedDraft = useMemo(
+    () => parseResumeDraft(storedDraftRaw),
+    [storedDraftRaw],
+  );
+  const currentDraftRaw = useMemo(
+    () =>
+      serializeResumeDraft({
+        careers,
+        identity,
+        isDemoDraft,
+        talentPoolChoice,
+      }),
+    [careers, identity, isDemoDraft, talentPoolChoice],
+  );
   const headingRef = useRef<HTMLHeadingElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
@@ -242,6 +293,22 @@ export default function Home() {
     previousStep.current = currentStep;
     headingRef.current?.focus();
   }, [currentStep]);
+
+  useEffect(() => {
+    if (!hasConfirmedCareers || careers.length === 0) {
+      return;
+    }
+
+    try {
+      window.localStorage.setItem(RESUME_DRAFT_STORAGE_KEY, currentDraftRaw);
+      notifyStoredDraftChanged();
+    } catch {
+      // Storage can be unavailable in a private window or with site data
+      // blocked. Nothing is notified, so whatever was already on the device
+      // stays the snapshot, which is why `draftIsStored` below compares that
+      // snapshot against this draft instead of only checking it exists.
+    }
+  }, [hasConfirmedCareers, careers, currentDraftRaw]);
 
   useEffect(
     () => () => {
@@ -258,6 +325,12 @@ export default function Home() {
     [],
   );
 
+  // Compare what is on the device against this draft, not merely that
+  // something is stored. A failed write leaves an earlier draft in place, so
+  // an existence check would keep promising a reload is safe while the newest
+  // work is exactly the part that was never saved.
+  const draftIsStored =
+    hasConfirmedCareers && storedDraftRaw === currentDraftRaw;
   const currentCopy = STEP_COPY[currentStep - 1];
   const includedCareers = careers.filter((career) => career.included);
   const hasDraft = careers.length > 0;
@@ -282,6 +355,19 @@ export default function Home() {
     }
   }
 
+  function beginDraft(
+    nextCareers: CareerEntry[],
+    nextIdentity: ResumeIdentity,
+    nextIsDemo: boolean,
+  ) {
+    setCareers(nextCareers);
+    setIdentity(nextIdentity);
+    setIsDemoDraft(nextIsDemo);
+    setTalentPoolChoice("resume-only");
+    setHasConfirmedCareers(false);
+    moveToStep(2);
+  }
+
   function startManualEntry() {
     if (isImportingPdf) {
       return;
@@ -298,11 +384,7 @@ export default function Home() {
 
     clearDocumentInputs();
     setFileNotice(null);
-    setCareers([createBlankCareerEntry("manual")]);
-    setIdentity(EMPTY_IDENTITY);
-    setIsDemoDraft(false);
-    setTalentPoolChoice("resume-only");
-    moveToStep(2);
+    beginDraft([createBlankCareerEntry("manual")], EMPTY_IDENTITY, false);
   }
 
   function startDemo() {
@@ -321,11 +403,49 @@ export default function Home() {
 
     clearDocumentInputs();
     setFileNotice(null);
-    setCareers(createDemoCareerEntries());
-    setIdentity(DEMO_IDENTITY);
-    setIsDemoDraft(true);
-    setTalentPoolChoice("resume-only");
+    beginDraft(createDemoCareerEntries(), DEMO_IDENTITY, true);
+  }
+
+  function restoreStoredDraft() {
+    if (isImportingPdf || storedDraft === null) {
+      return;
+    }
+
+    clearDocumentInputs();
+    setFileNotice(null);
+    setCareers(storedDraft.careers);
+    setIdentity(storedDraft.identity);
+    setIsDemoDraft(storedDraft.isDemoDraft);
+    setTalentPoolChoice(storedDraft.talentPoolChoice);
+    setHasConfirmedCareers(true);
     moveToStep(2);
+  }
+
+  function discardStoredDraft() {
+    if (isImportingPdf) {
+      return;
+    }
+
+    if (
+      !window.confirm(
+        "이 기기에 저장된 작성 중인 내용을 지우시겠습니까? 되돌릴 수 없습니다.",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      window.localStorage.removeItem(RESUME_DRAFT_STORAGE_KEY);
+      notifyStoredDraftChanged();
+    } catch {
+      // Nothing to recover from; the flag below is what stops the rewrite.
+    }
+
+    // Deletes what is on the device and nothing else. The confirmation asked
+    // only about the stored copy, so a draft the person is in the middle of
+    // writing stays on screen. Dropping the flag is what stops the save effect
+    // from writing it straight back.
+    setHasConfirmedCareers(false);
   }
 
   function continueDraft() {
@@ -454,11 +574,7 @@ export default function Home() {
     }
 
     setFileNotice(null);
-    setCareers(createImportedCareerEntries(result.records));
-    setIdentity(EMPTY_IDENTITY);
-    setIsDemoDraft(false);
-    setTalentPoolChoice("resume-only");
-    moveToStep(2);
+    beginDraft(createImportedCareerEntries(result.records), EMPTY_IDENTITY, false);
   }
 
   function updateCareer(id: string, patch: Partial<CareerEntry>) {
@@ -482,6 +598,7 @@ export default function Home() {
     setErrors(nextErrors);
 
     if (nextErrors.length === 0) {
+      setHasConfirmedCareers(true);
       moveToStep(3);
     }
   }
@@ -568,9 +685,11 @@ export default function Home() {
           <div className="rail-note">
             <span aria-hidden="true">⌁</span>
             <p>
-              입력한 내용은 새로고침하면 사라집니다.
+              {draftIsStored
+                ? "확인하신 근무 이력은 이 브라우저에 저장되어 새로고침해도 남습니다."
+                : "아직 저장되지 않았습니다. 지금 새로고침하면 입력한 내용은 사라집니다."}
               <br />
-              아직 서버 저장 기능이 없습니다.
+              서버에는 저장되지 않습니다.
             </p>
           </div>
         </aside>
@@ -684,6 +803,24 @@ export default function Home() {
                     법인명을 몰라도 괜찮습니다. 실제 레스토랑명과 근무
                     시작월부터 입력할 수 있습니다.
                   </p>
+                  {!hasDraft && storedDraft ? (
+                    <p className="file-notice">
+                      이 기기에 저장해 둔 작성 중인 내용이 있습니다. 이력서
+                      내용은 이 브라우저에만 저장되고 서버로 전송되지 않습니다.
+                      가져오신 서류는 저장되지 않습니다.
+                    </p>
+                  ) : null}
+                  {!hasDraft && storedDraft ? (
+                    <button
+                      className="primary-button"
+                      type="button"
+                      onClick={restoreStoredDraft}
+                      disabled={isImportingPdf}
+                    >
+                      저장된 내용 이어가기
+                      <span aria-hidden="true">→</span>
+                    </button>
+                  ) : null}
                   {hasDraft ? (
                     <button
                       className="primary-button"
@@ -696,14 +833,28 @@ export default function Home() {
                     </button>
                   ) : null}
                   <button
-                    className={hasDraft ? "secondary-button" : "primary-button"}
+                    className={
+                      hasDraft || storedDraft
+                        ? "secondary-button"
+                        : "primary-button"
+                    }
                     type="button"
                     onClick={startManualEntry}
                     disabled={isImportingPdf}
                   >
-                    {hasDraft ? "새로 작성하기" : "직접 입력하기"}
+                    {hasDraft || storedDraft ? "새로 작성하기" : "직접 입력하기"}
                     <span aria-hidden="true">→</span>
                   </button>
+                  {storedDraft ? (
+                    <button
+                      className="text-button"
+                      type="button"
+                      onClick={discardStoredDraft}
+                      disabled={isImportingPdf}
+                    >
+                      이 기기에서 지우기
+                    </button>
+                  ) : null}
                 </div>
 
                 <button
@@ -902,6 +1053,14 @@ export default function Home() {
                 <span aria-hidden="true">＋</span>
                 근무 이력 추가하기
               </button>
+
+              {hasConfirmedCareers ? null : (
+                <p className="file-notice">
+                  다음 단계로 넘어가면 확인하신 내용이 이 기기의 브라우저에
+                  저장되어, 창을 닫았다 열어도 이어서 쓰실 수 있습니다. 서버로는
+                  전송되지 않고, 시작 화면에서 언제든 지우실 수 있습니다.
+                </p>
+              )}
 
               <div className="form-actions">
                 <button

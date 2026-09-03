@@ -21,6 +21,9 @@
 - Keep talent-pool participation separate and private by default.
 - Render all user-authored values through React text interpolation.
 - Do not use `dangerouslySetInnerHTML`, browser storage, network requests, third-party scripts, or a new dependency.
+  The browser-storage half of this constraint governed this plan's tasks, which are complete.
+  On 2026-09-03 the operator approved storing the confirmed structured record in `localStorage` so a draft survives a reload; the source document, its extracted text and its password are still never stored.
+  `docs/specs/initial-product-scope.md` is unchanged by that, because its prohibition names the source document rather than the confirmed record.
 - Do not commit during this task.
 
 ## Design Contract

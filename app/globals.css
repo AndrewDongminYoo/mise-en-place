@@ -566,6 +566,11 @@ button {
   border-left-color: #eb8877;
 }
 
+.manual-callout .file-notice {
+  align-self: stretch;
+  margin-bottom: 4px;
+}
+
 .text-button {
   position: relative;
   z-index: 1;
