@@ -12,6 +12,7 @@ import {
   getImportedCareerFieldProvenance,
   parseResumeDraft,
   serializeResumeDraft,
+  toReviewIdentity,
   toggleBoundedChoice,
   type ResumeDraft,
   type ResumeIdentity,
@@ -334,4 +335,31 @@ test("drops unknown fields instead of restoring them", () => {
   assert.notEqual(restored, null);
   assert.equal("sourceDocumentText" in (restored as object), false);
   assert.equal("pdfPassword" in (restored as ResumeDraft).careers[0], false);
+});
+
+// The review copy leaves the device, so what it drops is a boundary rather
+// than a formatting choice.
+test("drops name, email and phone from the review copy", () => {
+  const reviewIdentity = toReviewIdentity(completeIdentity);
+
+  assert.equal(reviewIdentity.name, "");
+  assert.equal(reviewIdentity.email, "");
+  assert.equal(reviewIdentity.phone, "");
+});
+
+test("keeps the headline and summary in the review copy", () => {
+  const reviewIdentity = toReviewIdentity(completeIdentity);
+
+  assert.equal(reviewIdentity.headline, completeIdentity.headline);
+  assert.equal(reviewIdentity.summary, completeIdentity.summary);
+});
+
+// The person keeps their own name. The same resume produces both copies, so a
+// review export that mutated the draft would take the name away for good.
+test("leaves the resume identity it was given alone", () => {
+  const identity: ResumeIdentity = { ...completeIdentity };
+
+  toReviewIdentity(identity);
+
+  assert.deepEqual(identity, completeIdentity);
 });

@@ -995,6 +995,17 @@ fieldset {
   padding-top: 8px;
 }
 
+/* Three actions no longer fit one narrow row, and the third is the one that
+   would be pushed off. */
+.preview-actions {
+  flex-wrap: wrap;
+}
+
+.review-export-note {
+  max-width: 62ch;
+  margin: 10px 0 0;
+}
+
 .identity-card > header {
   padding-bottom: 22px;
   margin-bottom: 24px;
