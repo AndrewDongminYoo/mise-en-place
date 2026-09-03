@@ -155,29 +155,35 @@ The reviewer does not supply a plausible answer.
 
 ## Prerequisite: Draft Continuity
 
-The current prototype holds the resume in page state only.
-Reloading the page loses the draft, so a person who leaves for a review and returns cannot apply feedback to the resume they wrote.
+**Satisfied on 2026-09-03 by PR #5.**
+This section recorded the prerequisite while it was open; the paragraphs below say what was decided and what it now costs.
 
-This makes draft continuity a prerequisite for any asynchronous review, and it is not yet specified.
-Two ways to satisfy it:
+The prototype used to hold the resume in page state only, so reloading lost the draft and a person who left for a review and returned could not apply feedback to the resume they wrote.
+Two ways to satisfy it were offered: run every review inside one moderated session with the draft kept open, or add a browser-local export and import of the confirmed structured record as a file.
 
-- Run each review inside one moderated session, with the participant keeping the draft open. This needs no implementation and is sufficient for the moderated completion tests.
-- Add a browser-local export and import of the confirmed structured record, as a file the person saves and reopens. This keeps the browser-local boundary and would also let a participant return across sessions.
+The operator approved a third mechanism instead.
+The confirmed structured record is written to `localStorage` once the person passes the step-2 confirmation, and `restoreStoredDraft` in `app/page.tsx` brings it back on an explicit action rather than silently.
+The source document, its extracted text and its password are still never stored, so the privacy boundary in `docs/specs/initial-product-scope.md` is unchanged.
 
-The second option is the smaller long-term cost, but it is an application change and is out of scope for this document.
-The decision is `[UNKNOWN]` until the operator selects one.
-Until then, review runs in moderated sessions only.
+This covers a participant returning on the same device and browser, which is what an asynchronous review in these sessions needs.
+It does not cover a different device, and the file export from the second option above remains the way to do that if a session ever requires it.
+Review is therefore no longer restricted to a single sitting on that ground.
 
 ## Prerequisite: An Identity-Free Export
 
-The data boundary requires the participant to remove identity and contact fields before sending the export, and consent item 14 asks them to.
-The current build cannot do it.
-`getEnrichmentErrors` in `app/resume-model.mts` rejects an empty name, so a resume without one cannot reach preview, and the print sheet in `app/page.tsx` always renders `identity.name`.
-Removing the name to satisfy the boundary therefore removes the participant's ability to produce the export at all.
+**Satisfied on 2026-09-03 by PR #8.**
 
-So the review path has two implementation prerequisites, not one: draft continuity above, and an export that can omit the identity fields.
-Both are application changes and neither is in this document's scope.
-Until the export exists, do not enable the review phase, and do not read consent item 14 to a participant, because it asks for something the product cannot do.
+The data boundary requires the participant to remove identity and contact fields before sending the export, and consent item 14 asks them to.
+The build could not do it: `getEnrichmentErrors` in `app/resume-model.mts` rejects an empty name, so a resume without one could not reach preview, and the print sheet in `app/page.tsx` always rendered `identity.name`.
+Removing the name to satisfy the boundary therefore removed the participant's ability to produce the export at all.
+
+The resolution leaves that validation alone and omits the fields at render time instead.
+`toReviewIdentity` in `app/resume-model.mts` blanks name, email and phone, and a second print action on the preview renders the sheet from it.
+The headline, the summary and every career record stay, because they describe the work the reviewer is asked to read.
+The draft is untouched, so one resume produces both copies and the person keeps their own name.
+
+The removal is the product's rather than the person's, which is what the review data boundary above requires.
+Both prerequisites are now closed, so the review phase is no longer blocked on an application change, and consent item 14 asks for something the product does.
 
 ## Review Validation Gate
 
@@ -213,7 +219,7 @@ Do not build these for the validation slice:
 
 | Decision | State |
 | --- | --- |
-| Draft continuity mechanism for asynchronous review | `[UNKNOWN]` — see the prerequisite section above. |
+| Draft continuity mechanism for asynchronous review | Resolved 2026-09-03 — browser-local `localStorage` persistence with an explicit restore, PR #5. Covers one device; see the prerequisite section above. |
 | Whether review remains free after Track A | `[UNKNOWN]` — depends on the Track A outcome and the Track B revenue hypothesis. |
 | Reviewer type after validation | `[UNKNOWN]` — reconsider only with evidence that review changed resume usefulness. |
-| Consent wording for sending a resume export to the operator | Drafted as items 11 to 14 of the consent script in `docs/notes/2026-09-02-moderated-completion-test-protocol.md`, awaiting approval alongside the sequencing decision. `docs/plans/resume-builder-validation.md` step 3 has no consent step, which is why the wording lives in the protocol. |
+| Consent wording for sending a resume export to the operator | Drafted as items 12 to 15 of the consent script in `docs/notes/2026-09-02-moderated-completion-test-protocol.md`, awaiting approval alongside the sequencing decision. `docs/plans/resume-builder-validation.md` step 3 has no consent step, which is why the wording lives in the protocol. |

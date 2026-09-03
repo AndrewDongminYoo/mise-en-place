@@ -17,15 +17,17 @@ Revise it after the first session if a definition proves unobservable.
 
 ## The Constraint This Protocol Operates Under
 
-The prototype holds the resume in page state only.
-A participant who reaches the preview and closes the tab keeps nothing.
+This section described a prototype that held the resume in page state only, where a participant who reached the preview and closed the tab kept nothing.
+That stopped being true on 2026-09-03: the confirmed record is written to `localStorage` and restored on an explicit action, so a participant returning on the same device and browser keeps their draft.
+`docs/specs/resume-review-workflow.md` section "Prerequisite: Draft Continuity" records the mechanism.
 
-That is why every session is a single sitting, and why the printed or exported output produced in the room is the only artifact a participant leaves with.
-`docs/specs/resume-review-workflow.md` section "Prerequisite: Draft Continuity" records the same gap and the two ways to close it.
-Do not close it inside this protocol; run the sessions as single sittings and let the sessions show whether the gap matters.
+**Every session is still a single sitting.** Storage was one reason for that rule and is no longer one, but the rule is an operating decision this protocol reserves to the operator rather than a consequence of the gap, and the remaining reasons are unchanged: one moderator, one room, and a 60 to 75 minute block.
+Change it deliberately if a session needs it, not because this paragraph stopped applying.
+
+What did change is the artifact. The printed or exported output produced in the room is no longer the *only* thing a participant leaves with, because the draft survives on their own device.
 
 It also shapes one threshold directly.
-A participant can only use in an application what they walked out with, so what they walked out with is part of the record.
+What a participant leaves with is part of the record, and now has two parts: the printed or exported output, and whether the draft is still on their device.
 
 ## Recruiting and Screening
 
@@ -121,7 +123,7 @@ The review phase is why the session may run to 75 minutes, and it is off until t
 Running review inside step 3 therefore changes the approved sequence, and that is the operator's decision rather than this protocol's.
 What has already changed is that the review workflow was specified and approved on 2026-09-02, ahead of the point the plan schedules it, so the sequence has diverged from the plan once already.
 
-The mechanism is written down here because `docs/specs/resume-review-workflow.md` restricts review to moderated sessions until draft continuity is resolved, which leaves its gate with no other session to occur in.
+The mechanism is written down here because `docs/specs/resume-review-workflow.md` restricted review to moderated sessions while draft continuity was open, which left its gate with no other session to occur in. That restriction lifted on 2026-09-03, so an asynchronous review is now possible; whether to use one is part of the same sequencing decision below.
 It is not run on that reasoning alone.
 Before the first session, decide one of:
 
