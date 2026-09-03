@@ -74,7 +74,11 @@ When the review phase below is enabled, these items are read as well, before the
 14. 보내실 때 이름과 연락처는 지우고 보내주세요. 검토에는 지장이 없고, 저에게 남는 정보를 줄이기 위한 것입니다.
 15. 검토를 받지 않으셔도 오늘 참여에는 아무 영향이 없습니다.
 
-Items 12 to 15 are drafted here and are not approved, and item 14 additionally depends on an export path the product does not yet have; see the identity-free export prerequisite in `docs/specs/resume-review-workflow.md`.
+Items 12 to 15 are drafted here and are not approved.
+The export path item 14 depends on landed on 2026-09-03; see the identity-free export prerequisite in `docs/specs/resume-review-workflow.md`.
+Consent and the sequencing decision are what remain.
+
+Item 14's wording is worth a second look at approval time. It asks the participant to remove their name and contact details, and the product now removes them, which is what the review data boundary requires: "removal is the default rather than an option the person has to think of." Wording that asks for it can be read as making it theirs to remember. Rewriting a consent item is not this note's call.
 They exist because `docs/specs/resume-review-workflow.md` opens a path that sends resume content to the operator while leaving its consent wording undefined, which would take a transfer the participant never agreed to.
 Do not enable the review phase until these are approved together with the sequencing decision.
 
