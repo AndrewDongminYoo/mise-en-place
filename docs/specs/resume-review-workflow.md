@@ -101,7 +101,8 @@ Rules for the validation slice:
 - The application does not upload the resume, does not transmit it to a review service, and does not gain a server-side review store.
 - The original source document is never part of a review request, and the reviewer never asks for it.
 - The person removes the identity and contact fields from the export before sending it. Review works without them, so removal is the default rather than an option the person has to think of.
-- The operator deletes the received export at the retention point stated in the consent, which `docs/notes/2026-09-02-founding-cohort-interview-guides.md` owns, and records that deletion date in the review queue entry.
+- The operator deletes the received export **as soon as the review is returned**, which is what consent item 12 promises, and records that deletion date in the review queue entry.
+  This is not the 90-day point that `docs/notes/2026-09-02-founding-cohort-interview-guides.md` sets for research notes. A resume export is the participant's own document, not a coded note, and it is deleted on completion rather than on that schedule.
 - Deletion covers the operator's local copy **and** the message thread on whichever channel carried it. A deletion that leaves the file in a chat history has not happened.
 - Review feedback is returned as text, not as a rewritten resume file.
 

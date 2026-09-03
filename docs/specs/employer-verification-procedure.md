@@ -35,6 +35,16 @@ This section lists the artifacts that can supply that evidence.
 Every required field must map to at least one artifact below.
 A field with no artifact is not verified, whatever the employer has said about it.
 
+There are two ways a field can be evidenced, and the record keeps them apart:
+
+- **Independently evidenced** — an artifact that is not the employer's own assertion about the field, such as a permit, a payslip, or a published dataset.
+- **Disclosed, not independently evidenced** — the employer's own written statement, and the social-insurance and deduction fields the source table cannot yet check.
+
+`docs/specs/initial-product-scope.md` says employer confirmation alone is not sufficient, and some required fields have no independent artifact available at this employer size.
+Those two cannot both hold, and this procedure does not resolve it.
+**Whether a role may be published while a required field sits in the second state is a scope question for the operator**, and until it is answered a listing in that position is held rather than published.
+Record the state either way, so the question is visible in the record rather than settled by whoever is filling it in.
+
 | Artifact | Supplies evidence for | Notes |
 | --- | --- | --- |
 | 사업자등록증 | Business identity. | Check that the business name, registration number, and representative match every other document. |
@@ -44,7 +54,7 @@ A field with no artifact is not verified, whatever the employer has said about i
 | A recent payslip for the same role, with personal identifiers removed | Whether the stated compensation matches what is actually paid. | Ask for the role, not the person. Do not accept a document carrying a resident registration number. |
 | A named recruiting contact reachable at a business channel | Recruiting contact. | A personal messenger handle with no business identity behind it does not satisfy this. |
 | The employer's stated 상시 근로자 수 and the basis for it | Which 근로기준법 provisions apply. | Recount it; see the statutory calculation below. |
-| A written statement from the employer on any required field no other artifact carries | That field. | This row exists so no required field is structurally impossible to close. An employer below the size threshold has no 취업규칙, and without this the schedule-confirmation-timing field could never be evidenced and the employer could never pass. It is written and attributable, which a verbal statement is not. |
+| A written statement from the employer on any required field no other artifact carries | That field, recorded as **disclosed, not independently evidenced**. | A written statement is still the employer's own claim, so it does not close a field the way an independent artifact does. It is written and attributable, which a verbal statement is not, and it is the only thing available for a field like schedule confirmation timing at an employer with no 취업규칙. |
 | A written statement of the reason for the opening | Reason for the opening. | Compare against tenure of the previous holder when the employer will state it. Record that tenure in months only. The previous employee is not a party to this verification and did not consent to anything, so nothing else about them enters the record. |
 
 Anything the employer supplies as an image or a scan is evidence of the same rank as a document, provided the reviewer can read every field being relied on.
