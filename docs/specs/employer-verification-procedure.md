@@ -75,7 +75,10 @@ Perform these in order, and record each result.
    This decides whether the working-time, overtime-premium, and annual-leave rules apply at all.
 
 3. **Reduce the offer to an hourly figure.**
-   Use the offer's own 소정근로시간. The monthly figure in the source table rests on a stated weekly basis, so do not reuse it for a schedule that does not match.
+   An hourly offer is already one; use the stated rate.
+   A monthly offer is divided by the schedule's **conversion hours**, which are its monthly 소정근로시간 **plus** the paid weekly rest hours that schedule earns.
+   Dividing by worked hours alone inflates the hourly figure and will pass an offer that is under the minimum: 2,000,000원 over roughly 174 worked hours reads as 11,494원 and passes, while the same offer over its 209 conversion hours is 9,569원 and fails the 2026 figure.
+   The 209 in the source table is that sum for a 40-hour week, not a constant. Compute the schedule's own sum whenever the schedule differs, and record which number you divided by.
    Exclude any component that is not counted toward the minimum wage.
    When the offer states a range, use the bottom of the range.
 

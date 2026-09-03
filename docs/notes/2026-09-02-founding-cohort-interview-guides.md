@@ -133,11 +133,13 @@ Code: 사용한 채널 목록, 실제로 성사된 채널, 채널별 만족 여�
 - 그때 어떻게 하셨나요?
 
 Probes: 급여, 근무 시간, 쉬는 날, 마감 시간, 맡기로 한 자리, 인원.
-Ask each only if the participant has stopped volunteering and has not covered it.
+Ask these only after the participant has stopped volunteering, one at a time, and never as a list read aloud.
+This is the one place the guide asks a closed question, which is why every answer arriving this way is marked prompted and is kept out of the threshold count below.
 
 Code:
 
 - 차이가 발생한 항목별로 한 줄씩.
+- 각 항목이 자발적으로 나온 것인지, 물어봐서 나온 것인지 (spontaneous 또는 prompted).
 - 차이를 알게 된 시점.
 - 대응 (참음, 협의, 퇴사, 기타).
 - 이 항목이 이 인터뷰에서 문제로 언급되었는지 여부.
@@ -317,10 +319,14 @@ Count it this way:
 
 - The unit is an interview, not a mention. Five mentions by one participant is one.
 - The unit is a problem the participant experienced or acted on, not a feature they asked for.
-- Count the two sides separately. Five culinary professionals and five operators are two separate thresholds, and a field that only one side raises is a field only one side needs.
-  This is stricter than `docs/plans/founding-cohort-validation.md` step 2, which counts 5 interviews out of the pool of 20 with no side split, so 3 and 3 clears the plan and fails this rule.
-  Record both counts and apply the stricter one, so a field that splits the two rules is visible as a decision rather than settled by arithmetic.
-- Record the count with the interview identifiers behind it, so the trace back to evidence that step 2 requires is possible.
+- Apply the pooled threshold in `docs/plans/founding-cohort-validation.md` step 2: five interviews out of the twenty, with no side split. That plan is the source of truth for this sequence, and this guide does not override it.
+- Record the side split beside the pooled count anyway, because a problem raised by five culinary professionals and no operator means something different from one raised by both sides.
+  Making the side split the rule is a change to the plan, and it is made there first.
+- A prompted answer does not count toward the threshold. Only a problem the participant raised on their own does.
+  Record the prompted ones, because they are useful for wording a later question, and keep them out of the count. Six leading probes asked at every interview would otherwise manufacture five mentions and justify a field nobody raised.
+- Keep the identifiers behind each count with the notes, outside this repository, and commit the count alone.
+  Step 2 requires tracing a required field back to the interviews that justify it, and that trace runs against the offline record.
+  A committed line naming which participants reported a problem is still a respondent-level answer in pseudonymous form, and the consent promises the answers are not disclosed externally.
 
 A problem that reaches 5 does not automatically become a field.
 It becomes a candidate that has to be traceable to those interviews when the profile schema is revised.
