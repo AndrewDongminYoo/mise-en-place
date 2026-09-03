@@ -90,6 +90,7 @@ Item 8's 90-day point is the one stated in `docs/notes/2026-09-02-founding-cohor
 
 Item 9 covers the reconciliation summary, which is the only thing from these sessions that is committed, and this repository is public.
 Removing the identifiers does not make publishing the totals something the participant agreed to; item 9 is what covers them.
+It also offers an exclusion, so the answer is a second thing to record: the session sheet carries "Included in published totals" beside the consent line, and a participant who declines is left out of every count in the reconciliation.
 
 Item 7 is an absolute technical claim, so verify it before the first session of each build rather than asserting it.
 Open the browser devtools network panel, run one import, and confirm that no request leaves the page.
@@ -239,7 +240,9 @@ Explaining the options makes the choice the moderator's.
 The option wording is owned by the application, in the talent-pool options in `app/page.tsx`.
 Do not paraphrase it and do not restate it here; read what the build under test displays, and record the build commit so the instrument is known afterwards.
 
-One known defect in that wording, which the moderator must not smooth over: the private-profile option offers exposure to verified restaurants, and none has been verified, because `docs/specs/employer-verification-procedure.md` blocks verification until the Track B legal review is recorded.
+One known defect in that wording, which the moderator must not smooth over: the private-profile option offers exposure to verified restaurants, and none has been verified.
+No employer has been through the minimum verification in `docs/specs/initial-product-scope.md`, and Track B has not started, so the count of verified restaurants is zero and the moderator can check that on main before the session.
+The detailed procedure that governs verification is archived on `docs/milestone-gaps` at `4397a7b` and is not needed to answer the question.
 If a participant asks whether such restaurants exist, answer that none do yet, answer with nothing else, and record that the question was asked.
 
 ## Observation Sheet
@@ -254,6 +257,7 @@ Only the reconciliation summary below is committed.
 
 - Date:
 - Consent given: yes
+- Included in published totals: yes / no
 - Build: commit sha
 - Network check before this build's first session: pass / fail
 - Input path: manual entry / own certificate / demo data
@@ -327,6 +331,10 @@ Record the build commit on every sheet so this is checkable afterwards rather th
 Produce one summary that, for each of the three behavioral thresholds, gives the count on each side of it.
 Keep the identifiers behind those counts with the session sheets, outside this repository, and reconcile against that offline record.
 A count that cannot be reconciled offline is not reconciled; a committed summary naming which participant completed, intended to apply, or chose the private profile is a respondent-level outcome, and the consent script never said it would be published.
+
+Leave out every participant whose sheet says they are not included in published totals, in every count, and say in the summary how many were left out.
+The Track A thresholds are written against 10, so an exclusion moves the denominator rather than only the numerator, and a summary that reports "7 of 10" while one of the ten opted out is reporting a number nobody consented to publish.
+Do not substitute another participant to keep the denominator at 10.
 
 Report alongside it, because each one changes how the counts should be read:
 

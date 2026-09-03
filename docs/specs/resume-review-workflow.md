@@ -73,9 +73,11 @@ When the committed limit cannot be met, the operator tells the person the new da
 These numbers are a starting commitment for a single reviewer with at most 10 participants.
 They are not a service level for any later product.
 
-They also do not apply yet.
-While the draft-continuity prerequisite below is open, review runs inside the moderated session and feedback is returned in the room, so there is no turnaround to measure.
-The 2-day target and the 3-day limit take effect when a participant can leave and return to a saved draft.
+These took effect on 2026-09-03.
+The condition was that a participant can leave and return to a saved draft, and the draft-continuity prerequisite below closed with PR #5.
+
+Review returned inside the moderated session still has no turnaround to measure, so the numbers bind only where a request and its return are separated.
+Which of the two a session uses is part of the sequencing decision in `docs/notes/2026-09-02-moderated-completion-test-protocol.md`, not a reason to leave the commitment unstated: the target has to be stated before the person requests a review, and by then the session already knows which it is.
 
 ## Decision 4: Payment Model
 
