@@ -753,6 +753,12 @@ button {
   line-height: 1.65;
 }
 
+.field-error {
+  color: var(--red);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
 .career-card,
 .identity-card,
 .career-editor {
@@ -867,6 +873,7 @@ fieldset {
 
 .field {
   display: grid;
+  align-content: start;
   gap: 8px;
   min-width: 0;
 }
@@ -947,6 +954,151 @@ fieldset {
   grid-template-columns: minmax(0, 1fr);
 }
 
+.field-grid-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.imported-reference {
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  border-left: 3px solid var(--steel);
+  background: var(--steel-soft);
+}
+
+.imported-reference > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.imported-reference > header strong {
+  font-size: 0.78rem;
+}
+
+.imported-reference dl {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+}
+
+.imported-reference dl > div {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 14px;
+}
+
+.imported-reference dt,
+.imported-reference dd {
+  margin: 0;
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.imported-reference dt {
+  color: var(--muted);
+  font-weight: 650;
+}
+
+.imported-reference dd {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.imported-reference > p {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1.55;
+}
+
+.restaurant-metadata {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 24px;
+  padding-top: 26px;
+  margin-top: 26px;
+  border-top: 1px dashed var(--line);
+}
+
+.restaurant-highlights {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.restaurant-highlights > header,
+.photo-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.restaurant-highlights > header > div,
+.photo-section-heading > div {
+  display: grid;
+  gap: 5px;
+}
+
+.restaurant-highlight-list {
+  display: grid;
+  gap: 8px;
+}
+
+.restaurant-highlight-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.restaurant-highlight-row input,
+.photo-description-field textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  outline: none;
+  background: #fffefb;
+  color: var(--ink);
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.restaurant-highlight-row input {
+  min-height: 44px;
+  padding: 9px 11px;
+}
+
+.restaurant-highlight-row input:focus,
+.photo-description-field textarea:focus {
+  border-color: var(--steel);
+  box-shadow: 0 0 0 3px rgba(65, 94, 89, 0.12);
+}
+
+.restaurant-highlights .text-button,
+.photo-inline-actions .text-button,
+.career-photo-actions .text-button {
+  min-height: 40px;
+  color: var(--red);
+  font-size: 0.72rem;
+}
+
+.compact-button {
+  min-height: 40px;
+  padding: 8px 12px;
+  font-size: 0.72rem;
+}
+
+.empty-field-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
 .date-section-title {
   display: grid;
   gap: 3px;
@@ -967,6 +1119,64 @@ fieldset {
   gap: 12px;
 }
 
+.employment-status {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.employment-status-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.employment-status-options label {
+  position: relative;
+  cursor: pointer;
+}
+
+.employment-status-options input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.employment-status-options span {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: #fffefb;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    color 140ms ease;
+}
+
+.employment-status-options label:hover span {
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+.employment-status-options input:checked + span {
+  border-color: var(--steel);
+  background: var(--steel);
+  color: #f8faf7;
+}
+
+.employment-status-options input:focus-visible + span {
+  outline: 3px solid rgba(65, 94, 89, 0.22);
+  outline-offset: 2px;
+}
+
 .add-career-button {
   display: flex;
   min-height: 58px;
@@ -985,6 +1195,12 @@ fieldset {
 .add-career-button:hover {
   border-color: var(--red);
   color: var(--red);
+}
+
+.draft-storage-notice {
+  border-left-color: var(--steel);
+  background: var(--steel-soft);
+  color: #294a43;
 }
 
 .form-actions,
@@ -1018,6 +1234,199 @@ fieldset {
 
 .identity-card > .field {
   margin-top: 20px;
+}
+
+.profile-photo-editor,
+.career-photo-editor {
+  display: grid;
+  gap: 18px;
+  padding-top: 26px;
+  margin-top: 26px;
+  border-top: 1px dashed var(--line);
+}
+
+.profile-photo-editor {
+  padding: 18px;
+  margin: 0 0 24px;
+  border: 1px solid var(--line);
+  background: rgba(241, 237, 227, 0.36);
+}
+
+.photo-section-heading h3 {
+  margin: 0;
+  font-family: var(--font-editorial);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.photo-section-heading p {
+  max-width: 58ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
+.profile-photo-current {
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr);
+  gap: 18px;
+  align-items: end;
+}
+
+.profile-photo-current > img {
+  width: 128px;
+  aspect-ratio: 4 / 5;
+  border: 1px solid var(--line);
+  background: var(--paper-soft);
+  object-fit: contain;
+}
+
+.photo-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+
+.photo-file-button,
+.photo-dropzone {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.photo-file-button input,
+.photo-dropzone input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.photo-dropzone {
+  display: grid;
+  min-height: 104px;
+  place-items: center;
+  align-content: center;
+  gap: 5px;
+  padding: 18px;
+  border: 1px dashed var(--line-strong);
+  background: rgba(255, 254, 251, 0.56);
+  color: var(--ink);
+  text-align: center;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease;
+}
+
+.photo-dropzone:hover,
+.photo-dropzone:focus-within {
+  border-color: var(--steel);
+  background: var(--steel-soft);
+}
+
+.photo-dropzone strong {
+  font-size: 0.82rem;
+}
+
+.photo-dropzone span,
+.photo-loading {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.photo-dropzone.is-disabled,
+.photo-dropzone:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.resume-photo-choice {
+  display: grid;
+  gap: 12px;
+}
+
+.resume-photo-choice > legend {
+  margin-bottom: 2px;
+  font-size: 0.76rem;
+  font-weight: 740;
+}
+
+.resume-photo-none,
+.resume-photo-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.resume-photo-none input,
+.resume-photo-radio input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--red);
+}
+
+.career-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.career-photo-card {
+  display: grid;
+  min-width: 0;
+  gap: 13px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255, 254, 251, 0.72);
+}
+
+.career-photo-card.is-resume-photo {
+  border-color: var(--steel);
+  box-shadow: inset 0 0 0 1px var(--steel);
+}
+
+.career-photo-preview {
+  display: grid;
+  aspect-ratio: 4 / 3;
+  place-items: center;
+  overflow: hidden;
+  background: var(--paper-soft);
+}
+
+.career-photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.photo-description-field {
+  display: grid;
+  gap: 7px;
+}
+
+.photo-description-field textarea {
+  min-height: 84px;
+  padding: 10px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.career-photo-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.career-photo-add {
+  min-height: 82px;
 }
 
 .career-editor-header h2 {
@@ -1055,6 +1464,117 @@ fieldset {
   gap: 8px;
 }
 
+.specialty-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.specialty-option {
+  position: relative;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.specialty-option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.specialty-option > span {
+  display: grid;
+  min-height: 100%;
+  align-content: start;
+  gap: 6px;
+  padding: 15px 16px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: #fffefb;
+  color: var(--muted);
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    color 140ms ease;
+}
+
+.specialty-option strong {
+  color: var(--ink);
+  font-size: 0.82rem;
+}
+
+.specialty-option small {
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.specialty-option:hover > span {
+  border-color: var(--line-strong);
+}
+
+.specialty-option.is-selected > span {
+  border-color: var(--steel);
+  background: var(--steel-soft);
+  color: #294a43;
+}
+
+.specialty-option:focus-within > span {
+  outline: 3px solid rgba(65, 94, 89, 0.22);
+  outline-offset: 2px;
+}
+
+.taxonomy-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.taxonomy-group {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: rgba(255, 254, 251, 0.68);
+}
+
+.taxonomy-group h3 {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-family: var(--font-label);
+  font-size: 0.62rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.taxonomy-additional {
+  border-style: dashed;
+}
+
+.custom-choice-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.custom-choice-form input {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: #fffefb;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 11px 12px;
+}
+
+.custom-choice-form .secondary-button {
+  min-height: 44px;
+  padding: 10px 14px;
+}
+
 .choice-chip {
   position: relative;
   cursor: pointer;
@@ -1070,14 +1590,15 @@ fieldset {
 
 .choice-chip span {
   display: inline-flex;
-  min-height: 44px;
+  min-height: 36px;
   align-items: center;
-  padding: 7px 13px;
+  padding: 4px 12px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: #fffefb;
   color: var(--muted);
   font-size: 0.75rem;
+  line-height: 1.25;
   transition:
     border-color 140ms ease,
     background 140ms ease,
@@ -1127,6 +1648,22 @@ fieldset {
   gap: 34px;
   padding-bottom: 34px;
   border-bottom: 2px solid #252825;
+}
+
+.resume-identity-lockup {
+  display: flex;
+  min-width: 0;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.resume-profile-photo {
+  width: 82px;
+  height: 104px;
+  flex: 0 0 auto;
+  border: 1px solid #d8dad5;
+  background: #f5f5f2;
+  object-fit: contain;
 }
 
 .resume-label {
@@ -1217,6 +1754,13 @@ fieldset {
   font-weight: 650;
 }
 
+.resume-career header .resume-location {
+  margin-top: 3px;
+  color: #6b7069;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
 .resume-career header small {
   color: #777c74;
   font-size: 0.66rem;
@@ -1232,6 +1776,47 @@ fieldset {
 .resume-provenance {
   max-width: 220px;
   justify-content: flex-end;
+}
+
+.resume-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0;
+  margin: -5px 0 16px;
+  list-style: none;
+}
+
+.resume-highlights li {
+  padding: 4px 7px;
+  border: 1px solid #d5d7d2;
+  color: #555a53;
+  font-size: 0.64rem;
+  line-height: 1.3;
+}
+
+.resume-career-photo {
+  display: grid;
+  gap: 7px;
+  max-width: 520px;
+  padding: 10px;
+  margin: 0 0 18px;
+  break-inside: avoid;
+  border: 1px solid #dedfdc;
+  background: #fafaf8;
+}
+
+.resume-career-photo img {
+  width: 100%;
+  max-height: 280px;
+  background: #f2f2ef;
+  object-fit: contain;
+}
+
+.resume-career-photo figcaption {
+  color: #61665f;
+  font-size: 0.68rem;
+  line-height: 1.45;
 }
 
 .resume-bullets {
@@ -1521,8 +2106,30 @@ button:disabled {
 
   .field-grid,
   .date-section,
-  .date-grid {
+  .date-grid,
+  .specialty-grid,
+  .taxonomy-groups,
+  .restaurant-metadata,
+  .career-photo-grid {
     grid-template-columns: 1fr;
+  }
+
+  .profile-photo-current {
+    grid-template-columns: 1fr;
+  }
+
+  .photo-inline-actions,
+  .career-photo-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .custom-choice-form {
+    grid-template-columns: 1fr;
+  }
+
+  .custom-choice-form .secondary-button {
+    width: 100%;
   }
 
   .date-section {
@@ -1547,6 +2154,10 @@ button:disabled {
   .resume-header address {
     padding-top: 0;
     text-align: left;
+  }
+
+  .resume-identity-lockup {
+    width: 100%;
   }
 
   .resume-provenance {
@@ -1611,7 +2222,8 @@ button:disabled {
   }
 
   .resume-career,
-  .resume-section {
+  .resume-section,
+  .resume-career-photo {
     break-inside: avoid;
   }
 }

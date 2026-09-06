@@ -36,7 +36,7 @@ Direct Work24 or National Health Insurance service integration is not approved, 
 ### Core Flow
 
 1. Import the supported document or choose manual entry.
-2. Review every extracted employer name and qualification date, then correct or exclude each record.
+2. Review each preserved employer name and qualification date, then correct the prefilled restaurant name and employment period or exclude the record.
 3. Add culinary-career details through structured choices and short authored text.
 4. Preview, edit, print, or download one resume layout.
 
@@ -56,7 +56,8 @@ Each imported employment record preserves:
 The culinary professional can confirm or add:
 
 - Restaurant display name.
-- Actual employment start and end dates.
+- Actual employment start and end months.
+- Current-employment status.
 - Role, including a custom value.
 - Independently owned stations.
 - Up to 3 primary responsibilities.
@@ -73,7 +74,7 @@ Preserve provenance at the field level.
 | Label | Meaning |
 | --- | --- |
 | Imported from public record | The browser extracted the original employer name or qualification date from a user-provided document. |
-| Confirmed by the person | The person reviewed or corrected a restaurant name, employment date, or role. |
+| Confirmed by the person | The person reviewed or corrected a restaurant name, employment month, or role. |
 | Written by the person | The person supplied responsibilities, achievements, skills, equipment, or portfolio information. |
 
 These labels describe the source of a field.

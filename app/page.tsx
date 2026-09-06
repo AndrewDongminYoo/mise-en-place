@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element -- Local Blob URLs cannot use server image optimization. */
+
 import {
   useEffect,
   useMemo,
@@ -18,27 +20,51 @@ import {
 } from "./nhis-parser.mts";
 
 import {
-  EQUIPMENT_OPTIONS,
+  clearPhotoAssets,
+  deleteLocalDraftAndPhotos,
+  deleteOrphanedPhotoAssets,
+  deletePhotoAsset,
+  getPhotoAssets,
+  savePhotoAsset,
+  type LocalPhotoAsset,
+} from "./local-photo-store.mts";
+
+import { normalizePhoto } from "./photo-normalizer.mts";
+
+import {
+  CULINARY_SPECIALTY_OPTIONS,
   PROVENANCE_LABELS,
   RESPONSIBILITY_OPTIONS,
   RESUME_DRAFT_STORAGE_KEY,
   ROLE_SUGGESTIONS,
-  SKILL_OPTIONS,
-  STATION_OPTIONS,
+  addCustomChoice,
+  appendCareerPhoto,
+  collectReferencedPhotoIds,
   createBlankCareerEntry,
   createDemoCareerEntries,
   createImportedCareerEntries,
   formatMonthRange,
   getCareerErrors,
+  getCareerPhotoDescriptionError,
+  getCulinaryChoiceGroups,
   getEmployerLabel,
   getEnrichmentErrors,
   getImportedCareerFieldProvenance,
   parseResumeDraft,
+  removeCareerPhotoReference,
+  removeMissingPhotoReferences,
+  selectCareerResumePhoto,
   serializeResumeDraft,
   toReviewIdentity,
   toggleBoundedChoice,
+  toggleCulinarySpecialty,
   type CareerEntry,
+  type CareerPhotoReference,
+  type CulinaryChoiceGroup,
+  type CulinaryChoiceKind,
+  type CulinarySpecialty,
   type ResumeIdentity,
+  type ResumeDraft,
   type TalentPoolChoice,
 } from "./resume-model.mts";
 
@@ -60,7 +86,7 @@ const STEP_COPY = [
     eyebrow: "STEP 02 · EMPLOYMENT SKELETON",
     title: "근무 이력의 골격을 확인하세요",
     description:
-      "법인명과 실제 레스토랑명, 건강보험 자격일과 실제 근무일을 섞지 않고 각각 남깁니다.",
+      "공공기록은 원본 근거로 따로 보존하고, 레스토랑명과 실제 근무 기간은 가져온 값에서 필요한 부분만 고칩니다.",
   },
   {
     eyebrow: "STEP 03 · CULINARY PRACTICE",
@@ -82,6 +108,7 @@ const EMPTY_IDENTITY: ResumeIdentity = {
   email: "",
   phone: "",
   summary: "",
+  profilePhotoId: null,
 };
 
 const DEMO_IDENTITY: ResumeIdentity = {
@@ -91,6 +118,7 @@ const DEMO_IDENTITY: ResumeIdentity = {
   phone: "010-0000-0000",
   summary:
     "이탈리안 다이닝 주방에서 핫·파스타 스테이션을 운영했으며, 계절 메뉴 테스트와 레시피 표준화에 참여했습니다.",
+  profilePhotoId: null,
 };
 
 const TALENT_POOL_OPTIONS: Array<{
@@ -114,6 +142,13 @@ const TALENT_POOL_OPTIONS: Array<{
     description: "검증을 통과한 레스토랑의 채용 제안을 받을 수 있습니다.",
   },
 ];
+
+const PHOTO_ACCEPT =
+  "image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif";
+
+type DisplayPhotoAsset = LocalPhotoAsset & {
+  objectUrl: string;
+};
 
 type ChoiceGroupProps = {
   legend: string;
@@ -162,6 +197,145 @@ function ChoiceGroup({
           );
         })}
       </div>
+    </fieldset>
+  );
+}
+
+function SpecialtyChoiceGroup({
+  selected,
+  onToggle,
+}: {
+  selected: readonly CulinarySpecialty[];
+  onToggle: (value: CulinarySpecialty) => void;
+}) {
+  return (
+    <fieldset className="choice-field">
+      <legend>경력 분야</legend>
+      <span className="choice-hint field-hint">
+        관련된 분야를 모두 선택할 수 있습니다. 한 분야는 남겨 둡니다.
+      </span>
+      <div className="specialty-grid">
+        {CULINARY_SPECIALTY_OPTIONS.map((option) => {
+          const checked = selected.includes(option.value);
+
+          return (
+            <label
+              className={
+                "specialty-option" + (checked ? " is-selected" : "")
+              }
+              key={option.value}
+            >
+              <input
+                type="checkbox"
+                checked={checked}
+                onChange={() => onToggle(option.value)}
+              />
+              <span>
+                <strong>{option.label}</strong>
+                <small>{option.description}</small>
+              </span>
+            </label>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
+
+function GroupedChoiceGroup({
+  legend,
+  groups,
+  selected,
+  onToggle,
+  onAdd,
+  customPlaceholder,
+  hint,
+}: {
+  legend: string;
+  groups: readonly CulinaryChoiceGroup[];
+  selected: readonly string[];
+  onToggle: (option: string) => void;
+  onAdd: (option: string) => void;
+  customPlaceholder: string;
+  hint: string;
+}) {
+  const suggested = new Set(groups.flatMap((group) => group.options));
+  const additional = selected.filter((option) => !suggested.has(option));
+
+  function submitCustomChoice(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const input = form.elements.namedItem("customChoice");
+
+    if (!(input instanceof HTMLInputElement) || !input.value.trim()) {
+      return;
+    }
+
+    onAdd(input.value);
+    form.reset();
+  }
+
+  return (
+    <fieldset className="choice-field">
+      <legend>{legend}</legend>
+      <span className="choice-hint field-hint">{hint}</span>
+      <div className="taxonomy-groups">
+        {groups.map((group) => (
+          <section className="taxonomy-group" key={group.label}>
+            <h3>{group.label}</h3>
+            <div className="choice-grid">
+              {group.options.map((option) => {
+                const checked = selected.includes(option);
+
+                return (
+                  <label
+                    className={
+                      "choice-chip" + (checked ? " is-selected" : "")
+                    }
+                    key={option}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => onToggle(option)}
+                    />
+                    <span>{option}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+        {additional.length > 0 ? (
+          <section className="taxonomy-group taxonomy-additional">
+            <h3>직접 입력·기존 선택</h3>
+            <div className="choice-grid">
+              {additional.map((option) => (
+                <label className="choice-chip is-selected" key={option}>
+                  <input
+                    type="checkbox"
+                    checked
+                    onChange={() => onToggle(option)}
+                  />
+                  <span>{option}</span>
+                </label>
+              ))}
+            </div>
+          </section>
+        ) : null}
+      </div>
+      <form className="custom-choice-form" onSubmit={submitCustomChoice}>
+        <input
+          type="text"
+          name="customChoice"
+          maxLength={40}
+          placeholder={customPlaceholder}
+          aria-label={customPlaceholder}
+        />
+        <button className="secondary-button" type="submit">
+          직접 입력 추가
+        </button>
+      </form>
     </fieldset>
   );
 }
@@ -246,6 +420,71 @@ function notifyStoredDraftChanged() {
   }
 }
 
+function writeStoredDraft(draft: ResumeDraft): boolean {
+  try {
+    window.localStorage.setItem(
+      RESUME_DRAFT_STORAGE_KEY,
+      serializeResumeDraft(draft),
+    );
+    notifyStoredDraftChanged();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function waitForImage(image: HTMLImageElement): Promise<void> {
+  if (image.complete) {
+    if (image.naturalWidth > 0) {
+      return;
+    }
+
+    throw new Error("사진을 불러오지 못했습니다.");
+  }
+
+  if (typeof image.decode === "function") {
+    await image.decode();
+    return;
+  }
+
+  await new Promise<void>((resolve, reject) => {
+    image.addEventListener("load", () => resolve(), { once: true });
+    image.addEventListener(
+      "error",
+      () => reject(new Error("사진을 불러오지 못했습니다.")),
+      { once: true },
+    );
+  });
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error && error.message ? error.message : fallback;
+}
+
+function getResumePhotoReference(
+  career: CareerEntry,
+): CareerPhotoReference | null {
+  if (!career.resumePhotoId) {
+    return null;
+  }
+
+  return (
+    career.portfolioPhotos.find(
+      (photo) => photo.assetId === career.resumePhotoId,
+    ) ?? null
+  );
+}
+
+function toDisplayPhotoAsset(asset: LocalPhotoAsset): DisplayPhotoAsset {
+  return { ...asset, objectUrl: URL.createObjectURL(asset.blob) };
+}
+
+function revokeDisplayPhotoAssets(
+  assets: ReadonlyMap<string, DisplayPhotoAsset>,
+) {
+  assets.forEach((asset) => URL.revokeObjectURL(asset.objectUrl));
+}
+
 export default function Home() {
   const [currentStep, setCurrentStep] = useState(1);
   const [careers, setCareers] = useState<CareerEntry[]>([]);
@@ -263,6 +502,13 @@ export default function Home() {
   const [isImportingPdf, setIsImportingPdf] = useState(false);
   const [hasConfirmedCareers, setHasConfirmedCareers] = useState(false);
   const [isReviewExport, setIsReviewExport] = useState(false);
+  const [photoAssets, setPhotoAssets] = useState<
+    Map<string, DisplayPhotoAsset>
+  >(
+    () => new Map(),
+  );
+  const [photoOperation, setPhotoOperation] = useState<string | null>(null);
+  const [hasPendingPhotoClear, setHasPendingPhotoClear] = useState(false);
   const storedDraftRaw = useSyncExternalStore(
     subscribeToStoredDraft,
     readStoredDraft,
@@ -272,21 +518,30 @@ export default function Home() {
     () => parseResumeDraft(storedDraftRaw),
     [storedDraftRaw],
   );
-  const currentDraftRaw = useMemo(
-    () =>
-      serializeResumeDraft({
-        careers,
-        identity,
-        isDemoDraft,
-        talentPoolChoice,
-      }),
+  const currentDraft = useMemo<ResumeDraft>(
+    () => ({ careers, identity, isDemoDraft, talentPoolChoice }),
     [careers, identity, isDemoDraft, talentPoolChoice],
   );
+  const currentDraftRaw = useMemo(
+    () => serializeResumeDraft(currentDraft),
+    [currentDraft],
+  );
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const errorSummaryRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const selectedPdfRef = useRef<File | null>(null);
   const previousStep = useRef(currentStep);
+  const resumeSheetRef = useRef<HTMLElement>(null);
+  const initializedPhotoStore = useRef(false);
+  const photoAssetsRef = useRef(photoAssets);
+  const careersRef = useRef(careers);
+  const identityRef = useRef(identity);
+
+  useEffect(() => {
+    careersRef.current = careers;
+    identityRef.current = identity;
+  }, [careers, identity]);
 
   useEffect(() => {
     if (previousStep.current === currentStep) {
@@ -298,20 +553,43 @@ export default function Home() {
   }, [currentStep]);
 
   useEffect(() => {
+    if (errors.length === 0) {
+      return;
+    }
+
+    errorSummaryRef.current?.focus();
+  }, [errors]);
+
+  useEffect(() => {
     if (!hasConfirmedCareers || careers.length === 0) {
       return;
     }
 
-    try {
-      window.localStorage.setItem(RESUME_DRAFT_STORAGE_KEY, currentDraftRaw);
-      notifyStoredDraftChanged();
-    } catch {
+    if (!writeStoredDraft(currentDraft)) {
       // Storage can be unavailable in a private window or with site data
       // blocked. Nothing is notified, so whatever was already on the device
       // stays the snapshot, which is why `draftIsStored` below compares that
       // snapshot against this draft instead of only checking it exists.
     }
-  }, [hasConfirmedCareers, careers, currentDraftRaw]);
+  }, [hasConfirmedCareers, careers.length, currentDraft]);
+
+  useEffect(() => {
+    if (initializedPhotoStore.current) {
+      return;
+    }
+
+    initializedPhotoStore.current = true;
+    const savedDraft = parseResumeDraft(readStoredDraft());
+    const referencedIds = savedDraft
+      ? collectReferencedPhotoIds(savedDraft)
+      : [];
+
+    void deleteOrphanedPhotoAssets(referencedIds).catch(() => {
+      setErrors([
+        "이 기기에 남은 사진을 정리하지 못했습니다. 브라우저 저장 공간을 확인해 주세요.",
+      ]);
+    });
+  }, []);
 
   useEffect(
     () => () => {
@@ -324,6 +602,8 @@ export default function Home() {
       if (passwordInputRef.current) {
         passwordInputRef.current.value = "";
       }
+
+      revokeDisplayPhotoAssets(photoAssetsRef.current);
     },
     [],
   );
@@ -340,11 +620,26 @@ export default function Home() {
   const sheetIdentity = isReviewExport
     ? toReviewIdentity(identity)
     : identity;
+  const sheetProfilePhotoUrl = sheetIdentity.profilePhotoId
+    ? photoAssets.get(sheetIdentity.profilePhotoId)?.objectUrl
+    : undefined;
   const currentCopy = STEP_COPY[currentStep - 1];
   const includedCareers = careers.filter((career) => career.included);
   const hasDraft = careers.length > 0;
   const isManualOnlyDraft =
     currentStep === 2 && careers.every((career) => career.origin === "manual");
+
+  function replaceDisplayedPhotoAssets(
+    nextAssets: Map<string, DisplayPhotoAsset>,
+  ) {
+    photoAssetsRef.current = nextAssets;
+    setPhotoAssets(nextAssets);
+  }
+
+  function releaseDisplayedPhotoAssets() {
+    revokeDisplayPhotoAssets(photoAssetsRef.current);
+    replaceDisplayedPhotoAssets(new Map());
+  }
 
   function moveToStep(step: number) {
     setErrors([]);
@@ -374,8 +669,27 @@ export default function Home() {
    * Asserts the mode rather than assuming it, so a review copy whose
    * `afterprint` never arrived cannot make this button print a stripped sheet.
    */
-  function printResume() {
+  async function prepareResumeImagesForPrint(): Promise<boolean> {
+    const images = resumeSheetRef.current?.querySelectorAll("img") ?? [];
+
+    try {
+      await Promise.all([...images].map((image) => waitForImage(image)));
+      return true;
+    } catch {
+      setErrors([
+        "사진을 불러오지 못해 PDF를 만들 수 없습니다. 해당 사진을 다시 선택해 주세요.",
+      ]);
+      return false;
+    }
+  }
+
+  async function printResume() {
     flushSync(() => setIsReviewExport(false));
+
+    if (!(await prepareResumeImagesForPrint())) {
+      return;
+    }
+
     window.print();
   }
 
@@ -388,7 +702,7 @@ export default function Home() {
    * which also covers the browsers where `window.print` returns immediately
    * instead of blocking until the dialog closes.
    */
-  function printReviewCopy() {
+  async function printReviewCopy() {
     function restore() {
       window.removeEventListener("afterprint", restore);
       flushSync(() => setIsReviewExport(false));
@@ -396,6 +710,13 @@ export default function Home() {
 
     window.addEventListener("afterprint", restore);
     flushSync(() => setIsReviewExport(true));
+
+    if (!(await prepareResumeImagesForPrint())) {
+      window.removeEventListener("afterprint", restore);
+      flushSync(() => setIsReviewExport(false));
+      return;
+    }
+
     window.print();
   }
 
@@ -408,6 +729,7 @@ export default function Home() {
     setIdentity(nextIdentity);
     setIsDemoDraft(nextIsDemo);
     setTalentPoolChoice("resume-only");
+    releaseDisplayedPhotoAssets();
     setHasConfirmedCareers(false);
     moveToStep(2);
   }
@@ -450,22 +772,62 @@ export default function Home() {
     beginDraft(createDemoCareerEntries(), DEMO_IDENTITY, true);
   }
 
-  function restoreStoredDraft() {
+  async function restoreStoredDraft() {
     if (isImportingPdf || storedDraft === null) {
       return;
     }
 
-    clearDocumentInputs();
-    setFileNotice(null);
-    setCareers(storedDraft.careers);
-    setIdentity(storedDraft.identity);
-    setIsDemoDraft(storedDraft.isDemoDraft);
-    setTalentPoolChoice(storedDraft.talentPoolChoice);
-    setHasConfirmedCareers(true);
-    moveToStep(2);
+    setPhotoOperation("restore");
+
+    try {
+      const referencedIds = collectReferencedPhotoIds(storedDraft);
+      const restoredAssets = await getPhotoAssets(referencedIds);
+      const missingIds = referencedIds.filter(
+        (id) => !restoredAssets.has(id),
+      );
+      const restoredDraft = removeMissingPhotoReferences(
+        storedDraft,
+        missingIds,
+      );
+
+      clearDocumentInputs();
+      setFileNotice(null);
+      setCareers(restoredDraft.careers);
+      setIdentity(restoredDraft.identity);
+      setIsDemoDraft(restoredDraft.isDemoDraft);
+      setTalentPoolChoice(restoredDraft.talentPoolChoice);
+      revokeDisplayPhotoAssets(photoAssetsRef.current);
+      replaceDisplayedPhotoAssets(
+        new Map(
+          [...restoredAssets].map(([id, asset]) => [
+            id,
+            toDisplayPhotoAsset(asset),
+          ]),
+        ),
+      );
+      setHasConfirmedCareers(true);
+      moveToStep(2);
+
+      if (missingIds.length > 0) {
+        writeStoredDraft(restoredDraft);
+        setErrors([
+          "사진 일부를 이 브라우저에서 찾지 못해 제외했습니다.",
+        ]);
+      }
+
+      await deleteOrphanedPhotoAssets(
+        collectReferencedPhotoIds(restoredDraft),
+      );
+    } catch {
+      setErrors([
+        "저장된 사진을 복원하지 못했습니다. 브라우저 저장 공간을 확인해 주세요.",
+      ]);
+    } finally {
+      setPhotoOperation(null);
+    }
   }
 
-  function discardStoredDraft() {
+  async function discardStoredDraft() {
     if (isImportingPdf) {
       return;
     }
@@ -478,18 +840,41 @@ export default function Home() {
       return;
     }
 
+    setPhotoOperation("discard");
+    let draftRemoved = false;
+
     try {
-      window.localStorage.removeItem(RESUME_DRAFT_STORAGE_KEY);
+      await deleteLocalDraftAndPhotos(
+        () => {
+          window.localStorage.removeItem(RESUME_DRAFT_STORAGE_KEY);
+          draftRemoved = true;
+        },
+        () => clearPhotoAssets(),
+      );
+      setHasPendingPhotoClear(false);
       notifyStoredDraftChanged();
     } catch {
-      // Nothing to recover from; the flag below is what stops the rewrite.
+      setHasPendingPhotoClear(draftRemoved);
+      setErrors([
+        "초안과 사진을 모두 삭제하지 못했습니다. 다시 시도해 주세요.",
+      ]);
+      setPhotoOperation(null);
+      return;
     }
 
     // Deletes what is on the device and nothing else. The confirmation asked
     // only about the stored copy, so a draft the person is in the middle of
     // writing stays on screen. Dropping the flag is what stops the save effect
     // from writing it straight back.
+    const clearedDraft = removeMissingPhotoReferences(
+      currentDraft,
+      collectReferencedPhotoIds(currentDraft),
+    );
+    setCareers(clearedDraft.careers);
+    setIdentity(clearedDraft.identity);
+    releaseDisplayedPhotoAssets();
     setHasConfirmedCareers(false);
+    setPhotoOperation(null);
   }
 
   function continueDraft() {
@@ -629,8 +1014,302 @@ export default function Home() {
     );
   }
 
+  function updateEmploymentStatus(id: string, isCurrent: boolean) {
+    setCareers((current) =>
+      current.map((career) => {
+        if (career.id === id) {
+          return {
+            ...career,
+            isCurrent,
+            employmentEnd: isCurrent ? "" : career.employmentEnd,
+          };
+        }
+
+        return isCurrent && career.isCurrent
+          ? { ...career, isCurrent: false }
+          : career;
+      }),
+    );
+  }
+
   function updateIdentity(patch: Partial<ResumeIdentity>) {
     setIdentity((current) => ({ ...current, ...patch }));
+  }
+
+  function persistPhotoDraft(
+    nextCareers: CareerEntry[],
+    nextIdentity: ResumeIdentity,
+  ): boolean {
+    return writeStoredDraft({
+      careers: nextCareers,
+      identity: nextIdentity,
+      isDemoDraft,
+      talentPoolChoice,
+    });
+  }
+
+  async function handleProfilePhotoSelection(
+    event: ChangeEvent<HTMLInputElement>,
+  ) {
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+    input.value = "";
+
+    if (!file || photoOperation) {
+      return;
+    }
+
+    setPhotoOperation("profile");
+    setErrors([]);
+    let savedAsset: LocalPhotoAsset | null = null;
+
+    try {
+      const normalized = await normalizePhoto(file);
+      savedAsset = await savePhotoAsset(normalized);
+      const latestCareers = careersRef.current;
+      const latestIdentity = identityRef.current;
+      const previousId = latestIdentity.profilePhotoId;
+      const nextIdentity = {
+        ...latestIdentity,
+        profilePhotoId: savedAsset.id,
+      };
+
+      if (!persistPhotoDraft(latestCareers, nextIdentity)) {
+        await deletePhotoAsset(savedAsset.id).catch(() => undefined);
+        throw new Error(
+          "사진을 초안에 연결하지 못했습니다. 브라우저 저장 공간을 확인해 주세요.",
+        );
+      }
+
+      setIdentity(nextIdentity);
+      const nextAssets = new Map(photoAssetsRef.current);
+
+      if (previousId) {
+        const previousAsset = nextAssets.get(previousId);
+        if (previousAsset) {
+          URL.revokeObjectURL(previousAsset.objectUrl);
+        }
+        nextAssets.delete(previousId);
+      }
+
+      nextAssets.set(savedAsset.id, toDisplayPhotoAsset(savedAsset));
+      replaceDisplayedPhotoAssets(nextAssets);
+
+      if (previousId) {
+        await deletePhotoAsset(previousId).catch(() => undefined);
+      }
+    } catch (error) {
+      setErrors([
+        getErrorMessage(error, "프로필 사진을 추가하지 못했습니다."),
+      ]);
+    } finally {
+      setPhotoOperation(null);
+    }
+  }
+
+  async function handleCareerPhotoSelection(
+    careerId: string,
+    event: ChangeEvent<HTMLInputElement>,
+  ) {
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+    input.value = "";
+
+    if (!file || photoOperation) {
+      return;
+    }
+
+    const career = careersRef.current.find((item) => item.id === careerId);
+
+    if (!career) {
+      return;
+    }
+
+    setPhotoOperation(`career-${careerId}`);
+    setErrors([]);
+    let savedAsset: LocalPhotoAsset | null = null;
+
+    try {
+      const normalized = await normalizePhoto(file);
+      savedAsset = await savePhotoAsset(normalized);
+      const latestCareers = careersRef.current;
+      const latestCareer = latestCareers.find((item) => item.id === careerId);
+
+      if (!latestCareer) {
+        await deletePhotoAsset(savedAsset.id).catch(() => undefined);
+        savedAsset = null;
+        throw new Error("사진을 연결할 경력을 찾지 못했습니다.");
+      }
+
+      const nextCareer = appendCareerPhoto(latestCareer, {
+        assetId: savedAsset.id,
+        description: "",
+      });
+      const nextCareers = latestCareers.map((item) =>
+        item.id === careerId ? nextCareer : item,
+      );
+
+      if (!persistPhotoDraft(nextCareers, identityRef.current)) {
+        await deletePhotoAsset(savedAsset.id).catch(() => undefined);
+        throw new Error(
+          "사진을 초안에 연결하지 못했습니다. 브라우저 저장 공간을 확인해 주세요.",
+        );
+      }
+
+      setCareers(nextCareers);
+      const nextAssets = new Map(photoAssetsRef.current);
+      nextAssets.set(savedAsset.id, toDisplayPhotoAsset(savedAsset));
+      replaceDisplayedPhotoAssets(nextAssets);
+    } catch (error) {
+      setErrors([
+        getErrorMessage(error, "작업 사진을 추가하지 못했습니다."),
+      ]);
+    } finally {
+      setPhotoOperation(null);
+    }
+  }
+
+  async function removeProfilePhoto() {
+    const assetId = identity.profilePhotoId;
+
+    if (!assetId || photoOperation) {
+      return;
+    }
+
+    const nextIdentity = { ...identity, profilePhotoId: null };
+
+    if (!persistPhotoDraft(careers, nextIdentity)) {
+      setErrors([
+        "프로필 사진 변경을 저장하지 못했습니다. 브라우저 저장 공간을 확인해 주세요.",
+      ]);
+      return;
+    }
+
+    setPhotoOperation("profile");
+    setIdentity(nextIdentity);
+    const nextAssets = new Map(photoAssetsRef.current);
+    const removedAsset = nextAssets.get(assetId);
+    if (removedAsset) {
+      URL.revokeObjectURL(removedAsset.objectUrl);
+    }
+    nextAssets.delete(assetId);
+    replaceDisplayedPhotoAssets(nextAssets);
+
+    try {
+      await deletePhotoAsset(assetId);
+    } catch {
+      setErrors([
+        "사진 참조는 제거했지만 저장된 파일을 정리하지 못했습니다. 다시 열면 정리를 시도합니다.",
+      ]);
+    } finally {
+      setPhotoOperation(null);
+    }
+  }
+
+  async function removeCareerPhoto(careerId: string, assetId: string) {
+    if (photoOperation) {
+      return;
+    }
+
+    const career = careers.find((item) => item.id === careerId);
+
+    if (!career) {
+      return;
+    }
+
+    const nextCareer = removeCareerPhotoReference(career, assetId);
+    const nextCareers = careers.map((item) =>
+      item.id === careerId ? nextCareer : item,
+    );
+
+    if (!persistPhotoDraft(nextCareers, identity)) {
+      setErrors([
+        "작업 사진 변경을 저장하지 못했습니다. 브라우저 저장 공간을 확인해 주세요.",
+      ]);
+      return;
+    }
+
+    setPhotoOperation(`career-${careerId}`);
+    setCareers(nextCareers);
+    const nextAssets = new Map(photoAssetsRef.current);
+    const removedAsset = nextAssets.get(assetId);
+    if (removedAsset) {
+      URL.revokeObjectURL(removedAsset.objectUrl);
+    }
+    nextAssets.delete(assetId);
+    replaceDisplayedPhotoAssets(nextAssets);
+
+    try {
+      await deletePhotoAsset(assetId);
+    } catch {
+      setErrors([
+        "사진 참조는 제거했지만 저장된 파일을 정리하지 못했습니다. 다시 열면 정리를 시도합니다.",
+      ]);
+    } finally {
+      setPhotoOperation(null);
+    }
+  }
+
+  function updateCareerPhotoDescription(
+    careerId: string,
+    assetId: string,
+    description: string,
+  ) {
+    const career = careers.find((item) => item.id === careerId);
+
+    if (!career) {
+      return;
+    }
+
+    updateCareer(careerId, {
+      portfolioPhotos: career.portfolioPhotos.map((photo) =>
+        photo.assetId === assetId ? { ...photo, description } : photo,
+      ),
+    });
+  }
+
+  function addRestaurantHighlight(careerId: string) {
+    const career = careers.find((item) => item.id === careerId);
+
+    if (!career || career.restaurantHighlights.length >= 5) {
+      return;
+    }
+
+    updateCareer(careerId, {
+      restaurantHighlights: [...career.restaurantHighlights, ""],
+    });
+  }
+
+  function updateRestaurantHighlight(
+    careerId: string,
+    index: number,
+    value: string,
+  ) {
+    const career = careers.find((item) => item.id === careerId);
+
+    if (!career) {
+      return;
+    }
+
+    updateCareer(careerId, {
+      restaurantHighlights: career.restaurantHighlights.map(
+        (highlight, itemIndex) => (itemIndex === index ? value : highlight),
+      ),
+    });
+  }
+
+  function removeRestaurantHighlight(careerId: string, index: number) {
+    const career = careers.find((item) => item.id === careerId);
+
+    if (!career) {
+      return;
+    }
+
+    updateCareer(careerId, {
+      restaurantHighlights: career.restaurantHighlights.filter(
+        (_, itemIndex) => itemIndex !== index,
+      ),
+    });
   }
 
   function addCareer() {
@@ -642,13 +1321,28 @@ export default function Home() {
     setErrors(nextErrors);
 
     if (nextErrors.length === 0) {
+      if (writeStoredDraft(currentDraft)) {
+        void deleteOrphanedPhotoAssets(
+          collectReferencedPhotoIds(currentDraft),
+        );
+      }
       setHasConfirmedCareers(true);
       moveToStep(3);
     }
   }
 
   function previewResume() {
-    const nextErrors = getEnrichmentErrors(identity, careers);
+    const missingPhotoIds = collectReferencedPhotoIds(currentDraft).filter(
+      (id) => !photoAssets.has(id),
+    );
+    const nextErrors = [
+      ...getEnrichmentErrors(identity, careers),
+      ...(missingPhotoIds.length > 0
+        ? [
+            "사진 일부를 이 브라우저에서 찾지 못했습니다. 해당 사진을 삭제하거나 다시 선택해 주세요.",
+          ]
+        : []),
+    ];
     setErrors(nextErrors);
 
     if (nextErrors.length === 0) {
@@ -670,6 +1364,37 @@ export default function Home() {
 
     updateCareer(id, {
       [field]: toggleBoundedChoice(career[field], value, limit),
+    });
+  }
+
+  function toggleCareerSpecialty(id: string, value: CulinarySpecialty) {
+    const career = careers.find((item) => item.id === id);
+
+    if (!career) {
+      return;
+    }
+
+    updateCareer(id, {
+      culinarySpecialties: toggleCulinarySpecialty(
+        career.culinarySpecialties,
+        value,
+      ),
+    });
+  }
+
+  function addCareerChoice(
+    id: string,
+    field: CulinaryChoiceKind,
+    value: string,
+  ) {
+    const career = careers.find((item) => item.id === id);
+
+    if (!career) {
+      return;
+    }
+
+    updateCareer(id, {
+      [field]: addCustomChoice(career[field], value),
     });
   }
 
@@ -756,7 +1481,12 @@ export default function Home() {
           </header>
 
           {errors.length > 0 ? (
-            <div className="error-summary no-print" role="alert">
+            <div
+              className="error-summary no-print"
+              ref={errorSummaryRef}
+              role="alert"
+              tabIndex={-1}
+            >
               <strong>다음 내용을 확인해 주세요.</strong>
               <ul>
                 {errors.map((error) => (
@@ -889,14 +1619,16 @@ export default function Home() {
                     {hasDraft || storedDraft ? "새로 작성하기" : "직접 입력하기"}
                     <span aria-hidden="true">→</span>
                   </button>
-                  {storedDraft ? (
+                  {storedDraft || hasPendingPhotoClear ? (
                     <button
                       className="text-button"
                       type="button"
                       onClick={discardStoredDraft}
                       disabled={isImportingPdf}
                     >
-                      이 기기에서 지우기
+                      {hasPendingPhotoClear
+                        ? "남은 사진 다시 지우기"
+                        : "이 기기에서 지우기"}
                     </button>
                   ) : null}
                 </div>
@@ -964,32 +1696,71 @@ export default function Home() {
                     <legend className="sr-only">
                       {index + 1}번째 근무 이력
                     </legend>
-                    <div className="field-grid">
-                      <Field
-                        label={getEmployerLabel(career.origin)}
-                        provenance={getImportedCareerFieldProvenance(
-                          career,
-                          "legalEmployer",
-                        )}
-                        hint={
-                          career.origin === "manual"
-                            ? "알고 있다면 입력하세요."
-                            : "수정해도 원문 값은 별도로 보존합니다."
-                        }
+                    {career.importedFields ? (
+                      <section
+                        className="imported-reference"
+                        aria-label="가져온 공공기록"
                       >
-                        <input
-                          type="text"
-                          value={career.legalEmployer}
-                          onChange={(event) =>
-                            updateCareer(career.id, {
-                              legalEmployer: event.currentTarget.value,
-                            })
-                          }
-                          autoComplete="organization"
-                        />
-                      </Field>
+                        <header>
+                          <strong>가져온 공공기록</strong>
+                          <ProvenanceTag kind="imported" />
+                        </header>
+                        <dl>
+                          <div>
+                            <dt>원문 사업장명</dt>
+                            <dd>{career.importedFields.legalEmployer}</dd>
+                          </div>
+                          <div>
+                            <dt>건강보험 자격기간 (원문)</dt>
+                            <dd>
+                              {career.importedFields.qualificationStart} ~{" "}
+                              {career.importedFields.qualificationEnd ||
+                                "상실일 없음"}
+                            </dd>
+                          </div>
+                        </dl>
+                        <p>
+                          이 값은 수정되지 않습니다. 아래 입력란을 고쳐도 원문
+                          근거는 그대로 보존됩니다.
+                        </p>
+                      </section>
+                    ) : null}
 
-                      <Field label="실제 레스토랑명" required>
+                    <div
+                      className={
+                        "field-grid" +
+                        (career.origin === "document"
+                          ? " field-grid-single"
+                          : "")
+                      }
+                    >
+                      {career.origin === "manual" ? (
+                        <Field label="법인명" hint="알고 있다면 입력하세요.">
+                          <input
+                            type="text"
+                            value={career.legalEmployer}
+                            onChange={(event) =>
+                              updateCareer(career.id, {
+                                legalEmployer: event.currentTarget.value,
+                              })
+                            }
+                            autoComplete="organization"
+                          />
+                        </Field>
+                      ) : null}
+
+                      <Field
+                        label="실제 레스토랑명"
+                        hint={
+                          career.importedFields
+                            ? career.restaurantName ===
+                              career.importedFields.legalEmployer
+                              ? "원문 사업장명으로 미리 채웠습니다. 실제 레스토랑명이 다르면 고쳐 주세요."
+                              : "원문 사업장명과 다르게 적어도 위의 원문 근거는 그대로 남습니다."
+                            : undefined
+                        }
+                        required
+                      >
                         <input
                           type="text"
                           value={career.restaurantName}
@@ -1003,67 +1774,150 @@ export default function Home() {
                       </Field>
                     </div>
 
-                    <div
-                      className={
-                        "date-section" +
-                        (career.origin === "manual" ? " date-section-single" : "")
-                      }
-                    >
-                      {career.origin === "document" ? (
-                        <div>
-                          <p className="date-section-title">
-                            건강보험 자격일
-                            <span>문서 값과 수정 여부를 구분합니다.</span>
-                          </p>
-                          <div className="date-grid">
-                            <Field
-                              label="자격 취득일"
-                              provenance={getImportedCareerFieldProvenance(
-                                career,
-                                "qualificationStart",
-                              )}
-                            >
-                              <input
-                                type="date"
-                                value={career.qualificationStart}
-                                onChange={(event) =>
-                                  updateCareer(career.id, {
-                                    qualificationStart:
-                                      event.currentTarget.value,
-                                  })
-                                }
-                              />
-                            </Field>
-                            <Field
-                              label="자격 상실일"
-                              provenance={getImportedCareerFieldProvenance(
-                                career,
-                                "qualificationEnd",
-                              )}
-                            >
-                              <input
-                                type="date"
-                                value={career.qualificationEnd}
-                                onChange={(event) =>
-                                  updateCareer(career.id, {
-                                    qualificationEnd: event.currentTarget.value,
-                                  })
-                                }
-                              />
-                            </Field>
-                          </div>
-                        </div>
-                      ) : null}
+                    <div className="restaurant-metadata">
+                      <Field
+                        label="상세 위치"
+                        hint="동명이 있는 레스토랑을 구분할 수 있도록 지점이나 동네까지 적어 주세요."
+                        provenance="authored"
+                      >
+                        <input
+                          type="text"
+                          maxLength={100}
+                          value={career.restaurantLocation}
+                          onChange={(event) =>
+                            updateCareer(career.id, {
+                              restaurantLocation: event.currentTarget.value,
+                            })
+                          }
+                          placeholder="예: 서울 용산구 한남동"
+                        />
+                      </Field>
 
+                      <section className="restaurant-highlights">
+                        <header>
+                          <div>
+                            <span className="field-label">주요 이력</span>
+                            <span className="field-hint">
+                              수상·선정 명칭과 당시 적용 시기를 함께 적어 주세요.
+                            </span>
+                          </div>
+                          <ProvenanceTag kind="authored" />
+                        </header>
+
+                        {career.restaurantHighlights.length > 0 ? (
+                          <div className="restaurant-highlight-list">
+                            {career.restaurantHighlights.map(
+                              (highlight, highlightIndex) => (
+                                <div
+                                  className="restaurant-highlight-row"
+                                  key={`${career.id}-highlight-${highlightIndex}`}
+                                >
+                                  <input
+                                    type="text"
+                                    maxLength={80}
+                                    value={highlight}
+                                    aria-label={`주요 이력 ${highlightIndex + 1}`}
+                                    onChange={(event) =>
+                                      updateRestaurantHighlight(
+                                        career.id,
+                                        highlightIndex,
+                                        event.currentTarget.value,
+                                      )
+                                    }
+                                    placeholder="예: 미쉐린 1스타 (2019–2021)"
+                                  />
+                                  <button
+                                    className="text-button"
+                                    type="button"
+                                    onClick={() =>
+                                      removeRestaurantHighlight(
+                                        career.id,
+                                        highlightIndex,
+                                      )
+                                    }
+                                    aria-label={`${highlightIndex + 1}번째 주요 이력 삭제`}
+                                  >
+                                    삭제
+                                  </button>
+                                </div>
+                              ),
+                            )}
+                          </div>
+                        ) : (
+                          <p className="empty-field-note">
+                            필요한 경우에만 추가합니다. 제품은 이 내용을 검증된
+                            사실로 표시하지 않습니다.
+                          </p>
+                        )}
+
+                        <button
+                          className="secondary-button compact-button"
+                          type="button"
+                          onClick={() => addRestaurantHighlight(career.id)}
+                          disabled={career.restaurantHighlights.length >= 5}
+                        >
+                          주요 이력 추가 ({career.restaurantHighlights.length}/5)
+                        </button>
+                      </section>
+                    </div>
+
+                    <div className="date-section date-section-single">
                       <div>
                         <p className="date-section-title">
-                          실제 근무 기간
-                          <span>본인이 확인하는 정보입니다.</span>
+                          실제 근무 기간 (연·월)
+                          <span>
+                            {career.origin === "document"
+                              ? "가져온 자격일의 연·월에서 시작했습니다. 실제 근무 기간에 맞게 고쳐 주세요."
+                              : "본인이 확인하는 정보입니다."}
+                          </span>
                         </p>
+                        <div className="employment-status">
+                          <span
+                            className="field-label"
+                            id={`employment-status-${career.id}`}
+                          >
+                            근무 상태
+                          </span>
+                          <div
+                            className="employment-status-options"
+                            role="radiogroup"
+                            aria-labelledby={`employment-status-${career.id}`}
+                          >
+                            <label>
+                              <input
+                                type="radio"
+                                name={`employment-status-${career.id}`}
+                                checked={!career.isCurrent}
+                                onChange={() =>
+                                  updateEmploymentStatus(career.id, false)
+                                }
+                              />
+                              <span>근무 종료</span>
+                            </label>
+                            <label>
+                              <input
+                                type="radio"
+                                name={`employment-status-${career.id}`}
+                                checked={career.isCurrent}
+                                onChange={() =>
+                                  updateEmploymentStatus(career.id, true)
+                                }
+                              />
+                              <span>재직 중</span>
+                            </label>
+                          </div>
+                          <span className="field-hint">
+                            재직 중인 경력은 한 개만 선택할 수 있습니다.
+                          </span>
+                        </div>
                         <div className="date-grid">
                           <Field label="근무 시작월" required>
                             <input
-                              type="month"
+                              type="text"
+                              inputMode="numeric"
+                              maxLength={7}
+                              pattern="[0-9]{4}-(0[1-9]|1[0-2])"
+                              placeholder="예: 2015-11"
                               value={career.employmentStart}
                               onChange={(event) =>
                                 updateCareer(career.id, {
@@ -1074,11 +1928,23 @@ export default function Home() {
                           </Field>
                           <Field
                             label="근무 종료월"
-                            hint="재직 중이면 비워 두세요."
+                            hint={
+                              career.isCurrent
+                                ? "재직 중으로 선택되어 종료월을 입력하지 않습니다."
+                                : "YYYY-MM 형식으로 입력해 주세요."
+                            }
+                            required={!career.isCurrent}
                           >
                             <input
-                              type="month"
+                              type="text"
+                              inputMode="numeric"
+                              maxLength={7}
+                              pattern="[0-9]{4}-(0[1-9]|1[0-2])"
+                              placeholder={
+                                career.isCurrent ? "재직 중" : "예: 2016-10"
+                              }
                               value={career.employmentEnd}
+                              disabled={career.isCurrent}
                               onChange={(event) =>
                                 updateCareer(career.id, {
                                   employmentEnd: event.currentTarget.value,
@@ -1099,7 +1965,7 @@ export default function Home() {
               </button>
 
               {hasConfirmedCareers ? null : (
-                <p className="file-notice">
+                <p className="file-notice draft-storage-notice">
                   다음 단계로 넘어가면 확인하신 내용이 이 기기의 브라우저에
                   저장되어, 창을 닫았다 열어도 이어서 쓰실 수 있습니다. 서버로는
                   전송되지 않고, 시작 화면에서 언제든 지우실 수 있습니다.
@@ -1133,6 +1999,70 @@ export default function Home() {
                   <p className="career-count">RESUME HEADER</p>
                   <h2>이력서에서 가장 먼저 보일 정보</h2>
                 </header>
+                <section
+                  className="profile-photo-editor"
+                  aria-busy={photoOperation === "profile"}
+                >
+                  <div className="photo-section-heading">
+                    <div>
+                      <h3>프로필 사진</h3>
+                      <p>
+                        한 장만 저장합니다. 일반 PDF에는 표시하고 리뷰용
+                        사본에서는 자동으로 제외합니다.
+                      </p>
+                    </div>
+                    <ProvenanceTag kind="authored" />
+                  </div>
+
+                  {identity.profilePhotoId ? (
+                    <div className="profile-photo-current">
+                      {photoAssets.get(identity.profilePhotoId) ? (
+                        <img
+                          src={
+                            photoAssets.get(identity.profilePhotoId)!.objectUrl
+                          }
+                          alt={`${identity.name || "사용자"} 프로필 사진`}
+                        />
+                      ) : (
+                        <span className="photo-loading">사진 불러오는 중</span>
+                      )}
+                      <div className="photo-inline-actions">
+                        <label className="secondary-button compact-button photo-file-button">
+                          사진 교체
+                          <input
+                            type="file"
+                            accept={PHOTO_ACCEPT}
+                            disabled={photoOperation !== null}
+                            onChange={handleProfilePhotoSelection}
+                          />
+                        </label>
+                        <button
+                          className="text-button"
+                          type="button"
+                          disabled={photoOperation !== null}
+                          onClick={removeProfilePhoto}
+                        >
+                          사진 삭제
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <label className="photo-dropzone">
+                      <input
+                        type="file"
+                        accept={PHOTO_ACCEPT}
+                        disabled={photoOperation !== null}
+                        onChange={handleProfilePhotoSelection}
+                      />
+                      <strong>
+                        {photoOperation === "profile"
+                          ? "사진 처리 중"
+                          : "프로필 사진 추가"}
+                      </strong>
+                      <span>JPEG, PNG, WebP, HEIC, HEIF · 최대 20 MB</span>
+                    </label>
+                  )}
+                </section>
                 <div className="field-grid">
                   <Field label="이름" required>
                     <input
@@ -1223,13 +2153,27 @@ export default function Home() {
                     />
                   </Field>
 
-                  <ChoiceGroup
+                  <SpecialtyChoiceGroup
+                    selected={career.culinarySpecialties}
+                    onToggle={(value) =>
+                      toggleCareerSpecialty(career.id, value)
+                    }
+                  />
+
+                  <GroupedChoiceGroup
                     legend="독립적으로 맡았던 스테이션"
-                    options={STATION_OPTIONS}
+                    groups={getCulinaryChoiceGroups(
+                      career.culinarySpecialties,
+                      "stations",
+                    )}
                     selected={career.stations}
                     onToggle={(option) =>
                       toggleCareerChoice(career.id, "stations", option)
                     }
+                    onAdd={(option) =>
+                      addCareerChoice(career.id, "stations", option)
+                    }
+                    customPlaceholder="목록에 없는 스테이션"
                     hint="여러 개 선택할 수 있습니다."
                   />
 
@@ -1249,23 +2193,37 @@ export default function Home() {
                     hint={career.responsibilities.length + "/3 선택"}
                   />
 
-                  <ChoiceGroup
+                  <GroupedChoiceGroup
                     legend="다뤄본 기술"
-                    options={SKILL_OPTIONS}
+                    groups={getCulinaryChoiceGroups(
+                      career.culinarySpecialties,
+                      "skills",
+                    )}
                     selected={career.skills}
                     onToggle={(option) =>
                       toggleCareerChoice(career.id, "skills", option)
                     }
+                    onAdd={(option) =>
+                      addCareerChoice(career.id, "skills", option)
+                    }
+                    customPlaceholder="목록에 없는 기술"
                     hint="실제로 사용해 본 항목만 선택하세요."
                   />
 
-                  <ChoiceGroup
-                    legend="다뤄본 장비"
-                    options={EQUIPMENT_OPTIONS}
+                  <GroupedChoiceGroup
+                    legend="다뤄본 장비·도구"
+                    groups={getCulinaryChoiceGroups(
+                      career.culinarySpecialties,
+                      "equipment",
+                    )}
                     selected={career.equipment}
                     onToggle={(option) =>
                       toggleCareerChoice(career.id, "equipment", option)
                     }
+                    onAdd={(option) =>
+                      addCareerChoice(career.id, "equipment", option)
+                    }
+                    customPlaceholder="목록에 없는 장비·도구"
                     hint="실제로 사용해 본 항목만 선택하세요."
                   />
 
@@ -1285,6 +2243,200 @@ export default function Home() {
                       placeholder="예: 디너 서비스에서 파스타 스테이션을 독립 운영하고 계절 메뉴 테스트를 보조했습니다."
                     />
                   </Field>
+
+                  <section
+                    className="career-photo-editor"
+                    aria-busy={photoOperation === `career-${career.id}`}
+                  >
+                    <div className="photo-section-heading">
+                      <div>
+                        <h3>음식·작업 사진</h3>
+                        <p>
+                          경력마다 최대 6장까지 저장합니다. 각 사진에는 메뉴명과
+                          본인이 맡은 부분을 적어 주세요.
+                        </p>
+                      </div>
+                      <ProvenanceTag kind="authored" />
+                    </div>
+
+                    <fieldset className="resume-photo-choice">
+                      <legend>PDF 대표사진</legend>
+                      <label className="resume-photo-none">
+                        <input
+                          type="radio"
+                          name={`resume-photo-${career.id}`}
+                          checked={career.resumePhotoId === null}
+                          onChange={() =>
+                            updateCareer(
+                              career.id,
+                              selectCareerResumePhoto(career, null),
+                            )
+                          }
+                        />
+                        <span>PDF에 사진 넣지 않음</span>
+                      </label>
+
+                      {career.portfolioPhotos.length > 0 ? (
+                        <div className="career-photo-grid">
+                          {career.portfolioPhotos.map((photo, photoIndex) => {
+                            const photoUrl = photoAssets.get(
+                              photo.assetId,
+                            )?.objectUrl;
+                            const photoDescriptionError =
+                              getCareerPhotoDescriptionError(
+                                career,
+                                photoIndex,
+                              );
+                            const showPhotoDescriptionError =
+                              photoDescriptionError !== null &&
+                              errors.includes(photoDescriptionError);
+                            const photoDescriptionErrorId =
+                              `photo-description-${photo.assetId}-error`;
+
+                            return (
+                              <article
+                                className={
+                                  "career-photo-card" +
+                                  (career.resumePhotoId === photo.assetId
+                                    ? " is-resume-photo"
+                                    : "")
+                                }
+                                key={photo.assetId}
+                              >
+                                <div className="career-photo-preview">
+                                  {photoUrl ? (
+                                    <img
+                                      src={photoUrl}
+                                      alt={
+                                        photo.description.trim() ||
+                                        "설명을 입력하지 않은 작업 사진"
+                                      }
+                                    />
+                                  ) : (
+                                    <span className="photo-loading">
+                                      사진 불러오는 중
+                                    </span>
+                                  )}
+                                </div>
+
+                                <label
+                                  className="photo-description-field"
+                                  htmlFor={`photo-description-${photo.assetId}`}
+                                >
+                                  <span className="field-label">
+                                    메뉴명 · 본인이 맡은 부분 *
+                                  </span>
+                                  <textarea
+                                    id={`photo-description-${photo.assetId}`}
+                                    rows={3}
+                                    maxLength={120}
+                                    value={photo.description}
+                                    aria-invalid={
+                                      showPhotoDescriptionError || undefined
+                                    }
+                                    aria-describedby={
+                                      showPhotoDescriptionError
+                                        ? photoDescriptionErrorId
+                                        : undefined
+                                    }
+                                    onChange={(event) =>
+                                      updateCareerPhotoDescription(
+                                        career.id,
+                                        photo.assetId,
+                                        event.currentTarget.value,
+                                      )
+                                    }
+                                    placeholder="예: 광어 세비체 · 소스와 플레이팅"
+                                  />
+                                  <span className="field-hint">
+                                    {photo.description.length}/120자
+                                  </span>
+                                  {showPhotoDescriptionError ? (
+                                    <span
+                                      className="field-error"
+                                      id={photoDescriptionErrorId}
+                                    >
+                                      {photoDescriptionError}
+                                    </span>
+                                  ) : null}
+                                </label>
+
+                                <div className="career-photo-actions">
+                                  <label className="resume-photo-radio">
+                                    <input
+                                      type="radio"
+                                      name={`resume-photo-${career.id}`}
+                                      checked={
+                                        career.resumePhotoId === photo.assetId
+                                      }
+                                      onChange={() =>
+                                        updateCareer(
+                                          career.id,
+                                          selectCareerResumePhoto(
+                                            career,
+                                            photo.assetId,
+                                          ),
+                                        )
+                                      }
+                                    />
+                                    <span>이 사진을 PDF에 사용</span>
+                                  </label>
+                                  <button
+                                    className="text-button"
+                                    type="button"
+                                    disabled={photoOperation !== null}
+                                    onClick={() =>
+                                      removeCareerPhoto(
+                                        career.id,
+                                        photo.assetId,
+                                      )
+                                    }
+                                    aria-label={`${photoIndex + 1}번째 작업 사진 삭제`}
+                                  >
+                                    삭제
+                                  </button>
+                                </div>
+                              </article>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <p className="empty-field-note">
+                          사진을 추가하지 않아도 이력서를 완성할 수 있습니다.
+                        </p>
+                      )}
+                    </fieldset>
+
+                    <label
+                      className={
+                        "photo-dropzone career-photo-add" +
+                        (career.portfolioPhotos.length >= 6
+                          ? " is-disabled"
+                          : "")
+                      }
+                    >
+                      <input
+                        type="file"
+                        accept={PHOTO_ACCEPT}
+                        disabled={
+                          photoOperation !== null ||
+                          career.portfolioPhotos.length >= 6
+                        }
+                        onChange={(event) =>
+                          handleCareerPhotoSelection(career.id, event)
+                        }
+                      />
+                      <strong>
+                        {photoOperation === `career-${career.id}`
+                          ? "사진 처리 중"
+                          : "작업 사진 추가"}
+                      </strong>
+                      <span>
+                        {career.portfolioPhotos.length}/6장 · 사진은 이
+                        브라우저에만 저장됩니다.
+                      </span>
+                    </label>
+                  </section>
                 </article>
               ))}
 
@@ -1342,30 +2494,44 @@ export default function Home() {
                 </button>
               </div>
               <p className="review-export-note field-hint no-print">
-                리뷰용 사본에서는 이름, 이메일, 전화번호가 빠집니다. 이력서
-                제목과 경력 요약, 경력 기록은 그대로 남으므로, 요약에 이름을
-                적으셨다면 보내시기 전에 확인해 주세요. 인쇄 미리보기에서 실제
-                결과를 먼저 보실 수 있습니다.
+                리뷰용 사본에서는 이름, 이메일, 전화번호와 프로필 사진이
+                빠집니다. 이력서 제목과 경력 요약, 경력 기록과 선택한 작업
+                사진은 그대로 남으므로, 요약이나 사진 설명에 이름을 적으셨다면
+                보내시기 전에 확인해 주세요. 인쇄 미리보기에서 실제 결과를 먼저
+                보실 수 있습니다.
               </p>
 
-              <article className="resume-sheet" data-print-root>
+              <article
+                className="resume-sheet"
+                data-print-root
+                ref={resumeSheetRef}
+              >
                 <header className="resume-header">
-                  <div>
-                    <p className="resume-label">
-                      CULINARY RESUME{" "}
-                      {isDemoDraft ? (
-                        <span className="demo-tag">예시 이력서</span>
-                      ) : null}
-                    </p>
-                    {/* Without a name the headline becomes the sheet's own
-                        heading, so the review copy keeps the same heading
-                        levels rather than skipping from the page to h3. */}
-                    <h2>{sheetIdentity.name || sheetIdentity.headline}</h2>
-                    {sheetIdentity.name ? (
-                      <p className="resume-headline">
-                        {sheetIdentity.headline}
-                      </p>
+                  <div className="resume-identity-lockup">
+                    {sheetProfilePhotoUrl ? (
+                      <img
+                        className="resume-profile-photo"
+                        src={sheetProfilePhotoUrl}
+                        alt={`${sheetIdentity.name || "사용자"} 프로필 사진`}
+                      />
                     ) : null}
+                    <div>
+                      <p className="resume-label">
+                        CULINARY RESUME{" "}
+                        {isDemoDraft ? (
+                          <span className="demo-tag">예시 이력서</span>
+                        ) : null}
+                      </p>
+                      {/* Without a name the headline becomes the sheet's own
+                          heading, so the review copy keeps the same heading
+                          levels rather than skipping from the page to h3. */}
+                      <h2>{sheetIdentity.name || sheetIdentity.headline}</h2>
+                      {sheetIdentity.name ? (
+                        <p className="resume-headline">
+                          {sheetIdentity.headline}
+                        </p>
+                      ) : null}
+                    </div>
                   </div>
                   {sheetIdentity.email || sheetIdentity.phone ? (
                     <address>
@@ -1390,8 +2556,14 @@ export default function Home() {
                 <section className="resume-section">
                   <h3>경력</h3>
                   <div className="resume-careers">
-                    {includedCareers.map((career) => (
-                      <article className="resume-career" key={career.id}>
+                    {includedCareers.map((career) => {
+                      const resumePhoto = getResumePhotoReference(career);
+                      const resumePhotoUrl = resumePhoto
+                        ? photoAssets.get(resumePhoto.assetId)?.objectUrl
+                        : undefined;
+
+                      return (
+                        <article className="resume-career" key={career.id}>
                         <header>
                           <div>
                             <h4>{career.restaurantName}</h4>
@@ -1402,6 +2574,11 @@ export default function Home() {
                                 career.employmentEnd,
                               )}
                             </p>
+                            {career.restaurantLocation ? (
+                              <p className="resume-location">
+                                {career.restaurantLocation}
+                              </p>
+                            ) : null}
                             {career.legalEmployer ? (
                               <small className="resume-employer">
                                 <span>
@@ -1426,6 +2603,24 @@ export default function Home() {
                             <ProvenanceTag kind="confirmed" />
                           </div>
                         </header>
+
+                        {career.restaurantHighlights.length > 0 ? (
+                          <ul className="resume-highlights">
+                            {career.restaurantHighlights.map((highlight) => (
+                              <li key={highlight}>{highlight}</li>
+                            ))}
+                          </ul>
+                        ) : null}
+
+                        {resumePhoto && resumePhotoUrl ? (
+                          <figure className="resume-career-photo">
+                            <img
+                              src={resumePhotoUrl}
+                              alt={resumePhoto.description}
+                            />
+                            <figcaption>{resumePhoto.description}</figcaption>
+                          </figure>
+                        ) : null}
 
                         <ul className="resume-bullets">
                           {career.responsibilities.map((responsibility) => (
@@ -1462,7 +2657,8 @@ export default function Home() {
                         ) : null}
                         <ProvenanceTag kind="authored" />
                       </article>
-                    ))}
+                      );
+                    })}
                   </div>
                 </section>
               </article>
