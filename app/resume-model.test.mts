@@ -57,6 +57,7 @@ test("accepts a complete manual career", () => {
     ...createBlankCareerEntry("manual"),
     restaurantName: "작은 파스타 바",
     employmentStart: "2024-03",
+    employmentEnd: "2025-03",
   };
 
   assert.deepEqual(getCareerErrors([entry]), []);
@@ -84,6 +85,38 @@ test("rejects an employment end month before the start month", () => {
 
   assert.deepEqual(getCareerErrors([entry]), [
     "작은 파스타 바의 근무 종료월은 시작월보다 빠를 수 없습니다.",
+  ]);
+});
+
+test("requires an end month when a career is not current", () => {
+  const entry = {
+    ...createBlankCareerEntry("manual"),
+    restaurantName: "가상키친",
+    employmentStart: "2024-03",
+    isCurrent: false,
+  };
+
+  assert.deepEqual(getCareerErrors([entry]), [
+    "가상키친의 근무 종료월을 입력하거나 재직 중을 선택해 주세요.",
+  ]);
+});
+
+test("allows at most one current career", () => {
+  const first = {
+    ...createBlankCareerEntry("manual"),
+    restaurantName: "가상키친",
+    employmentStart: "2024-03",
+    isCurrent: true,
+  };
+  const second = {
+    ...createBlankCareerEntry("manual"),
+    restaurantName: "가상다이닝",
+    employmentStart: "2025-01",
+    isCurrent: true,
+  };
+
+  assert.deepEqual(getCareerErrors([first, second]), [
+    "재직 중인 경력은 한 개만 선택할 수 있습니다.",
   ]);
 });
 
@@ -156,7 +189,7 @@ test("keeps demo provenance and employer names explicit", () => {
   assert.equal(entry.restaurantName, "더 키친 살바토레 쿠오모");
 });
 
-test("keeps imported qualification dates exact and separate from employment dates", () => {
+test("uses imported employer and qualification dates as editable initial values", () => {
   const [entry] = createImportedCareerEntries([
     {
       legalEmployer: "주식회사 가상키친",
@@ -169,8 +202,32 @@ test("keeps imported qualification dates exact and separate from employment date
   assert.equal(entry.legalEmployer, "주식회사 가상키친");
   assert.equal(entry.qualificationStart, "2022-03-14");
   assert.equal(entry.qualificationEnd, "2023-08-21");
-  assert.equal(entry.restaurantName, "");
-  assert.equal(entry.employmentStart, "");
+  assert.equal(entry.restaurantName, "주식회사 가상키친");
+  assert.equal(entry.employmentStart, "2022-03");
+  assert.equal(entry.employmentEnd, "2023-08");
+  assert.equal(entry.isCurrent, false);
+
+  entry.restaurantName = "가상키친";
+  entry.employmentStart = "2022-04";
+  entry.employmentEnd = "2023-07";
+
+  assert.deepEqual(entry.importedFields, {
+    legalEmployer: "주식회사 가상키친",
+    qualificationStart: "2022-03-14",
+    qualificationEnd: "2023-08-21",
+  });
+});
+
+test("marks the only imported record without a qualification end as current", () => {
+  const [entry] = createImportedCareerEntries([
+    {
+      legalEmployer: "주식회사 가상키친",
+      qualificationStart: "2025-06-01",
+      qualificationEnd: "",
+    },
+  ]);
+
+  assert.equal(entry.isCurrent, true);
   assert.equal(entry.employmentEnd, "");
 });
 
@@ -248,6 +305,7 @@ function completeDraft(): ResumeDraft {
         ...entry,
         restaurantName: "동네 비스트로",
         employmentStart: "2024-03",
+        employmentEnd: "2025-03",
         role: "Chef de Partie",
         stations: ["Hot"],
         responsibilities: ["스테이션 운영"],

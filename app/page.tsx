@@ -60,7 +60,7 @@ const STEP_COPY = [
     eyebrow: "STEP 02 · EMPLOYMENT SKELETON",
     title: "근무 이력의 골격을 확인하세요",
     description:
-      "법인명과 실제 레스토랑명, 건강보험 자격일과 실제 근무일을 섞지 않고 각각 남깁니다.",
+      "공공기록은 원본 근거로 따로 보존하고, 레스토랑명과 실제 근무 기간은 가져온 값에서 필요한 부분만 고칩니다.",
   },
   {
     eyebrow: "STEP 03 · CULINARY PRACTICE",
@@ -629,6 +629,24 @@ export default function Home() {
     );
   }
 
+  function updateEmploymentStatus(id: string, isCurrent: boolean) {
+    setCareers((current) =>
+      current.map((career) => {
+        if (career.id === id) {
+          return {
+            ...career,
+            isCurrent,
+            employmentEnd: isCurrent ? "" : career.employmentEnd,
+          };
+        }
+
+        return isCurrent && career.isCurrent
+          ? { ...career, isCurrent: false }
+          : career;
+      }),
+    );
+  }
+
   function updateIdentity(patch: Partial<ResumeIdentity>) {
     setIdentity((current) => ({ ...current, ...patch }));
   }
@@ -964,32 +982,71 @@ export default function Home() {
                     <legend className="sr-only">
                       {index + 1}번째 근무 이력
                     </legend>
-                    <div className="field-grid">
-                      <Field
-                        label={getEmployerLabel(career.origin)}
-                        provenance={getImportedCareerFieldProvenance(
-                          career,
-                          "legalEmployer",
-                        )}
-                        hint={
-                          career.origin === "manual"
-                            ? "알고 있다면 입력하세요."
-                            : "수정해도 원문 값은 별도로 보존합니다."
-                        }
+                    {career.importedFields ? (
+                      <section
+                        className="imported-reference"
+                        aria-label="가져온 공공기록"
                       >
-                        <input
-                          type="text"
-                          value={career.legalEmployer}
-                          onChange={(event) =>
-                            updateCareer(career.id, {
-                              legalEmployer: event.currentTarget.value,
-                            })
-                          }
-                          autoComplete="organization"
-                        />
-                      </Field>
+                        <header>
+                          <strong>가져온 공공기록</strong>
+                          <ProvenanceTag kind="imported" />
+                        </header>
+                        <dl>
+                          <div>
+                            <dt>원문 사업장명</dt>
+                            <dd>{career.importedFields.legalEmployer}</dd>
+                          </div>
+                          <div>
+                            <dt>건강보험 자격기간 (원문)</dt>
+                            <dd>
+                              {career.importedFields.qualificationStart} ~{" "}
+                              {career.importedFields.qualificationEnd ||
+                                "상실일 없음"}
+                            </dd>
+                          </div>
+                        </dl>
+                        <p>
+                          이 값은 수정되지 않습니다. 아래 입력란을 고쳐도 원문
+                          근거는 그대로 보존됩니다.
+                        </p>
+                      </section>
+                    ) : null}
 
-                      <Field label="실제 레스토랑명" required>
+                    <div
+                      className={
+                        "field-grid" +
+                        (career.origin === "document"
+                          ? " field-grid-single"
+                          : "")
+                      }
+                    >
+                      {career.origin === "manual" ? (
+                        <Field label="법인명" hint="알고 있다면 입력하세요.">
+                          <input
+                            type="text"
+                            value={career.legalEmployer}
+                            onChange={(event) =>
+                              updateCareer(career.id, {
+                                legalEmployer: event.currentTarget.value,
+                              })
+                            }
+                            autoComplete="organization"
+                          />
+                        </Field>
+                      ) : null}
+
+                      <Field
+                        label="실제 레스토랑명"
+                        hint={
+                          career.importedFields
+                            ? career.restaurantName ===
+                              career.importedFields.legalEmployer
+                              ? "원문 사업장명으로 미리 채웠습니다. 실제 레스토랑명이 다르면 고쳐 주세요."
+                              : "원문 사업장명과 다르게 적어도 위의 원문 근거는 그대로 남습니다."
+                            : undefined
+                        }
+                        required
+                      >
                         <input
                           type="text"
                           value={career.restaurantName}
@@ -1003,67 +1060,63 @@ export default function Home() {
                       </Field>
                     </div>
 
-                    <div
-                      className={
-                        "date-section" +
-                        (career.origin === "manual" ? " date-section-single" : "")
-                      }
-                    >
-                      {career.origin === "document" ? (
-                        <div>
-                          <p className="date-section-title">
-                            건강보험 자격일
-                            <span>문서 값과 수정 여부를 구분합니다.</span>
-                          </p>
-                          <div className="date-grid">
-                            <Field
-                              label="자격 취득일"
-                              provenance={getImportedCareerFieldProvenance(
-                                career,
-                                "qualificationStart",
-                              )}
-                            >
-                              <input
-                                type="date"
-                                value={career.qualificationStart}
-                                onChange={(event) =>
-                                  updateCareer(career.id, {
-                                    qualificationStart:
-                                      event.currentTarget.value,
-                                  })
-                                }
-                              />
-                            </Field>
-                            <Field
-                              label="자격 상실일"
-                              provenance={getImportedCareerFieldProvenance(
-                                career,
-                                "qualificationEnd",
-                              )}
-                            >
-                              <input
-                                type="date"
-                                value={career.qualificationEnd}
-                                onChange={(event) =>
-                                  updateCareer(career.id, {
-                                    qualificationEnd: event.currentTarget.value,
-                                  })
-                                }
-                              />
-                            </Field>
-                          </div>
-                        </div>
-                      ) : null}
-
+                    <div className="date-section date-section-single">
                       <div>
                         <p className="date-section-title">
-                          실제 근무 기간
-                          <span>본인이 확인하는 정보입니다.</span>
+                          실제 근무 기간 (연·월)
+                          <span>
+                            {career.origin === "document"
+                              ? "가져온 자격일의 연·월에서 시작했습니다. 실제 근무 기간에 맞게 고쳐 주세요."
+                              : "본인이 확인하는 정보입니다."}
+                          </span>
                         </p>
+                        <div className="employment-status">
+                          <span
+                            className="field-label"
+                            id={`employment-status-${career.id}`}
+                          >
+                            근무 상태
+                          </span>
+                          <div
+                            className="employment-status-options"
+                            role="radiogroup"
+                            aria-labelledby={`employment-status-${career.id}`}
+                          >
+                            <label>
+                              <input
+                                type="radio"
+                                name={`employment-status-${career.id}`}
+                                checked={!career.isCurrent}
+                                onChange={() =>
+                                  updateEmploymentStatus(career.id, false)
+                                }
+                              />
+                              <span>근무 종료</span>
+                            </label>
+                            <label>
+                              <input
+                                type="radio"
+                                name={`employment-status-${career.id}`}
+                                checked={career.isCurrent}
+                                onChange={() =>
+                                  updateEmploymentStatus(career.id, true)
+                                }
+                              />
+                              <span>재직 중</span>
+                            </label>
+                          </div>
+                          <span className="field-hint">
+                            재직 중인 경력은 한 개만 선택할 수 있습니다.
+                          </span>
+                        </div>
                         <div className="date-grid">
                           <Field label="근무 시작월" required>
                             <input
-                              type="month"
+                              type="text"
+                              inputMode="numeric"
+                              maxLength={7}
+                              pattern="[0-9]{4}-(0[1-9]|1[0-2])"
+                              placeholder="예: 2015-11"
                               value={career.employmentStart}
                               onChange={(event) =>
                                 updateCareer(career.id, {
@@ -1074,11 +1127,23 @@ export default function Home() {
                           </Field>
                           <Field
                             label="근무 종료월"
-                            hint="재직 중이면 비워 두세요."
+                            hint={
+                              career.isCurrent
+                                ? "재직 중으로 선택되어 종료월을 입력하지 않습니다."
+                                : "YYYY-MM 형식으로 입력해 주세요."
+                            }
+                            required={!career.isCurrent}
                           >
                             <input
-                              type="month"
+                              type="text"
+                              inputMode="numeric"
+                              maxLength={7}
+                              pattern="[0-9]{4}-(0[1-9]|1[0-2])"
+                              placeholder={
+                                career.isCurrent ? "재직 중" : "예: 2016-10"
+                              }
                               value={career.employmentEnd}
+                              disabled={career.isCurrent}
                               onChange={(event) =>
                                 updateCareer(career.id, {
                                   employmentEnd: event.currentTarget.value,
@@ -1099,7 +1164,7 @@ export default function Home() {
               </button>
 
               {hasConfirmedCareers ? null : (
-                <p className="file-notice">
+                <p className="file-notice draft-storage-notice">
                   다음 단계로 넘어가면 확인하신 내용이 이 기기의 브라우저에
                   저장되어, 창을 닫았다 열어도 이어서 쓰실 수 있습니다. 서버로는
                   전송되지 않고, 시작 화면에서 언제든 지우실 수 있습니다.

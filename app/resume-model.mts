@@ -11,6 +11,7 @@ export type CareerEntry = ImportedCareerFields & {
   origin: CareerOrigin;
   isDemo: boolean;
   included: boolean;
+  isCurrent: boolean;
   importedFields: Readonly<ImportedCareerFields> | null;
   restaurantName: string;
   employmentStart: string;
@@ -107,6 +108,7 @@ export function createBlankCareerEntry(
     origin,
     isDemo: false,
     included: true,
+    isCurrent: false,
     importedFields: null,
     legalEmployer: "",
     qualificationStart: "",
@@ -157,10 +159,18 @@ export function createDemoCareerEntries(): CareerEntry[] {
 export function createImportedCareerEntries(
   records: readonly ImportedCareerFields[],
 ): CareerEntry[] {
+  const openRecordCount = records.filter(
+    (record) => record.qualificationEnd === "",
+  ).length;
+
   return records.map((record) => ({
     ...createBlankCareerEntry("document"),
     ...record,
+    isCurrent: openRecordCount === 1 && record.qualificationEnd === "",
     importedFields: { ...record },
+    restaurantName: record.legalEmployer,
+    employmentStart: record.qualificationStart.slice(0, 7),
+    employmentEnd: record.qualificationEnd.slice(0, 7),
   }));
 }
 
@@ -209,6 +219,10 @@ export function getCareerErrors(entries: readonly CareerEntry[]): string[] {
     ];
   }
 
+  if (includedEntries.filter((entry) => entry.isCurrent).length > 1) {
+    return ["재직 중인 경력은 한 개만 선택할 수 있습니다."];
+  }
+
   const errors: string[] = [];
 
   for (const entry of includedEntries) {
@@ -219,7 +233,23 @@ export function getCareerErrors(entries: readonly CareerEntry[]): string[] {
       continue;
     }
 
-    if (entry.employmentEnd && !MONTH_PATTERN.test(entry.employmentEnd)) {
+    if (entry.isCurrent) {
+      if (entry.employmentEnd) {
+        errors.push(
+          `${restaurantName}은 재직 중이므로 근무 종료월을 비워 주세요.`,
+        );
+      }
+      continue;
+    }
+
+    if (!entry.employmentEnd) {
+      errors.push(
+        `${restaurantName}의 근무 종료월을 입력하거나 재직 중을 선택해 주세요.`,
+      );
+      continue;
+    }
+
+    if (!MONTH_PATTERN.test(entry.employmentEnd)) {
       errors.push(`${restaurantName}의 근무 종료월 형식을 확인해 주세요.`);
       continue;
     }
@@ -332,6 +362,7 @@ export function serializeResumeDraft(draft: ResumeDraft): string {
       origin: entry.origin,
       isDemo: entry.isDemo,
       included: entry.included,
+      isCurrent: entry.isCurrent,
       importedFields: entry.importedFields
         ? {
             legalEmployer: entry.importedFields.legalEmployer,
@@ -430,6 +461,12 @@ function readCareerEntry(value: unknown): CareerEntry | null {
     equipment: readStringArray(value.equipment),
   };
   const importedFields = readImportedFields(value.importedFields);
+  const isCurrent =
+    value.isCurrent === undefined
+      ? false
+      : typeof value.isCurrent === "boolean"
+        ? value.isCurrent
+        : null;
 
   if (
     id === null ||
@@ -437,6 +474,7 @@ function readCareerEntry(value: unknown): CareerEntry | null {
     !CAREER_ORIGINS.includes(origin as CareerOrigin) ||
     typeof value.isDemo !== "boolean" ||
     typeof value.included !== "boolean" ||
+    isCurrent === null ||
     importedFields === false ||
     Object.values(strings).some((field) => field === null) ||
     Object.values(lists).some((list) => list === null)
@@ -449,6 +487,7 @@ function readCareerEntry(value: unknown): CareerEntry | null {
     origin: origin as CareerOrigin,
     isDemo: value.isDemo,
     included: value.included,
+    isCurrent,
     importedFields,
     legalEmployer: strings.legalEmployer as string,
     qualificationStart: strings.qualificationStart as string,
@@ -525,6 +564,10 @@ export function parseResumeDraft(raw: string | null): ResumeDraft | null {
     }
 
     careers.push(career);
+  }
+
+  if (careers.filter((career) => career.isCurrent).length > 1) {
+    return null;
   }
 
   const identity = readIdentity(value.identity);
