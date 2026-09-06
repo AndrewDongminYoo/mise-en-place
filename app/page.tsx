@@ -283,6 +283,7 @@ export default function Home() {
     [careers, identity, isDemoDraft, talentPoolChoice],
   );
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const errorSummaryRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const selectedPdfRef = useRef<File | null>(null);
@@ -296,6 +297,14 @@ export default function Home() {
     previousStep.current = currentStep;
     headingRef.current?.focus();
   }, [currentStep]);
+
+  useEffect(() => {
+    if (errors.length === 0) {
+      return;
+    }
+
+    errorSummaryRef.current?.focus();
+  }, [errors]);
 
   useEffect(() => {
     if (!hasConfirmedCareers || careers.length === 0) {
@@ -774,7 +783,12 @@ export default function Home() {
           </header>
 
           {errors.length > 0 ? (
-            <div className="error-summary no-print" role="alert">
+            <div
+              className="error-summary no-print"
+              ref={errorSummaryRef}
+              role="alert"
+              tabIndex={-1}
+            >
               <strong>다음 내용을 확인해 주세요.</strong>
               <ul>
                 {errors.map((error) => (
