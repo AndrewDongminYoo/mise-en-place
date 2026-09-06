@@ -3,20 +3,28 @@ import test from "node:test";
 
 import {
   addCustomChoice,
+  appendCareerPhoto,
+  collectReferencedPhotoIds,
   createBlankCareerEntry,
   createDemoCareerEntries,
   createImportedCareerEntries,
   formatMonthRange,
   getCareerErrors,
+  getCareerPhotoDescriptionError,
   getCulinaryChoiceGroups,
   getEmployerLabel,
   getEnrichmentErrors,
   getImportedCareerFieldProvenance,
+  getPhotoReferenceErrors,
   parseResumeDraft,
+  removeCareerPhotoReference,
+  removeMissingPhotoReferences,
+  selectCareerResumePhoto,
   serializeResumeDraft,
   toReviewIdentity,
   toggleBoundedChoice,
   toggleCulinarySpecialty,
+  type CareerEntry,
   type ResumeDraft,
   type ResumeIdentity,
 } from "./resume-model.mts";
@@ -27,7 +35,226 @@ const completeIdentity: ResumeIdentity = {
   email: "chef@example.com",
   phone: "010-0000-0000",
   summary: "파스타와 핫 스테이션 운영 경험이 있습니다.",
+  profilePhotoId: null,
 };
+
+test("creates blank restaurant metadata and local media fields", () => {
+  const entry = createBlankCareerEntry("manual") as CareerEntry;
+
+  assert.equal(entry.restaurantLocation, "");
+  assert.deepEqual(entry.restaurantHighlights, []);
+  assert.deepEqual(entry.portfolioPhotos, []);
+  assert.equal(entry.resumePhotoId, null);
+});
+
+test("migrates version 2 drafts without restaurant metadata or photos", () => {
+  const stored = JSON.parse(serializeResumeDraft(completeDraft()));
+  stored.version = 2;
+  delete stored.identity.profilePhotoId;
+  delete stored.careers[0].restaurantLocation;
+  delete stored.careers[0].restaurantHighlights;
+  delete stored.careers[0].portfolioPhotos;
+  delete stored.careers[0].resumePhotoId;
+
+  const restored = parseResumeDraft(JSON.stringify(stored));
+
+  assert.notEqual(restored, null);
+  assert.equal(restored!.identity.profilePhotoId, null);
+  assert.equal(restored!.careers[0].restaurantLocation, "");
+  assert.deepEqual(restored!.careers[0].restaurantHighlights, []);
+  assert.deepEqual(restored!.careers[0].portfolioPhotos, []);
+  assert.equal(restored!.careers[0].resumePhotoId, null);
+});
+
+test("round trips restaurant metadata and photo references", () => {
+  const draft = completeDraft();
+  draft.identity.profilePhotoId = "profile-a";
+  draft.careers[0].restaurantLocation = "서울 용산구 한남동";
+  draft.careers[0].restaurantHighlights = ["미쉐린 1스타 (2024)"];
+  draft.careers[0].portfolioPhotos = [
+    {
+      assetId: "work-a",
+      description: "광어 세비체 · 소스와 플레이팅",
+    },
+  ];
+  draft.careers[0].resumePhotoId = "work-a";
+
+  assert.deepEqual(parseResumeDraft(serializeResumeDraft(draft)), draft);
+});
+
+test("normalizes authored restaurant metadata when saving a draft", () => {
+  const draft = completeDraft();
+  draft.careers[0].restaurantLocation = "  서울 용산구 한남동  ";
+  draft.careers[0].restaurantHighlights = [
+    "  미쉐린 1스타 (2024)  ",
+    "   ",
+  ];
+  draft.careers[0].portfolioPhotos = [
+    { assetId: "work-a", description: "  파스타 · 소스와 마감  " },
+  ];
+
+  const restored = parseResumeDraft(serializeResumeDraft(draft));
+
+  assert.notEqual(restored, null);
+  assert.equal(restored!.careers[0].restaurantLocation, "서울 용산구 한남동");
+  assert.deepEqual(restored!.careers[0].restaurantHighlights, [
+    "미쉐린 1스타 (2024)",
+  ]);
+  assert.equal(
+    restored!.careers[0].portfolioPhotos[0].description,
+    "파스타 · 소스와 마감",
+  );
+});
+
+test("rejects malformed version 3 photo references", () => {
+  const outsideCareer = JSON.parse(serializeResumeDraft(completeDraft()));
+  outsideCareer.careers[0].portfolioPhotos = [
+    { assetId: "work-a", description: "파스타 · 소스와 마감" },
+  ];
+  outsideCareer.careers[0].resumePhotoId = "work-b";
+
+  const duplicateIds = structuredClone(outsideCareer);
+  duplicateIds.careers[0].portfolioPhotos = [
+    { assetId: "work-a", description: "파스타 · 소스와 마감" },
+    { assetId: "work-a", description: "생선 요리 · 손질과 굽기" },
+  ];
+  duplicateIds.careers[0].resumePhotoId = "work-a";
+
+  const tooMany = structuredClone(outsideCareer);
+  tooMany.careers[0].portfolioPhotos = Array.from(
+    { length: 7 },
+    (_, index) => ({
+      assetId: `work-${index}`,
+      description: `메뉴 ${index + 1} · 조리와 마감`,
+    }),
+  );
+  tooMany.careers[0].resumePhotoId = null;
+
+  const longDescription = structuredClone(outsideCareer);
+  longDescription.careers[0].portfolioPhotos[0].description = "가".repeat(121);
+  longDescription.careers[0].resumePhotoId = "work-a";
+
+  assert.equal(parseResumeDraft(JSON.stringify(outsideCareer)), null);
+  assert.equal(parseResumeDraft(JSON.stringify(duplicateIds)), null);
+  assert.equal(parseResumeDraft(JSON.stringify(tooMany)), null);
+  assert.equal(parseResumeDraft(JSON.stringify(longDescription)), null);
+});
+
+test("rejects restaurant metadata outside its bounds", () => {
+  const tooLongLocation = JSON.parse(serializeResumeDraft(completeDraft()));
+  tooLongLocation.careers[0].restaurantLocation = "가".repeat(101);
+
+  const tooManyHighlights = JSON.parse(serializeResumeDraft(completeDraft()));
+  tooManyHighlights.careers[0].restaurantHighlights = Array.from(
+    { length: 6 },
+    (_, index) => `주요 이력 ${index + 1}`,
+  );
+
+  assert.equal(parseResumeDraft(JSON.stringify(tooLongLocation)), null);
+  assert.equal(parseResumeDraft(JSON.stringify(tooManyHighlights)), null);
+});
+
+test("requires a description for every career photo before preview", () => {
+  const entry = {
+    ...createBlankCareerEntry("manual"),
+    restaurantName: "테스트 키친",
+    portfolioPhotos: [{ assetId: "work-a", description: " " }],
+  };
+
+  assert.deepEqual(getPhotoReferenceErrors([entry]), [
+    "테스트 키친의 첫 번째 작업 사진에 메뉴명과 본인이 맡은 부분을 입력해 주세요.",
+  ]);
+  assert.equal(
+    getCareerPhotoDescriptionError(entry, 0),
+    "테스트 키친의 첫 번째 작업 사진에 메뉴명과 본인이 맡은 부분을 입력해 주세요.",
+  );
+});
+
+test("selects at most one representative photo from the same career", () => {
+  const entry = {
+    ...createBlankCareerEntry("manual"),
+    portfolioPhotos: [
+      { assetId: "work-a", description: "파스타 · 소스와 마감" },
+      { assetId: "work-b", description: "농어 구이 · 생선 손질" },
+    ],
+    resumePhotoId: "work-a",
+  };
+
+  assert.equal(selectCareerResumePhoto(entry, "work-b").resumePhotoId, "work-b");
+  assert.equal(selectCareerResumePhoto(entry, null).resumePhotoId, null);
+  assert.throws(
+    () => selectCareerResumePhoto(entry, "work-c"),
+    /현재 경력에 있는 사진만 대표사진으로 선택할 수 있습니다/,
+  );
+});
+
+test("limits each career to six unique photos", () => {
+  const entry = {
+    ...createBlankCareerEntry("manual"),
+    portfolioPhotos: Array.from({ length: 6 }, (_, index) => ({
+      assetId: `work-${index}`,
+      description: `메뉴 ${index + 1} · 조리와 마감`,
+    })),
+  };
+
+  assert.throws(
+    () =>
+      appendCareerPhoto(entry, {
+        assetId: "work-6",
+        description: "추가 메뉴 · 조리와 마감",
+      }),
+    /경력마다 작업 사진을 최대 6개까지 추가할 수 있습니다/,
+  );
+  assert.throws(
+    () => appendCareerPhoto(entry, entry.portfolioPhotos[0]),
+    /같은 사진을 한 경력에 두 번 추가할 수 없습니다/,
+  );
+});
+
+test("clears representative selection when its photo is removed", () => {
+  const entry = {
+    ...createBlankCareerEntry("manual"),
+    portfolioPhotos: [
+      { assetId: "work-a", description: "파스타 · 소스와 마감" },
+      { assetId: "work-b", description: "농어 구이 · 생선 손질" },
+    ],
+    resumePhotoId: "work-a",
+  };
+
+  const updated = removeCareerPhotoReference(entry, "work-a");
+
+  assert.deepEqual(updated.portfolioPhotos, [entry.portfolioPhotos[1]]);
+  assert.equal(updated.resumePhotoId, null);
+});
+
+test("collects referenced photo ids without duplicates", () => {
+  const draft = completeDraft();
+  draft.identity.profilePhotoId = "profile-a";
+  draft.careers[0].portfolioPhotos = [
+    { assetId: "work-a", description: "파스타 · 소스와 마감" },
+  ];
+  draft.careers[0].resumePhotoId = "work-a";
+
+  assert.deepEqual(collectReferencedPhotoIds(draft), ["profile-a", "work-a"]);
+});
+
+test("removes missing profile and career photo references", () => {
+  const draft = completeDraft();
+  draft.identity.profilePhotoId = "profile-a";
+  draft.careers[0].portfolioPhotos = [
+    { assetId: "work-a", description: "파스타 · 소스와 마감" },
+    { assetId: "work-b", description: "농어 구이 · 생선 손질" },
+  ];
+  draft.careers[0].resumePhotoId = "work-a";
+
+  const updated = removeMissingPhotoReferences(draft, ["profile-a", "work-a"]);
+
+  assert.equal(updated.identity.profilePhotoId, null);
+  assert.deepEqual(updated.careers[0].portfolioPhotos, [
+    draft.careers[0].portfolioPhotos[1],
+  ]);
+  assert.equal(updated.careers[0].resumePhotoId, null);
+});
 
 test("limits primary responsibilities to three choices", () => {
   const selected = ["서비스 준비", "스테이션 운영", "발주·재고"];
@@ -184,7 +411,14 @@ test("requires authored resume essentials before preview", () => {
 
   assert.deepEqual(
     getEnrichmentErrors(
-      { name: "", headline: "", email: "", phone: "", summary: "" },
+      {
+        name: "",
+        headline: "",
+        email: "",
+        phone: "",
+        summary: "",
+        profilePhotoId: null,
+      },
       [entry],
     ),
     [

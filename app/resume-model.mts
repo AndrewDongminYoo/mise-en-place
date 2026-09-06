@@ -8,6 +8,11 @@ export type ImportedCareerFields = {
   qualificationEnd: string;
 };
 
+export type CareerPhotoReference = {
+  assetId: string;
+  description: string;
+};
+
 export type CareerEntry = ImportedCareerFields & {
   id: string;
   origin: CareerOrigin;
@@ -16,6 +21,8 @@ export type CareerEntry = ImportedCareerFields & {
   isCurrent: boolean;
   importedFields: Readonly<ImportedCareerFields> | null;
   restaurantName: string;
+  restaurantLocation: string;
+  restaurantHighlights: string[];
   employmentStart: string;
   employmentEnd: string;
   role: string;
@@ -25,6 +32,8 @@ export type CareerEntry = ImportedCareerFields & {
   skills: string[];
   equipment: string[];
   representativeExperience: string;
+  portfolioPhotos: CareerPhotoReference[];
+  resumePhotoId: string | null;
 };
 
 export type ResumeIdentity = {
@@ -33,6 +42,7 @@ export type ResumeIdentity = {
   email: string;
   phone: string;
   summary: string;
+  profilePhotoId: string | null;
 };
 
 export type TalentPoolChoice =
@@ -312,6 +322,8 @@ export function createBlankCareerEntry(
     qualificationStart: "",
     qualificationEnd: "",
     restaurantName: "",
+    restaurantLocation: "",
+    restaurantHighlights: [],
     employmentStart: "",
     employmentEnd: "",
     role: "",
@@ -321,6 +333,8 @@ export function createBlankCareerEntry(
     skills: [],
     equipment: [],
     representativeExperience: "",
+    portfolioPhotos: [],
+    resumePhotoId: null,
   };
 }
 
@@ -399,6 +413,95 @@ export function toggleBoundedChoice(
   }
 
   return [...selected, value];
+}
+
+export function appendCareerPhoto(
+  entry: CareerEntry,
+  photo: CareerPhotoReference,
+): CareerEntry {
+  if (entry.portfolioPhotos.some((item) => item.assetId === photo.assetId)) {
+    throw new Error("같은 사진을 한 경력에 두 번 추가할 수 없습니다.");
+  }
+
+  if (entry.portfolioPhotos.length >= 6) {
+    throw new Error("경력마다 작업 사진을 최대 6개까지 추가할 수 있습니다.");
+  }
+
+  return {
+    ...entry,
+    portfolioPhotos: [...entry.portfolioPhotos, { ...photo }],
+  };
+}
+
+export function selectCareerResumePhoto(
+  entry: CareerEntry,
+  assetId: string | null,
+): CareerEntry {
+  if (
+    assetId !== null &&
+    !entry.portfolioPhotos.some((photo) => photo.assetId === assetId)
+  ) {
+    throw new Error("현재 경력에 있는 사진만 대표사진으로 선택할 수 있습니다.");
+  }
+
+  return { ...entry, resumePhotoId: assetId };
+}
+
+export function removeCareerPhotoReference(
+  entry: CareerEntry,
+  assetId: string,
+): CareerEntry {
+  return {
+    ...entry,
+    portfolioPhotos: entry.portfolioPhotos.filter(
+      (photo) => photo.assetId !== assetId,
+    ),
+    resumePhotoId:
+      entry.resumePhotoId === assetId ? null : entry.resumePhotoId,
+  };
+}
+
+function toKoreanOrdinal(index: number): string {
+  const ordinals = ["첫 번째", "두 번째", "세 번째", "네 번째", "다섯 번째", "여섯 번째"];
+
+  return ordinals[index] ?? `${index + 1}번째`;
+}
+
+export function getCareerPhotoDescriptionError(
+  entry: CareerEntry,
+  photoIndex: number,
+): string | null {
+  const photo = entry.portfolioPhotos[photoIndex];
+
+  if (!photo) {
+    return null;
+  }
+
+  const restaurantName = entry.restaurantName.trim() || "선택한 경력";
+  const description = photo.description.trim();
+
+  if (description.length === 0) {
+    return `${restaurantName}의 ${toKoreanOrdinal(photoIndex)} 작업 사진에 메뉴명과 본인이 맡은 부분을 입력해 주세요.`;
+  }
+
+  if (description.length > 120) {
+    return `${restaurantName}의 ${toKoreanOrdinal(photoIndex)} 작업 사진 설명은 120자 이하로 입력해 주세요.`;
+  }
+
+  return null;
+}
+
+export function getPhotoReferenceErrors(
+  entries: readonly CareerEntry[],
+): string[] {
+  return entries
+    .filter((career) => career.included)
+    .flatMap((entry) =>
+      entry.portfolioPhotos.flatMap((_, photoIndex) => {
+        const error = getCareerPhotoDescriptionError(entry, photoIndex);
+        return error ? [error] : [];
+      }),
+    );
 }
 
 export function getCareerErrors(entries: readonly CareerEntry[]): string[] {
@@ -482,6 +585,7 @@ export function toReviewIdentity(identity: ResumeIdentity): ResumeIdentity {
     name: "",
     email: "",
     phone: "",
+    profilePhotoId: null,
   };
 }
 
@@ -517,7 +621,7 @@ export function getEnrichmentErrors(
     }
   }
 
-  return errors;
+  return [...errors, ...getPhotoReferenceErrors(entries)];
 }
 
 function formatMonth(value: string) {
@@ -532,8 +636,9 @@ function formatMonth(value: string) {
 
 export const RESUME_DRAFT_STORAGE_KEY = "mise-en-place.resume-draft";
 
-const RESUME_DRAFT_VERSION = 2;
-const PREVIOUS_RESUME_DRAFT_VERSION = 1;
+const RESUME_DRAFT_VERSION = 3;
+const CULINARY_TAXONOMY_DRAFT_VERSION = 1;
+const SUPPORTED_RESUME_DRAFT_VERSIONS = [1, 2, 3] as const;
 
 export type ResumeDraft = {
   careers: CareerEntry[];
@@ -541,6 +646,51 @@ export type ResumeDraft = {
   isDemoDraft: boolean;
   talentPoolChoice: TalentPoolChoice;
 };
+
+export function collectReferencedPhotoIds(draft: ResumeDraft): string[] {
+  const ids = new Set<string>();
+
+  if (draft.identity.profilePhotoId) {
+    ids.add(draft.identity.profilePhotoId);
+  }
+
+  for (const career of draft.careers) {
+    for (const photo of career.portfolioPhotos) {
+      ids.add(photo.assetId);
+    }
+  }
+
+  return [...ids];
+}
+
+export function removeMissingPhotoReferences(
+  draft: ResumeDraft,
+  missingIds: readonly string[],
+): ResumeDraft {
+  const missing = new Set(missingIds);
+
+  return {
+    ...draft,
+    identity: {
+      ...draft.identity,
+      profilePhotoId:
+        draft.identity.profilePhotoId &&
+        missing.has(draft.identity.profilePhotoId)
+          ? null
+          : draft.identity.profilePhotoId,
+    },
+    careers: draft.careers.map((career) => ({
+      ...career,
+      portfolioPhotos: career.portfolioPhotos.filter(
+        (photo) => !missing.has(photo.assetId),
+      ),
+      resumePhotoId:
+        career.resumePhotoId && missing.has(career.resumePhotoId)
+          ? null
+          : career.resumePhotoId,
+    })),
+  };
+}
 
 const TALENT_POOL_CHOICES: readonly TalentPoolChoice[] = [
   "resume-only",
@@ -580,6 +730,10 @@ export function serializeResumeDraft(draft: ResumeDraft): string {
       qualificationStart: entry.qualificationStart,
       qualificationEnd: entry.qualificationEnd,
       restaurantName: entry.restaurantName,
+      restaurantLocation: entry.restaurantLocation.trim(),
+      restaurantHighlights: entry.restaurantHighlights
+        .map((highlight) => highlight.trim())
+        .filter(Boolean),
       employmentStart: entry.employmentStart,
       employmentEnd: entry.employmentEnd,
       role: entry.role,
@@ -589,6 +743,11 @@ export function serializeResumeDraft(draft: ResumeDraft): string {
       skills: [...entry.skills],
       equipment: [...entry.equipment],
       representativeExperience: entry.representativeExperience,
+      portfolioPhotos: entry.portfolioPhotos.map((photo) => ({
+        assetId: photo.assetId,
+        description: photo.description.trim(),
+      })),
+      resumePhotoId: entry.resumePhotoId,
     })),
     identity: {
       name: draft.identity.name,
@@ -596,6 +755,7 @@ export function serializeResumeDraft(draft: ResumeDraft): string {
       email: draft.identity.email,
       phone: draft.identity.phone,
       summary: draft.identity.summary,
+      profilePhotoId: draft.identity.profilePhotoId,
     },
     isDemoDraft: draft.isDemoDraft,
     talentPoolChoice: draft.talentPoolChoice,
@@ -618,6 +778,74 @@ function readStringArray(value: unknown): string[] | null {
   return value.every((item) => typeof item === "string")
     ? (value as string[]).slice()
     : null;
+}
+
+function readNullableString(value: unknown): string | null | false {
+  if (value === null) {
+    return null;
+  }
+
+  return typeof value === "string" ? value : false;
+}
+
+function readCareerPhotoReferences(
+  value: unknown,
+): CareerPhotoReference[] | null {
+  if (!Array.isArray(value)) {
+    return null;
+  }
+
+  const references: CareerPhotoReference[] = [];
+
+  for (const item of value) {
+    if (!isRecord(item)) {
+      return null;
+    }
+
+    const assetId = readString(item.assetId);
+    const description = readString(item.description);
+
+    if (
+      assetId === null ||
+      assetId.trim().length === 0 ||
+      description === null ||
+      description.trim().length > 120
+    ) {
+      return null;
+    }
+
+    references.push({ assetId, description });
+  }
+
+  return references;
+}
+
+function hasValidRestaurantMetadata(
+  location: string,
+  highlights: readonly string[],
+): boolean {
+  return (
+    location.trim().length <= 100 &&
+    highlights.length <= 5 &&
+    highlights.every((highlight) => {
+      const normalized = highlight.trim();
+
+      return normalized.length > 0 && normalized.length <= 80;
+    })
+  );
+}
+
+function hasValidCareerPhotoReferences(
+  photos: readonly CareerPhotoReference[],
+  resumePhotoId: string | null,
+): boolean {
+  const ids = photos.map((photo) => photo.assetId);
+
+  return (
+    photos.length <= 6 &&
+    new Set(ids).size === ids.length &&
+    (resumePhotoId === null || ids.includes(resumePhotoId))
+  );
 }
 
 function readImportedFields(value: unknown): ImportedCareerFields | null | false {
@@ -682,12 +910,20 @@ function readCareerEntry(
     qualificationStart: readString(value.qualificationStart),
     qualificationEnd: readString(value.qualificationEnd),
     restaurantName: readString(value.restaurantName),
+    restaurantLocation:
+      draftVersion < RESUME_DRAFT_VERSION
+        ? ""
+        : readString(value.restaurantLocation),
     employmentStart: readString(value.employmentStart),
     employmentEnd: readString(value.employmentEnd),
     role: readString(value.role),
     representativeExperience: readString(value.representativeExperience),
   };
   const lists = {
+    restaurantHighlights:
+      draftVersion < RESUME_DRAFT_VERSION
+        ? []
+        : readStringArray(value.restaurantHighlights),
     stations: readStringArray(value.stations),
     responsibilities: readStringArray(value.responsibilities),
     skills: readStringArray(value.skills),
@@ -696,10 +932,18 @@ function readCareerEntry(
   const importedFields = readImportedFields(value.importedFields);
   const culinarySpecialties =
     value.culinarySpecialties === undefined &&
-    draftVersion === PREVIOUS_RESUME_DRAFT_VERSION &&
+    draftVersion === CULINARY_TAXONOMY_DRAFT_VERSION &&
     lists.stations !== null
       ? inferLegacyCulinarySpecialties(lists.stations)
       : readStringArray(value.culinarySpecialties);
+  const portfolioPhotos =
+    draftVersion < RESUME_DRAFT_VERSION
+      ? []
+      : readCareerPhotoReferences(value.portfolioPhotos);
+  const resumePhotoId =
+    draftVersion < RESUME_DRAFT_VERSION
+      ? null
+      : readNullableString(value.resumePhotoId);
   const isCurrent =
     value.isCurrent === undefined
       ? false
@@ -715,6 +959,8 @@ function readCareerEntry(
     typeof value.included !== "boolean" ||
     isCurrent === null ||
     importedFields === false ||
+    portfolioPhotos === null ||
+    resumePhotoId === false ||
     culinarySpecialties === null ||
     culinarySpecialties.length === 0 ||
     culinarySpecialties.some(
@@ -722,7 +968,12 @@ function readCareerEntry(
         !CULINARY_SPECIALTIES.includes(specialty as CulinarySpecialty),
     ) ||
     Object.values(strings).some((field) => field === null) ||
-    Object.values(lists).some((list) => list === null)
+    Object.values(lists).some((list) => list === null) ||
+    !hasValidRestaurantMetadata(
+      strings.restaurantLocation as string,
+      lists.restaurantHighlights as string[],
+    ) ||
+    !hasValidCareerPhotoReferences(portfolioPhotos, resumePhotoId)
   ) {
     return null;
   }
@@ -742,6 +993,8 @@ function readCareerEntry(
     qualificationStart: strings.qualificationStart as string,
     qualificationEnd: strings.qualificationEnd as string,
     restaurantName: strings.restaurantName as string,
+    restaurantLocation: strings.restaurantLocation as string,
+    restaurantHighlights: lists.restaurantHighlights as string[],
     employmentStart: strings.employmentStart as string,
     employmentEnd: strings.employmentEnd as string,
     role: strings.role as string,
@@ -751,10 +1004,12 @@ function readCareerEntry(
     skills: lists.skills as string[],
     equipment: lists.equipment as string[],
     representativeExperience: strings.representativeExperience as string,
+    portfolioPhotos,
+    resumePhotoId,
   };
 }
 
-function readIdentity(value: unknown): ResumeIdentity | null {
+function readIdentity(value: unknown, draftVersion: number): ResumeIdentity | null {
   if (!isRecord(value)) {
     return null;
   }
@@ -764,18 +1019,24 @@ function readIdentity(value: unknown): ResumeIdentity | null {
   const email = readString(value.email);
   const phone = readString(value.phone);
   const summary = readString(value.summary);
+  const profilePhotoId =
+    draftVersion < RESUME_DRAFT_VERSION
+      ? null
+      : readNullableString(value.profilePhotoId);
 
   if (
     name === null ||
     headline === null ||
     email === null ||
     phone === null ||
-    summary === null
+    summary === null ||
+    profilePhotoId === false ||
+    (typeof profilePhotoId === "string" && profilePhotoId.trim().length === 0)
   ) {
     return null;
   }
 
-  return { name, headline, email, phone, summary };
+  return { name, headline, email, phone, summary, profilePhotoId };
 }
 
 /**
@@ -798,8 +1059,9 @@ export function parseResumeDraft(raw: string | null): ResumeDraft | null {
 
   if (
     !isRecord(value) ||
-    (value.version !== RESUME_DRAFT_VERSION &&
-      value.version !== PREVIOUS_RESUME_DRAFT_VERSION)
+    !SUPPORTED_RESUME_DRAFT_VERSIONS.includes(
+      value.version as (typeof SUPPORTED_RESUME_DRAFT_VERSIONS)[number],
+    )
   ) {
     return null;
   }
@@ -808,10 +1070,11 @@ export function parseResumeDraft(raw: string | null): ResumeDraft | null {
     return null;
   }
 
+  const draftVersion = value.version as number;
   const careers: CareerEntry[] = [];
 
   for (const entry of value.careers) {
-    const career = readCareerEntry(entry, value.version);
+    const career = readCareerEntry(entry, draftVersion);
 
     if (career === null) {
       return null;
@@ -824,7 +1087,7 @@ export function parseResumeDraft(raw: string | null): ResumeDraft | null {
     return null;
   }
 
-  const identity = readIdentity(value.identity);
+  const identity = readIdentity(value.identity, draftVersion);
   const talentPoolChoice = readString(value.talentPoolChoice);
 
   if (

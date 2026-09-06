@@ -753,6 +753,12 @@ button {
   line-height: 1.65;
 }
 
+.field-error {
+  color: var(--red);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
 .career-card,
 .identity-card,
 .career-editor {
@@ -1007,6 +1013,92 @@ fieldset {
   line-height: 1.55;
 }
 
+.restaurant-metadata {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 24px;
+  padding-top: 26px;
+  margin-top: 26px;
+  border-top: 1px dashed var(--line);
+}
+
+.restaurant-highlights {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.restaurant-highlights > header,
+.photo-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.restaurant-highlights > header > div,
+.photo-section-heading > div {
+  display: grid;
+  gap: 5px;
+}
+
+.restaurant-highlight-list {
+  display: grid;
+  gap: 8px;
+}
+
+.restaurant-highlight-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.restaurant-highlight-row input,
+.photo-description-field textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  outline: none;
+  background: #fffefb;
+  color: var(--ink);
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.restaurant-highlight-row input {
+  min-height: 44px;
+  padding: 9px 11px;
+}
+
+.restaurant-highlight-row input:focus,
+.photo-description-field textarea:focus {
+  border-color: var(--steel);
+  box-shadow: 0 0 0 3px rgba(65, 94, 89, 0.12);
+}
+
+.restaurant-highlights .text-button,
+.photo-inline-actions .text-button,
+.career-photo-actions .text-button {
+  min-height: 40px;
+  color: var(--red);
+  font-size: 0.72rem;
+}
+
+.compact-button {
+  min-height: 40px;
+  padding: 8px 12px;
+  font-size: 0.72rem;
+}
+
+.empty-field-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
 .date-section-title {
   display: grid;
   gap: 3px;
@@ -1142,6 +1234,199 @@ fieldset {
 
 .identity-card > .field {
   margin-top: 20px;
+}
+
+.profile-photo-editor,
+.career-photo-editor {
+  display: grid;
+  gap: 18px;
+  padding-top: 26px;
+  margin-top: 26px;
+  border-top: 1px dashed var(--line);
+}
+
+.profile-photo-editor {
+  padding: 18px;
+  margin: 0 0 24px;
+  border: 1px solid var(--line);
+  background: rgba(241, 237, 227, 0.36);
+}
+
+.photo-section-heading h3 {
+  margin: 0;
+  font-family: var(--font-editorial);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.photo-section-heading p {
+  max-width: 58ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
+.profile-photo-current {
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr);
+  gap: 18px;
+  align-items: end;
+}
+
+.profile-photo-current > img {
+  width: 128px;
+  aspect-ratio: 4 / 5;
+  border: 1px solid var(--line);
+  background: var(--paper-soft);
+  object-fit: contain;
+}
+
+.photo-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+
+.photo-file-button,
+.photo-dropzone {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.photo-file-button input,
+.photo-dropzone input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.photo-dropzone {
+  display: grid;
+  min-height: 104px;
+  place-items: center;
+  align-content: center;
+  gap: 5px;
+  padding: 18px;
+  border: 1px dashed var(--line-strong);
+  background: rgba(255, 254, 251, 0.56);
+  color: var(--ink);
+  text-align: center;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease;
+}
+
+.photo-dropzone:hover,
+.photo-dropzone:focus-within {
+  border-color: var(--steel);
+  background: var(--steel-soft);
+}
+
+.photo-dropzone strong {
+  font-size: 0.82rem;
+}
+
+.photo-dropzone span,
+.photo-loading {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.photo-dropzone.is-disabled,
+.photo-dropzone:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.resume-photo-choice {
+  display: grid;
+  gap: 12px;
+}
+
+.resume-photo-choice > legend {
+  margin-bottom: 2px;
+  font-size: 0.76rem;
+  font-weight: 740;
+}
+
+.resume-photo-none,
+.resume-photo-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.resume-photo-none input,
+.resume-photo-radio input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--red);
+}
+
+.career-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.career-photo-card {
+  display: grid;
+  min-width: 0;
+  gap: 13px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255, 254, 251, 0.72);
+}
+
+.career-photo-card.is-resume-photo {
+  border-color: var(--steel);
+  box-shadow: inset 0 0 0 1px var(--steel);
+}
+
+.career-photo-preview {
+  display: grid;
+  aspect-ratio: 4 / 3;
+  place-items: center;
+  overflow: hidden;
+  background: var(--paper-soft);
+}
+
+.career-photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.photo-description-field {
+  display: grid;
+  gap: 7px;
+}
+
+.photo-description-field textarea {
+  min-height: 84px;
+  padding: 10px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.career-photo-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.career-photo-add {
+  min-height: 82px;
 }
 
 .career-editor-header h2 {
@@ -1365,6 +1650,22 @@ fieldset {
   border-bottom: 2px solid #252825;
 }
 
+.resume-identity-lockup {
+  display: flex;
+  min-width: 0;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.resume-profile-photo {
+  width: 82px;
+  height: 104px;
+  flex: 0 0 auto;
+  border: 1px solid #d8dad5;
+  background: #f5f5f2;
+  object-fit: contain;
+}
+
 .resume-label {
   margin: 0 0 18px;
   color: var(--red);
@@ -1453,6 +1754,13 @@ fieldset {
   font-weight: 650;
 }
 
+.resume-career header .resume-location {
+  margin-top: 3px;
+  color: #6b7069;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
 .resume-career header small {
   color: #777c74;
   font-size: 0.66rem;
@@ -1468,6 +1776,47 @@ fieldset {
 .resume-provenance {
   max-width: 220px;
   justify-content: flex-end;
+}
+
+.resume-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0;
+  margin: -5px 0 16px;
+  list-style: none;
+}
+
+.resume-highlights li {
+  padding: 4px 7px;
+  border: 1px solid #d5d7d2;
+  color: #555a53;
+  font-size: 0.64rem;
+  line-height: 1.3;
+}
+
+.resume-career-photo {
+  display: grid;
+  gap: 7px;
+  max-width: 520px;
+  padding: 10px;
+  margin: 0 0 18px;
+  break-inside: avoid;
+  border: 1px solid #dedfdc;
+  background: #fafaf8;
+}
+
+.resume-career-photo img {
+  width: 100%;
+  max-height: 280px;
+  background: #f2f2ef;
+  object-fit: contain;
+}
+
+.resume-career-photo figcaption {
+  color: #61665f;
+  font-size: 0.68rem;
+  line-height: 1.45;
 }
 
 .resume-bullets {
@@ -1759,8 +2108,20 @@ button:disabled {
   .date-section,
   .date-grid,
   .specialty-grid,
-  .taxonomy-groups {
+  .taxonomy-groups,
+  .restaurant-metadata,
+  .career-photo-grid {
     grid-template-columns: 1fr;
+  }
+
+  .profile-photo-current {
+    grid-template-columns: 1fr;
+  }
+
+  .photo-inline-actions,
+  .career-photo-actions {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .custom-choice-form {
@@ -1793,6 +2154,10 @@ button:disabled {
   .resume-header address {
     padding-top: 0;
     text-align: left;
+  }
+
+  .resume-identity-lockup {
+    width: 100%;
   }
 
   .resume-provenance {
@@ -1857,7 +2222,8 @@ button:disabled {
   }
 
   .resume-career,
-  .resume-section {
+  .resume-section,
+  .resume-career-photo {
     break-inside: avoid;
   }
 }
