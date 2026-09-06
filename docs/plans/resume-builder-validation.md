@@ -57,12 +57,15 @@ Create a low-fidelity prototype with:
 
 The first prototype can simulate extraction manually.
 Test the questions and correction flow before investing in parser coverage.
-Every imported field must remain editable, and every employment record must be excludable.
+The prototype must keep each original employer name and qualification date read-only.
+It must use those values to prefill the editable restaurant name and employment months.
+Every employment record must remain excludable.
 
 Verify this step with a walkthrough that proves:
 
 - Original employer name and restaurant display name remain separate.
-- Qualification dates and person-confirmed employment dates remain separate.
+- Qualification dates and person-confirmed employment months remain separate.
+- The resume can mark no more than one included employment record as current.
 - Role, station, up to 3 primary responsibilities, skills, equipment, and representative experience can be entered.
 - Imported, confirmed, and authored fields have distinct labels.
 - Extraction failure reaches manual entry without blocking completion.
