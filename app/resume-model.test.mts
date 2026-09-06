@@ -2,11 +2,13 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  addCustomChoice,
   createBlankCareerEntry,
   createDemoCareerEntries,
   createImportedCareerEntries,
   formatMonthRange,
   getCareerErrors,
+  getCulinaryChoiceGroups,
   getEmployerLabel,
   getEnrichmentErrors,
   getImportedCareerFieldProvenance,
@@ -14,6 +16,7 @@ import {
   serializeResumeDraft,
   toReviewIdentity,
   toggleBoundedChoice,
+  toggleCulinarySpecialty,
   type ResumeDraft,
   type ResumeIdentity,
 } from "./resume-model.mts";
@@ -42,6 +45,58 @@ test("lets a selected choice be removed at the limit", () => {
     "서비스 준비",
     "발주·재고",
   ]);
+});
+
+test("shows techniques only for the selected culinary specialties", () => {
+  const restaurantSkills = getCulinaryChoiceGroups(
+    ["restaurant"],
+    "skills",
+  ).flatMap((group) => group.options);
+  const bakerySkills = getCulinaryChoiceGroups(
+    ["bakery"],
+    "skills",
+  ).flatMap((group) => group.options);
+
+  assert.equal(restaurantSkills.includes("수비드"), true);
+  assert.equal(restaurantSkills.includes("반죽 발효 관리"), false);
+  assert.equal(bakerySkills.includes("반죽 발효 관리"), true);
+  assert.equal(bakerySkills.includes("식재료 발효·숙성"), false);
+});
+
+test("combines equipment groups when one career spans multiple specialties", () => {
+  assert.deepEqual(
+    getCulinaryChoiceGroups(["restaurant", "bakery"], "equipment").map(
+      (group) => group.label,
+    ),
+    ["레스토랑 조리", "제빵"],
+  );
+});
+
+test("keeps at least one culinary specialty selected", () => {
+  assert.deepEqual(toggleCulinarySpecialty(["restaurant"], "restaurant"), [
+    "restaurant",
+  ]);
+  assert.deepEqual(toggleCulinarySpecialty(["restaurant"], "bakery"), [
+    "restaurant",
+    "bakery",
+  ]);
+  assert.deepEqual(
+    toggleCulinarySpecialty(["restaurant", "bakery"], "restaurant"),
+    ["bakery"],
+  );
+  assert.deepEqual(
+    toggleCulinarySpecialty(["restaurant", "restaurant"], "restaurant"),
+    ["restaurant"],
+  );
+});
+
+test("adds a trimmed custom choice without blanks or duplicates", () => {
+  assert.deepEqual(addCustomChoice(["수비드"], "  오마카세 서비스  "), [
+    "수비드",
+    "오마카세 서비스",
+  ]);
+  assert.deepEqual(addCustomChoice(["수비드"], "   "), ["수비드"]);
+  assert.deepEqual(addCustomChoice(["수비드"], "수비드"), ["수비드"]);
 });
 
 test("requires one complete included career before confirmation", () => {
@@ -287,7 +342,8 @@ test("tracks imported field provenance through corrections and reverts", () => {
 test("stores equipment separately from skills", () => {
   const [entry] = createDemoCareerEntries();
 
-  assert.deepEqual(entry.skills, ["제면", "생선 손질", "수비드"]);
+  assert.deepEqual(entry.stations, ["핫 / Hot", "파스타·면"]);
+  assert.deepEqual(entry.skills, ["파스타·생면", "생선 필레·손질", "수비드"]);
   assert.deepEqual(entry.equipment, ["콤비오븐"]);
 });
 
@@ -334,6 +390,32 @@ test("re-serializes a restored draft to the same string", () => {
 
   assert.notEqual(restored, null);
   assert.equal(serializeResumeDraft(restored!), raw);
+});
+
+test("migrates bakery and pastry stations from the previous draft schema", () => {
+  const stored = JSON.parse(serializeResumeDraft(completeDraft()));
+  stored.version = 1;
+  stored.careers[0].stations = ["Bakery", "Pastry"];
+  delete stored.careers[0].culinarySpecialties;
+
+  const restored = parseResumeDraft(JSON.stringify(stored));
+
+  assert.notEqual(restored, null);
+  assert.deepEqual(restored!.careers[0].culinarySpecialties, [
+    "bakery",
+    "pastry",
+  ]);
+  assert.deepEqual(restored!.careers[0].stations, ["Bakery", "Pastry"]);
+});
+
+test("normalizes duplicate culinary specialties in a saved draft", () => {
+  const stored = JSON.parse(serializeResumeDraft(completeDraft()));
+  stored.careers[0].culinarySpecialties = ["restaurant", "restaurant"];
+
+  const restored = parseResumeDraft(JSON.stringify(stored));
+
+  assert.notEqual(restored, null);
+  assert.deepEqual(restored!.careers[0].culinarySpecialties, ["restaurant"]);
 });
 
 test("serializes only the confirmed draft fields", () => {

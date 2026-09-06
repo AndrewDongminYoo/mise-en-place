@@ -18,18 +18,18 @@ import {
 } from "./nhis-parser.mts";
 
 import {
-  EQUIPMENT_OPTIONS,
+  CULINARY_SPECIALTY_OPTIONS,
   PROVENANCE_LABELS,
   RESPONSIBILITY_OPTIONS,
   RESUME_DRAFT_STORAGE_KEY,
   ROLE_SUGGESTIONS,
-  SKILL_OPTIONS,
-  STATION_OPTIONS,
+  addCustomChoice,
   createBlankCareerEntry,
   createDemoCareerEntries,
   createImportedCareerEntries,
   formatMonthRange,
   getCareerErrors,
+  getCulinaryChoiceGroups,
   getEmployerLabel,
   getEnrichmentErrors,
   getImportedCareerFieldProvenance,
@@ -37,7 +37,11 @@ import {
   serializeResumeDraft,
   toReviewIdentity,
   toggleBoundedChoice,
+  toggleCulinarySpecialty,
   type CareerEntry,
+  type CulinaryChoiceGroup,
+  type CulinaryChoiceKind,
+  type CulinarySpecialty,
   type ResumeIdentity,
   type TalentPoolChoice,
 } from "./resume-model.mts";
@@ -162,6 +166,145 @@ function ChoiceGroup({
           );
         })}
       </div>
+    </fieldset>
+  );
+}
+
+function SpecialtyChoiceGroup({
+  selected,
+  onToggle,
+}: {
+  selected: readonly CulinarySpecialty[];
+  onToggle: (value: CulinarySpecialty) => void;
+}) {
+  return (
+    <fieldset className="choice-field">
+      <legend>경력 분야</legend>
+      <span className="choice-hint field-hint">
+        관련된 분야를 모두 선택할 수 있습니다. 한 분야는 남겨 둡니다.
+      </span>
+      <div className="specialty-grid">
+        {CULINARY_SPECIALTY_OPTIONS.map((option) => {
+          const checked = selected.includes(option.value);
+
+          return (
+            <label
+              className={
+                "specialty-option" + (checked ? " is-selected" : "")
+              }
+              key={option.value}
+            >
+              <input
+                type="checkbox"
+                checked={checked}
+                onChange={() => onToggle(option.value)}
+              />
+              <span>
+                <strong>{option.label}</strong>
+                <small>{option.description}</small>
+              </span>
+            </label>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
+
+function GroupedChoiceGroup({
+  legend,
+  groups,
+  selected,
+  onToggle,
+  onAdd,
+  customPlaceholder,
+  hint,
+}: {
+  legend: string;
+  groups: readonly CulinaryChoiceGroup[];
+  selected: readonly string[];
+  onToggle: (option: string) => void;
+  onAdd: (option: string) => void;
+  customPlaceholder: string;
+  hint: string;
+}) {
+  const suggested = new Set(groups.flatMap((group) => group.options));
+  const additional = selected.filter((option) => !suggested.has(option));
+
+  function submitCustomChoice(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const input = form.elements.namedItem("customChoice");
+
+    if (!(input instanceof HTMLInputElement) || !input.value.trim()) {
+      return;
+    }
+
+    onAdd(input.value);
+    form.reset();
+  }
+
+  return (
+    <fieldset className="choice-field">
+      <legend>{legend}</legend>
+      <span className="choice-hint field-hint">{hint}</span>
+      <div className="taxonomy-groups">
+        {groups.map((group) => (
+          <section className="taxonomy-group" key={group.label}>
+            <h3>{group.label}</h3>
+            <div className="choice-grid">
+              {group.options.map((option) => {
+                const checked = selected.includes(option);
+
+                return (
+                  <label
+                    className={
+                      "choice-chip" + (checked ? " is-selected" : "")
+                    }
+                    key={option}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => onToggle(option)}
+                    />
+                    <span>{option}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+        {additional.length > 0 ? (
+          <section className="taxonomy-group taxonomy-additional">
+            <h3>직접 입력·기존 선택</h3>
+            <div className="choice-grid">
+              {additional.map((option) => (
+                <label className="choice-chip is-selected" key={option}>
+                  <input
+                    type="checkbox"
+                    checked
+                    onChange={() => onToggle(option)}
+                  />
+                  <span>{option}</span>
+                </label>
+              ))}
+            </div>
+          </section>
+        ) : null}
+      </div>
+      <form className="custom-choice-form" onSubmit={submitCustomChoice}>
+        <input
+          type="text"
+          name="customChoice"
+          maxLength={40}
+          placeholder={customPlaceholder}
+          aria-label={customPlaceholder}
+        />
+        <button className="secondary-button" type="submit">
+          직접 입력 추가
+        </button>
+      </form>
     </fieldset>
   );
 }
@@ -697,6 +840,37 @@ export default function Home() {
 
     updateCareer(id, {
       [field]: toggleBoundedChoice(career[field], value, limit),
+    });
+  }
+
+  function toggleCareerSpecialty(id: string, value: CulinarySpecialty) {
+    const career = careers.find((item) => item.id === id);
+
+    if (!career) {
+      return;
+    }
+
+    updateCareer(id, {
+      culinarySpecialties: toggleCulinarySpecialty(
+        career.culinarySpecialties,
+        value,
+      ),
+    });
+  }
+
+  function addCareerChoice(
+    id: string,
+    field: CulinaryChoiceKind,
+    value: string,
+  ) {
+    const career = careers.find((item) => item.id === id);
+
+    if (!career) {
+      return;
+    }
+
+    updateCareer(id, {
+      [field]: addCustomChoice(career[field], value),
     });
   }
 
@@ -1302,13 +1476,27 @@ export default function Home() {
                     />
                   </Field>
 
-                  <ChoiceGroup
+                  <SpecialtyChoiceGroup
+                    selected={career.culinarySpecialties}
+                    onToggle={(value) =>
+                      toggleCareerSpecialty(career.id, value)
+                    }
+                  />
+
+                  <GroupedChoiceGroup
                     legend="독립적으로 맡았던 스테이션"
-                    options={STATION_OPTIONS}
+                    groups={getCulinaryChoiceGroups(
+                      career.culinarySpecialties,
+                      "stations",
+                    )}
                     selected={career.stations}
                     onToggle={(option) =>
                       toggleCareerChoice(career.id, "stations", option)
                     }
+                    onAdd={(option) =>
+                      addCareerChoice(career.id, "stations", option)
+                    }
+                    customPlaceholder="목록에 없는 스테이션"
                     hint="여러 개 선택할 수 있습니다."
                   />
 
@@ -1328,23 +1516,37 @@ export default function Home() {
                     hint={career.responsibilities.length + "/3 선택"}
                   />
 
-                  <ChoiceGroup
+                  <GroupedChoiceGroup
                     legend="다뤄본 기술"
-                    options={SKILL_OPTIONS}
+                    groups={getCulinaryChoiceGroups(
+                      career.culinarySpecialties,
+                      "skills",
+                    )}
                     selected={career.skills}
                     onToggle={(option) =>
                       toggleCareerChoice(career.id, "skills", option)
                     }
+                    onAdd={(option) =>
+                      addCareerChoice(career.id, "skills", option)
+                    }
+                    customPlaceholder="목록에 없는 기술"
                     hint="실제로 사용해 본 항목만 선택하세요."
                   />
 
-                  <ChoiceGroup
-                    legend="다뤄본 장비"
-                    options={EQUIPMENT_OPTIONS}
+                  <GroupedChoiceGroup
+                    legend="다뤄본 장비·도구"
+                    groups={getCulinaryChoiceGroups(
+                      career.culinarySpecialties,
+                      "equipment",
+                    )}
                     selected={career.equipment}
                     onToggle={(option) =>
                       toggleCareerChoice(career.id, "equipment", option)
                     }
+                    onAdd={(option) =>
+                      addCareerChoice(career.id, "equipment", option)
+                    }
+                    customPlaceholder="목록에 없는 장비·도구"
                     hint="실제로 사용해 본 항목만 선택하세요."
                   />
 

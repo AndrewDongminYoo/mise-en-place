@@ -1179,6 +1179,117 @@ fieldset {
   gap: 8px;
 }
 
+.specialty-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.specialty-option {
+  position: relative;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.specialty-option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.specialty-option > span {
+  display: grid;
+  min-height: 100%;
+  align-content: start;
+  gap: 6px;
+  padding: 15px 16px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: #fffefb;
+  color: var(--muted);
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    color 140ms ease;
+}
+
+.specialty-option strong {
+  color: var(--ink);
+  font-size: 0.82rem;
+}
+
+.specialty-option small {
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.specialty-option:hover > span {
+  border-color: var(--line-strong);
+}
+
+.specialty-option.is-selected > span {
+  border-color: var(--steel);
+  background: var(--steel-soft);
+  color: #294a43;
+}
+
+.specialty-option:focus-within > span {
+  outline: 3px solid rgba(65, 94, 89, 0.22);
+  outline-offset: 2px;
+}
+
+.taxonomy-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.taxonomy-group {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: rgba(255, 254, 251, 0.68);
+}
+
+.taxonomy-group h3 {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-family: var(--font-label);
+  font-size: 0.62rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.taxonomy-additional {
+  border-style: dashed;
+}
+
+.custom-choice-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.custom-choice-form input {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: #fffefb;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 11px 12px;
+}
+
+.custom-choice-form .secondary-button {
+  min-height: 44px;
+  padding: 10px 14px;
+}
+
 .choice-chip {
   position: relative;
   cursor: pointer;
@@ -1194,14 +1305,15 @@ fieldset {
 
 .choice-chip span {
   display: inline-flex;
-  min-height: 44px;
+  min-height: 36px;
   align-items: center;
-  padding: 7px 13px;
+  padding: 4px 12px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: #fffefb;
   color: var(--muted);
   font-size: 0.75rem;
+  line-height: 1.25;
   transition:
     border-color 140ms ease,
     background 140ms ease,
@@ -1645,8 +1757,18 @@ button:disabled {
 
   .field-grid,
   .date-section,
-  .date-grid {
+  .date-grid,
+  .specialty-grid,
+  .taxonomy-groups {
     grid-template-columns: 1fr;
+  }
+
+  .custom-choice-form {
+    grid-template-columns: 1fr;
+  }
+
+  .custom-choice-form .secondary-button {
+    width: 100%;
   }
 
   .date-section {

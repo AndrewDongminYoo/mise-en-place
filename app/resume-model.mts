@@ -1,5 +1,7 @@
 export type CareerOrigin = "document" | "manual";
 
+export type CulinarySpecialty = "restaurant" | "bakery" | "pastry";
+
 export type ImportedCareerFields = {
   legalEmployer: string;
   qualificationStart: string;
@@ -17,6 +19,7 @@ export type CareerEntry = ImportedCareerFields & {
   employmentStart: string;
   employmentEnd: string;
   role: string;
+  culinarySpecialties: CulinarySpecialty[];
   stations: string[];
   responsibilities: string[];
   skills: string[];
@@ -45,15 +48,222 @@ export const ROLE_SUGGESTIONS = [
   "Head Chef",
 ] as const;
 
-export const STATION_OPTIONS = [
-  "Cold",
-  "Hot",
-  "Grill",
-  "Pasta",
-  "Pastry",
-  "Bakery",
-  "Prep",
-] as const;
+export const CULINARY_SPECIALTY_OPTIONS = [
+  {
+    value: "restaurant",
+    label: "레스토랑 조리",
+    description: "한식·양식·중식·일식 등 서비스 주방",
+  },
+  {
+    value: "bakery",
+    label: "제빵",
+    description: "빵 반죽, 발효, 성형, 굽기",
+  },
+  {
+    value: "pastry",
+    label: "제과·패스트리",
+    description: "구움과자, 케이크, 초콜릿, 냉과, 디저트",
+  },
+] as const satisfies readonly {
+  value: CulinarySpecialty;
+  label: string;
+  description: string;
+}[];
+
+export type CulinaryChoiceKind = "stations" | "skills" | "equipment";
+
+export type CulinaryChoiceGroup = {
+  label: string;
+  options: readonly string[];
+};
+
+type CulinaryTaxonomyGroup = {
+  value: CulinarySpecialty;
+  label: string;
+  stations: readonly string[];
+  skills: readonly string[];
+  equipment: readonly string[];
+};
+
+const CULINARY_TAXONOMY: readonly CulinaryTaxonomyGroup[] = [
+  {
+    value: "restaurant",
+    label: "레스토랑 조리",
+    stations: [
+      "전처리 / Prep",
+      "콜드 / Garde Manger",
+      "핫 / Hot",
+      "그릴 / Grill",
+      "소테 / Sauté",
+      "튀김 / Fry",
+      "파스타·면",
+      "육류 손질",
+      "생선·해산물",
+      "패스 / Expo",
+    ],
+    skills: [
+      "미장플라스",
+      "칼 기술",
+      "육류 손질",
+      "생선 필레·손질",
+      "해산물 조리",
+      "스톡·육수",
+      "소스",
+      "파스타·생면",
+      "그릴",
+      "소테",
+      "튀김",
+      "로스팅",
+      "브레이징",
+      "수비드",
+      "숯불·장작",
+      "피클링·절임",
+      "식재료 발효·숙성",
+      "플레이팅",
+    ],
+    equipment: [
+      "콤비오븐",
+      "상업용 오븐",
+      "브로일러",
+      "차브로일러",
+      "플랫톱 그릴",
+      "튀김기",
+      "블렌더",
+      "슬라이서",
+      "웍",
+      "화덕·피자 오븐",
+      "스모커",
+    ],
+  },
+  {
+    value: "bakery",
+    label: "제빵",
+    stations: [
+      "계량·전처리",
+      "믹싱",
+      "1차 발효",
+      "분할·성형",
+      "2차 발효",
+      "오븐",
+      "충전·토핑",
+      "냉각·포장",
+      "생산 관리",
+    ],
+    skills: [
+      "베이커스 퍼센트",
+      "재료 계량",
+      "반죽 믹싱",
+      "반죽 온도 관리",
+      "글루텐 발달 판단",
+      "반죽 발효 관리",
+      "분할·둥글리기",
+      "성형",
+      "라미네이션",
+      "사워도우",
+      "크루아상·비에누아즈리",
+      "식빵류",
+      "하드계열빵류",
+      "단과자빵류",
+      "굽기 완료점 판단",
+      "생산 스케일링",
+    ],
+    equipment: [
+      "저울",
+      "반죽기",
+      "스탠드 믹서",
+      "도우 시터",
+      "발효기",
+      "데크·컨벡션 오븐",
+      "반죽·제품 냉장고",
+      "냉동고",
+      "온도계",
+      "식빵 팬·냉각팬",
+    ],
+  },
+  {
+    value: "pastry",
+    label: "제과·패스트리",
+    stations: [
+      "계량·전처리",
+      "반죽·배터",
+      "크림·필링",
+      "오븐",
+      "케이크",
+      "초콜릿",
+      "냉과",
+      "플레이팅",
+      "장식·마감",
+      "생산 관리",
+    ],
+    skills: [
+      "제과 배합·계량",
+      "반죽·배터 제조",
+      "크림·커스터드·필링",
+      "무스",
+      "타르트·파이",
+      "슈",
+      "마카롱",
+      "케이크 시트·조립",
+      "아이싱·파이핑",
+      "초콜릿",
+      "설탕 공예",
+      "젤라토·소르베",
+      "디저트 소스",
+      "플레이팅",
+      "제품별 굽기 관리",
+    ],
+    equipment: [
+      "저울",
+      "스탠드 믹서",
+      "도우 시터",
+      "제과용 오븐",
+      "냉장·냉동고",
+      "온도계",
+      "전용 팬·틀",
+      "짤주머니·모양깍지",
+    ],
+  },
+];
+
+export function getCulinaryChoiceGroups(
+  specialties: readonly CulinarySpecialty[],
+  kind: CulinaryChoiceKind,
+): CulinaryChoiceGroup[] {
+  return CULINARY_TAXONOMY.filter((group) =>
+    specialties.includes(group.value),
+  ).map((group) => ({
+    label: group.label,
+    options: group[kind],
+  }));
+}
+
+export function toggleCulinarySpecialty(
+  selected: readonly CulinarySpecialty[],
+  value: CulinarySpecialty,
+): CulinarySpecialty[] {
+  const normalized = [...new Set(selected)];
+
+  if (normalized.includes(value) && normalized.length === 1) {
+    return normalized;
+  }
+
+  return normalized.includes(value)
+    ? normalized.filter((option) => option !== value)
+    : [...normalized, value];
+}
+
+export function addCustomChoice(
+  selected: readonly string[],
+  value: string,
+): string[] {
+  const choice = value.trim();
+
+  if (!choice || selected.includes(choice)) {
+    return [...selected];
+  }
+
+  return [...selected, choice];
+}
 
 export const RESPONSIBILITY_OPTIONS = [
   "서비스 준비",
@@ -62,18 +272,6 @@ export const RESPONSIBILITY_OPTIONS = [
   "메뉴 개발",
   "주니어 교육",
   "위생 관리",
-] as const;
-
-export const SKILL_OPTIONS = [
-  "숯불",
-  "수비드",
-  "발효",
-  "제면",
-  "생선 손질",
-] as const;
-
-export const EQUIPMENT_OPTIONS = [
-  "콤비오븐",
 ] as const;
 
 export const PROVENANCE_LABELS = {
@@ -117,6 +315,7 @@ export function createBlankCareerEntry(
     employmentStart: "",
     employmentEnd: "",
     role: "",
+    culinarySpecialties: ["restaurant"],
     stations: [],
     responsibilities: [],
     skills: [],
@@ -142,13 +341,14 @@ export function createDemoCareerEntries(): CareerEntry[] {
       employmentStart: "2018-03",
       employmentEnd: "2019-06",
       role: "Chef de Partie",
-      stations: ["Hot", "Pasta"],
+      culinarySpecialties: ["restaurant"],
+      stations: ["핫 / Hot", "파스타·면"],
       responsibilities: [
         "서비스 준비",
         "스테이션 운영",
         "메뉴 개발",
       ],
-      skills: ["제면", "생선 손질", "수비드"],
+      skills: ["파스타·생면", "생선 필레·손질", "수비드"],
       equipment: ["콤비오븐"],
       representativeExperience:
         "파스타 스테이션을 독립 운영하고 계절 메뉴 테스트와 레시피 표준화를 보조했습니다.",
@@ -332,7 +532,8 @@ function formatMonth(value: string) {
 
 export const RESUME_DRAFT_STORAGE_KEY = "mise-en-place.resume-draft";
 
-const RESUME_DRAFT_VERSION = 1;
+const RESUME_DRAFT_VERSION = 2;
+const PREVIOUS_RESUME_DRAFT_VERSION = 1;
 
 export type ResumeDraft = {
   careers: CareerEntry[];
@@ -348,6 +549,11 @@ const TALENT_POOL_CHOICES: readonly TalentPoolChoice[] = [
 ];
 
 const CAREER_ORIGINS: readonly CareerOrigin[] = ["document", "manual"];
+const CULINARY_SPECIALTIES: readonly CulinarySpecialty[] = [
+  "restaurant",
+  "bakery",
+  "pastry",
+];
 
 /**
  * Only the confirmed structured record is written. The source document, its
@@ -377,6 +583,7 @@ export function serializeResumeDraft(draft: ResumeDraft): string {
       employmentStart: entry.employmentStart,
       employmentEnd: entry.employmentEnd,
       role: entry.role,
+      culinarySpecialties: [...entry.culinarySpecialties],
       stations: [...entry.stations],
       responsibilities: [...entry.responsibilities],
       skills: [...entry.skills],
@@ -437,7 +644,33 @@ function readImportedFields(value: unknown): ImportedCareerFields | null | false
   return { legalEmployer, qualificationStart, qualificationEnd };
 }
 
-function readCareerEntry(value: unknown): CareerEntry | null {
+function inferLegacyCulinarySpecialties(
+  stations: readonly string[],
+): CulinarySpecialty[] {
+  const specialties: CulinarySpecialty[] = [];
+
+  if (
+    stations.length === 0 ||
+    stations.some((station) => station !== "Bakery" && station !== "Pastry")
+  ) {
+    specialties.push("restaurant");
+  }
+
+  if (stations.includes("Bakery")) {
+    specialties.push("bakery");
+  }
+
+  if (stations.includes("Pastry")) {
+    specialties.push("pastry");
+  }
+
+  return specialties;
+}
+
+function readCareerEntry(
+  value: unknown,
+  draftVersion: number,
+): CareerEntry | null {
   if (!isRecord(value)) {
     return null;
   }
@@ -461,6 +694,12 @@ function readCareerEntry(value: unknown): CareerEntry | null {
     equipment: readStringArray(value.equipment),
   };
   const importedFields = readImportedFields(value.importedFields);
+  const culinarySpecialties =
+    value.culinarySpecialties === undefined &&
+    draftVersion === PREVIOUS_RESUME_DRAFT_VERSION &&
+    lists.stations !== null
+      ? inferLegacyCulinarySpecialties(lists.stations)
+      : readStringArray(value.culinarySpecialties);
   const isCurrent =
     value.isCurrent === undefined
       ? false
@@ -476,11 +715,21 @@ function readCareerEntry(value: unknown): CareerEntry | null {
     typeof value.included !== "boolean" ||
     isCurrent === null ||
     importedFields === false ||
+    culinarySpecialties === null ||
+    culinarySpecialties.length === 0 ||
+    culinarySpecialties.some(
+      (specialty) =>
+        !CULINARY_SPECIALTIES.includes(specialty as CulinarySpecialty),
+    ) ||
     Object.values(strings).some((field) => field === null) ||
     Object.values(lists).some((list) => list === null)
   ) {
     return null;
   }
+
+  const normalizedCulinarySpecialties = [
+    ...new Set(culinarySpecialties),
+  ] as CulinarySpecialty[];
 
   return {
     id,
@@ -496,6 +745,7 @@ function readCareerEntry(value: unknown): CareerEntry | null {
     employmentStart: strings.employmentStart as string,
     employmentEnd: strings.employmentEnd as string,
     role: strings.role as string,
+    culinarySpecialties: normalizedCulinarySpecialties,
     stations: lists.stations as string[],
     responsibilities: lists.responsibilities as string[],
     skills: lists.skills as string[],
@@ -546,7 +796,11 @@ export function parseResumeDraft(raw: string | null): ResumeDraft | null {
     return null;
   }
 
-  if (!isRecord(value) || value.version !== RESUME_DRAFT_VERSION) {
+  if (
+    !isRecord(value) ||
+    (value.version !== RESUME_DRAFT_VERSION &&
+      value.version !== PREVIOUS_RESUME_DRAFT_VERSION)
+  ) {
     return null;
   }
 
@@ -557,7 +811,7 @@ export function parseResumeDraft(raw: string | null): ResumeDraft | null {
   const careers: CareerEntry[] = [];
 
   for (const entry of value.careers) {
-    const career = readCareerEntry(entry);
+    const career = readCareerEntry(entry, value.version);
 
     if (career === null) {
       return null;
