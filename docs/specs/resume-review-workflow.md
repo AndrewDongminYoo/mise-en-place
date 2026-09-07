@@ -10,15 +10,18 @@ This document settles those four decisions for the validation slice only, and ad
 The four decisions are approved, but the reasoning behind each one is a chosen default rather than evidence.
 Each names the alternative it rejected, so a later decision can reverse it cheaply once Track A produces evidence.
 
+The operator selected the existing sequential validation order on 2026-09-07.
+Track A sessions run without review, and the review gate runs with a fresh participant pool only after Track A passes.
+
 ## Scope
 
-This specification covers resume review during Track A validation, with 10 or fewer participating culinary professionals at a time.
+This specification covers the resume-review validation that follows a passing Track A gate, with 10 or fewer participating culinary professionals at a time.
 It does not describe a reviewer marketplace, a paid review product, or any review capability for Track B.
 
 Read this document together with:
 
 - `docs/specs/initial-product-scope.md` for the product boundary, the provenance labels, the privacy and security boundary, and the Track A gate.
-- `docs/plans/resume-builder-validation.md` for the moderated completion tests that this review workflow runs inside.
+- `docs/plans/resume-builder-validation.md` for the Track A gate that must pass before this review validation begins.
 
 ## What Review Is
 
@@ -33,9 +36,9 @@ A reviewed resume is still an unverified self-authored record, and the product m
 
 ## Decision 1: Reviewer Type
 
-**Decision.** The operator is the only reviewer during Track A validation.
+**Decision.** The operator is the only reviewer during the review-validation slice.
 
-The operator already runs the moderated completion tests in `docs/plans/resume-builder-validation.md`, already sees each participant's resume in that session, and is the person who must read the failure points.
+The operator runs the moderated sessions in `docs/notes/2026-09-02-moderated-completion-test-protocol.md` and is the person who must read each review failure point.
 A second reviewer role would add a recruiting problem, a quality-control problem, and a consent question before there is any evidence that review changes resume usefulness.
 
 Rejected alternatives:
@@ -77,11 +80,12 @@ These took effect on 2026-09-03.
 The condition was that a participant can leave and return to a saved draft, and the draft-continuity prerequisite below closed with PR #5.
 
 Review returned inside the moderated session still has no turnaround to measure, so the numbers bind only where a request and its return are separated.
-Which of the two a session uses is part of the sequencing decision in `docs/notes/2026-09-02-moderated-completion-test-protocol.md`, not a reason to leave the commitment unstated: the target has to be stated before the person requests a review, and by then the session already knows which it is.
+The later review sessions can return feedback in the same sitting or after the participant leaves.
+In both cases, the target must be stated before the person requests a review.
 
 ## Decision 4: Payment Model
 
-**Decision.** Review is free during Track A validation, for every participant, with no future-payment commitment stated or implied.
+**Decision.** Review is free during the review-validation slice, for every participant, with no future-payment commitment stated or implied.
 
 `docs/specs/initial-product-scope.md` states the revenue hypothesis as a restaurant profile or job-posting fee, and states that culinary professionals do not pay.
 Charging a culinary professional for review would contradict that hypothesis and would test pricing before the underlying value is demonstrated.
@@ -93,8 +97,9 @@ Do not present review as a trial of a paid feature, and do not collect payment d
 Review is the first workflow that requires resume content to leave the device.
 It therefore needs its own boundary, and that boundary must not weaken the one in `docs/specs/initial-product-scope.md`.
 
-This path does not run until the consent script covers it.
-`docs/notes/2026-09-02-moderated-completion-test-protocol.md` drafts the four consent items for the export, its channel, its deletion, and the option to strip identity fields; they are not approved yet, and the review phase stays off until they are.
+The operator approved consent items 12 to 15 in `docs/notes/2026-09-02-moderated-completion-test-protocol.md` on 2026-09-07.
+Those items cover the export, its channel, its deletion, and the identity-free review copy.
+They apply only when the separate review validation begins after Track A passes.
 
 Rules for the validation slice:
 
@@ -102,7 +107,7 @@ Rules for the validation slice:
 - The person sends that export to the operator through a channel the person already controls and chooses.
 - The application does not upload the resume, does not transmit it to a review service, and does not gain a server-side review store.
 - The original source document is never part of a review request, and the reviewer never asks for it.
-- The person removes the identity and contact fields from the export before sending it. Review works without them, so removal is the default rather than an option the person has to think of.
+- The product removes the identity and contact fields from the review export before the person sends it. Review works without them, so removal is the default rather than an option the person has to think of.
 - The operator deletes the received export **as soon as the review is returned**, which is what consent item 13 promises, and records that deletion date in the review queue entry.
   This is not the 90-day point that `docs/notes/2026-09-02-founding-cohort-interview-guides.md` sets for research notes. A resume export is the participant's own document, not a coded note, and it is deleted on completion rather than on that schedule.
 - Deletion covers the operator's local copy **and** the message thread on whichever channel carried it. A deletion that leaves the file in a chat history has not happened.
@@ -175,7 +180,8 @@ Review is therefore no longer restricted to a single sitting on that ground.
 
 **Satisfied on 2026-09-03 by PR #8.**
 
-The data boundary requires the participant to remove identity and contact fields before sending the export, and consent item 14 asks them to.
+The data boundary requires identity and contact fields to be absent before the participant sends the export.
+The earlier consent draft assigned that removal to the participant.
 The build could not do it: `getEnrichmentErrors` in `app/resume-model.mts` rejects an empty name, so a resume without one could not reach preview, and the print sheet in `app/page.tsx` always rendered `identity.name`.
 Removing the name to satisfy the boundary therefore removed the participant's ability to produce the export at all.
 
@@ -197,8 +203,8 @@ This milestone passes when all of the following hold:
 - No returned review contains a fact that the person did not supply.
 - Every accepted change was applied by the person, in their own resume, and no accepted change altered an imported employer name or qualification date.
 - At least 5 participants request a review after completing a resume.
-  The review phase of `docs/notes/2026-09-02-moderated-completion-test-protocol.md` is where this count would be produced, and that phase is off until the operator decides whether review runs in parallel with the Track A sessions or after them.
-  `docs/plans/resume-builder-validation.md` step 4 currently sequences it after, so this gate has no run path until that decision is made.
+  The review phase of `docs/notes/2026-09-02-moderated-completion-test-protocol.md` produces this count with a fresh participant pool after Track A passes.
+  Track A participants are not offered review during their completion-test sessions.
 - At least 3 of those participants change their resume after reading the feedback.
 - No participant reports that the review made a claim they could not stand behind.
 
@@ -222,6 +228,7 @@ Do not build these for the validation slice:
 | Decision | State |
 | --- | --- |
 | Draft continuity mechanism for asynchronous review | Resolved 2026-09-03 — browser-local `localStorage` persistence with an explicit restore, PR #5. Covers one device; see the prerequisite section above. |
+| Review validation sequence | Resolved 2026-09-07 — run review with a fresh participant pool after Track A passes. |
 | Whether review remains free after Track A | `[UNKNOWN]` — depends on the Track A outcome and the Track B revenue hypothesis. |
 | Reviewer type after validation | `[UNKNOWN]` — reconsider only with evidence that review changed resume usefulness. |
-| Consent wording for sending a resume export to the operator | Drafted as items 12 to 15 of the consent script in `docs/notes/2026-09-02-moderated-completion-test-protocol.md`, awaiting approval alongside the sequencing decision. `docs/plans/resume-builder-validation.md` step 3 has no consent step, which is why the wording lives in the protocol. |
+| Consent wording for sending a resume export to the operator | Resolved 2026-09-07 — items 12 to 15 of the consent script are approved for the separate review validation. |

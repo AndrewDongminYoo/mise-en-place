@@ -84,6 +84,8 @@ Before each moderated Track A session, confirm these conditions:
 ## Step 3: Run Moderated Completion Tests
 
 Run the workflow with 10 culinary professionals.
+Run these Track A sessions without the resume-review phase.
+The operator selected the plan's existing sequence on 2026-09-07: reconcile the Track A gate before the separate review validation begins.
 Observe where each participant stops, needs help, changes an imported field, or cannot describe a culinary-career detail.
 Do not add a field because one participant requests it.
 Add or promote a structured field only when repeated evidence shows that it affects completion or resume usefulness.
@@ -103,7 +105,8 @@ Verify this step by reconciling all 10 participant outcomes against the Track A 
 
 ## Step 4: Decide the Next Slice
 
-If the Track A gate passes, plan the smallest production resume-authoring slice and specify the required resume-review workflow.
+If the Track A gate passes, plan the smallest production resume-authoring slice and run the separately approved resume-review workflow with a fresh participant pool.
+Use the review gate in `docs/specs/resume-review-workflow.md` and the approved consent items in `docs/notes/2026-09-02-moderated-completion-test-protocol.md`.
 Define a consented profile return, withdrawal, and deletion flow before enabling server-side talent-pool persistence.
 
 If the gate does not pass, use the observed failure point to decide whether to revise the questions, remove document import, or stop.

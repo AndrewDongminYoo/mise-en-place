@@ -12,7 +12,8 @@ This document owns the session structure, the consent, the help ladder, the obse
 It does not restate the record list or the gate numbers.
 Read it with both documents above open.
 
-This is a working protocol, not an approved specification.
+This is a working protocol, not a specification.
+The operator approved the review sequence and consent items 12 to 15 on 2026-09-07.
 Revise it after the first session if a definition proves unobservable.
 
 ## The Constraint This Protocol Operates Under
@@ -21,7 +22,7 @@ This section described a prototype that held the resume in page state only, wher
 That stopped being true on 2026-09-03: the confirmed record is written to `localStorage` and restored on an explicit action, so a participant returning on the same device and browser keeps their draft.
 `docs/specs/resume-review-workflow.md` section "Prerequisite: Draft Continuity" records the mechanism.
 
-**Every session is still a single sitting.** Storage was one reason for that rule and is no longer one, but the rule is an operating decision this protocol reserves to the operator rather than a consequence of the gap, and the remaining reasons are unchanged: one moderator, one room, and a 60 to 75 minute block.
+**Every Track A session is still a single sitting.** Storage was one reason for that rule and is no longer one, but the rule is an operating decision this protocol reserves to the operator rather than a consequence of the gap, and the remaining reasons are unchanged: one moderator, one room, and a 60-minute block.
 Change it deliberately if a session needs it, not because this paragraph stopped applying.
 
 What did change is the artifact. The printed or exported output produced in the room is no longer the *only* thing a participant leaves with, because the draft survives on their own device.
@@ -67,20 +68,17 @@ It states:
 10. 중단과 삭제: 언제든 그만두실 수 있고, 그 전에도 기록 삭제를 요청하실 수 있습니다.
 11. 보상 여부: 있으면 그 내용, 없으면 없다는 사실.
 
-When the review phase below is enabled, these items are read as well, before the review is offered:
+In the later review validation, read these items before review is offered:
 
 12. 검토를 원하시면 완성된 이력서를 직접 내보내서, 원하시는 방법으로 저에게 보내주시게 됩니다. 앱이 자동으로 보내는 것은 없습니다.
 13. 보내주신 이력서는 검토가 끝나면 삭제하고, 삭제한 날짜를 기록합니다. 주고받은 대화방에 남은 파일도 함께 지웁니다.
-14. 보내실 때 이름과 연락처는 지우고 보내주세요. 검토에는 지장이 없고, 저에게 남는 정보를 줄이기 위한 것입니다.
+14. 검토용 이력서에는 앱이 이름과 연락처를 넣지 않습니다. 검토에 필요하지 않은 정보를 저에게 남기지 않기 위한 것입니다.
 15. 검토를 받지 않으셔도 오늘 참여에는 아무 영향이 없습니다.
 
-Items 12 to 15 are drafted here and are not approved.
-The export path item 14 depends on landed on 2026-09-03; see the identity-free export prerequisite in `docs/specs/resume-review-workflow.md`.
-Consent and the sequencing decision are what remain.
-
-Item 14's wording is worth a second look at approval time. It asks the participant to remove their name and contact details, and the product now removes them, which is what the review data boundary requires: "removal is the default rather than an option the person has to think of." Wording that asks for it can be read as making it theirs to remember. Rewriting a consent item is not this note's call.
-They exist because `docs/specs/resume-review-workflow.md` opens a path that sends resume content to the operator while leaving its consent wording undefined, which would take a transfer the participant never agreed to.
-Do not enable the review phase until these are approved together with the sequencing decision.
+The operator approved items 12 to 15 on 2026-09-07 for the separate review validation that follows a passing Track A gate.
+Item 14 states that the application removes identity and contact fields instead of asking the participant to remember that step.
+This wording matches the identity-free export prerequisite in `docs/specs/resume-review-workflow.md`.
+Do not read these items or offer review during Track A completion-test sessions.
 
 Item 5 is the one exception to the anonymization rules, and it exists because the day-14 follow-up below cannot otherwise happen.
 Keep the contact detail with the identifier mapping, outside this repository, and delete it as soon as the follow-up is answered or the attempt is abandoned.
@@ -110,7 +108,7 @@ The consent promises that the document does not leave the machine, which says no
 
 ## Session Structure
 
-One participant, one moderator, one sitting: 60 minutes, or 75 when the participant accepts a review.
+One participant, one moderator, one sitting: 60 minutes.
 
 | Phase | Minutes | What happens |
 | --- | --- | --- |
@@ -120,24 +118,17 @@ One participant, one moderator, one sitting: 60 minutes, or 75 when the particip
 | Post-task questions | 10 | Threshold questions below, in the fixed order given. |
 | Talent-pool choice | 5 | Observed, not asked about, until it has been made. |
 | Debrief | 5 | Open questions, then explain the product if they ask. |
-| Review offer | 15 | **Only if the operator has enabled it; see below.** Offer a review, and run it in this sitting if the participant accepts. |
 
-The review phase is why the session may run to 75 minutes, and it is off until the operator turns it on.
-
-`docs/plans/resume-builder-validation.md` step 4 places specifying the resume-review workflow **after** the Track A gate passes, and the Track A gate contains no review item at all.
-Running review inside step 3 therefore changes the approved sequence, and that is the operator's decision rather than this protocol's.
-What has already changed is that the review workflow was specified and approved on 2026-09-02, ahead of the point the plan schedules it, so the sequence has diverged from the plan once already.
-
-The mechanism is written down here because `docs/specs/resume-review-workflow.md` restricted review to moderated sessions while draft continuity was open, which left its gate with no other session to occur in. That restriction lifted on 2026-09-03, so an asynchronous review is now possible; whether to use one is part of the same sequencing decision below.
-It is not run on that reasoning alone.
-Before the first session, decide one of:
-
-- Run review in parallel, and update `docs/plans/resume-builder-validation.md` step 4 and the Track A gate so the sequence and the counts match what is actually being run.
-- Leave review until after the Track A gate, as the plan currently sequences it, and run these sessions without the phase. The review gate then needs its own later sessions and a fresh participant pool.
-
-Whichever is chosen, review outcomes never count toward the three Track A thresholds.
-Those belong to the gate in `docs/specs/initial-product-scope.md`, which does not mention review, and mixing them would change what the gate measures.
-Offer the review, do not schedule it: the participant asks or does not, and either answer is the measurement.
+The review phase does not run during these Track A sessions.
+The operator selected the plan's existing sequence on 2026-09-07.
+First, run and reconcile the Track A gate.
+If Track A passes, run the review gate with a fresh participant pool.
+Read consent items 12 to 15 before review is offered in those later sessions.
+The later review cohort adds a 15-minute review offer after the debrief.
+If the participant accepts, they create and send the identity-free review copy in that sitting.
+The operator can return feedback in that sitting or within the stated response target.
+Offer the review instead of scheduling it: the participant asks for it or does not, and either answer is the measurement.
+Review outcomes never count toward the three Track A thresholds.
 
 The task instruction is exactly this, and nothing more:
 
@@ -294,7 +285,7 @@ One line per field the participant could not answer, with what they said while s
 - Completed:  (yes / partial / no), with the highest help level used
 - Intent, verbatim:
 - Talent-pool selection:  (time taken, re-read yes/no, reason if unprompted)
-- Review requested:  (yes / no), and whether it ran in this sitting
+- Review requested: not offered — sequenced after Track A
 
 ## Follow-up (day 14)
 
@@ -340,7 +331,7 @@ Report alongside it, because each one changes how the counts should be read:
 
 - How many completions needed help at level 4.
 - How many sessions were partial because of demo data or a level-5 intervention.
-- How many participants requested a review, which is the count `docs/specs/resume-review-workflow.md` reads for its own gate.
+- Confirmation that review was not offered during Track A because its validation runs after this gate.
 - How many participants reached preview but produced no output.
 - How many follow-ups went unanswered.
 - Which fields blocked completion for more than one participant.
