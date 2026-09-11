@@ -1,0 +1,6 @@
+/.samples/
+*.[pP][dD][fF]
+.env*
+*.pem
+/docs/notes/interview-*.md
+/docs/notes/session-*.md
