@@ -2213,6 +2213,10 @@ button:disabled {
     margin: 0;
   }
 
+  .preview-stack {
+    animation: none;
+  }
+
   .resume-sheet {
     width: 100%;
     min-height: 0;
