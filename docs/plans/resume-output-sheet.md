@@ -2231,3 +2231,14 @@ Arm the review watch the skill describes before reporting the PR as open.
 **Placeholder scan:** the `<…>` markers in Task 6 are fields for measured values from the run, each named. No other placeholders remain.
 
 **Type consistency:** `CareerSummary`, `SUMMARY_LIMITS`, `summarizeIncludedCareers(entries, { today })`, `formatDuration`, `hasPublicRecordBadge`, `RESUME_SHEET_COPY`, `ResumeDraft.showCareerSummary`, and the `ResumeSheet` props carry the same names in every task that uses them.
+
+## Reconciliation (2026-09-19)
+
+- Task 1 Step 0: the controller created the branch through the harness worktree tool (branch created as `worktree-resume-output-sheet` and renamed to `feat/resume-output-sheet`) and committed the spec and the plan as `9fdf4b5` before the first implementer ran.
+- Task 4 Step 7: the shipped `dt` labels use `letter-spacing: 0.04em` and the caption `0.03em` instead of the plan's `0.08em` and `0.06em` (commit `fef85f8`), because the visual check showed Hangul labels in the monospace label face too airy at the spacing the English `Station` labels had used.
+- Task 4 also installed `playwright` and Chromium ahead of Task 5, for the visual check; Task 5 committed the manifest and lockfile (`060c18d`).
+- Task 5 Step 2: the `--falsify` run writes its PDFs under `.print-verify/falsified/` (commit `e22394c`), because the plan's two-run sequence overwrote the real PDFs with the transparent-sheet ones.
+- Task 4 Step 7 item 7 / print rules: the `@media print` `break-inside: avoid` list no longer contains `.resume-section` and names `.resume-summary-band` and `.resume-summary` instead (commit `74cbb56`), because the section-wide rule moved the whole `경력` section to page 2 whenever it did not fit, leaving page 1 more than half blank in `long.pdf` (recorded in `docs/notes/2026-09-19-resume-print-verification.md`).
+- Task 6 Step 2 (sending the PDFs) was done by the controller with `SendUserFile`; the implementer wrote the note.
+
+The code on the branch and the verification note are the authority where they differ from the steps above.

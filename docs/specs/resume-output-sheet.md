@@ -3,7 +3,7 @@
 ## Status
 
 The operator approved the design in chat on 2026-09-18 and this specification on 2026-09-19.
-Not implemented yet.
+Implemented on the `feat/resume-output-sheet` branch; the pull request number is added here when it opens.
 
 This document defines the next resume-tool slice: the printed resume sheet.
 It adds a derived career summary band, replaces the repeated provenance tags on the sheet with one public-record badge and one legend, restructures each career entry, and adds a repeatable print verification.
@@ -248,6 +248,7 @@ The script accepts a `--falsify` flag.
 With the flag, the script injects `@media print { .resume-sheet { opacity: 0; } }` with `addStyleTag` before it prints.
 That run must fail the ink check on every case.
 It proves that the check reads the rendered page and not only the text layer.
+The falsified run writes its PDFs under `.print-verify/falsified/`, so the real PDFs from the normal run stay in place.
 
 ### Cases
 
