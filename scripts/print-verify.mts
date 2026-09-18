@@ -31,6 +31,10 @@ import {
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const OUTPUT_DIR = path.join(ROOT, ".print-verify");
+// The falsified run makes every sheet transparent, so its PDFs are
+// near-blank. Writing them under a separate directory keeps the normal
+// run's real PDFs on disk after the brief's two-run sequence.
+const FALSIFIED_OUTPUT_DIR = path.join(OUTPUT_DIR, "falsified");
 const PDFJS_BUILD = path.join(ROOT, "node_modules/pdfjs-dist/build");
 // Set from the first measured run (Task 5, Step 4): well below the lowest
 // ratio a real sheet printed, and well above what a transparent sheet
@@ -299,8 +303,10 @@ async function printCase(
     );
   }
 
+  const targetDir = falsify ? FALSIFIED_OUTPUT_DIR : OUTPUT_DIR;
+
   return page.pdf({
-    path: path.join(OUTPUT_DIR, `${testCase.name}.pdf`),
+    path: path.join(targetDir, `${testCase.name}.pdf`),
     format: "A4",
     preferCSSPageSize: true,
     printBackground: false,
@@ -463,6 +469,10 @@ async function main() {
 
   await mkdir(OUTPUT_DIR, { recursive: true });
 
+  if (falsify) {
+    await mkdir(FALSIFIED_OUTPUT_DIR, { recursive: true });
+  }
+
   const port = await getFreePort();
   const baseUrl = `http://127.0.0.1:${port}`;
   const server = spawn(
@@ -517,7 +527,7 @@ async function main() {
 
   console.log(
     falsify
-      ? `\nFalsified run: the ink check failed on all ${CASES.length} cases, as it must.`
+      ? `\nFalsified run: the ink check failed on all ${CASES.length} cases, as it must. PDFs are in ${FALSIFIED_OUTPUT_DIR}.`
       : `\nAll checks passed for ${CASES.length} cases. PDFs are in ${OUTPUT_DIR}.`,
   );
 }
