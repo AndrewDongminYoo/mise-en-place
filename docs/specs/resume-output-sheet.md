@@ -5,7 +5,7 @@
 The operator approved the design in chat on 2026-09-18 and this specification on 2026-09-19.
 Implemented on the `feat/resume-output-sheet` branch; the pull request number is added here when it opens.
 
-This document defines the next resume-tool slice: the printed resume sheet.
+This document defines the resume-tool slice that strengthens the printed resume sheet.
 It adds a derived career summary band, replaces the repeated provenance tags on the sheet with one public-record badge and one legend, restructures each career entry, and adds a repeatable print verification.
 The product boundary, the provenance labels, and the privacy boundary stay as `docs/specs/initial-product-scope.md` defines them.
 This slice changes no field in steps 1 to 3 and no rule in the Track A gate.
@@ -226,7 +226,7 @@ New classes in `app/globals.css`: `.resume-summary-band`, `.resume-summary-capti
 
 The script:
 
-1. Builds the application with `pnpm build` and starts `next start` on a free port.
+1. Builds the application with `pnpm build`, unless `--skip-build` is passed, and starts `next start` on a free port.
 2. Opens a Chromium page.
 3. Uses `addInitScript` to write a fixture draft to `localStorage` under `RESUME_DRAFT_STORAGE_KEY` and to replace `window.print` with a function that sets `window.__printRequested = true`.
    The print handlers wait for the sheet's images before they call `window.print`, so the flag is the only signal that a handler finished.
@@ -274,6 +274,7 @@ No image file is committed.
   The threshold is measured, not assumed: the first run records the lowest ratio a real sheet printed and the highest ratio the `--falsify` run printed, and the constant sits between them with a margin of at least three times on each side.
 - Every PDF has text on page 1.
 - The sheet DOM holds the expected number of `img.resume-profile-photo` elements when the print snapshot is taken: one for `photos`, none for every other case, including `photos-review`.
+- The sheet DOM holds the expected number of `.public-record-badge` elements when the print snapshot is taken: one for the cases whose fixture has a document record, none for the others.
 - `review.pdf` and `photos-review.pdf` contain none of the fixture name, email, or phone.
 - `demo.pdf`, `long.pdf`, `photos.pdf`, and `review.pdf` contain `한눈에 보기`.
 - `no-summary.pdf` does not contain `한눈에 보기`.

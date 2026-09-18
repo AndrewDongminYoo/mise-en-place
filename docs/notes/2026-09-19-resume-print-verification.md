@@ -3,9 +3,11 @@
 ## Run
 
 - Date: 2026-09-19
-- Commit: `74cbb56`
+- Commit: `8f826fa`
 - Command: `pnpm print:verify`, then `pnpm print:verify -- --skip-build --falsify`
 - Browser: Chromium installed by `pnpm exec playwright install chromium` (`Chrome Headless Shell 153.0.8010.12 (playwright chromium-headless-shell v1243)`), Playwright `1.63.0` (`pnpm exec playwright --version`)
+
+Both runs, the normal and the falsified, were made at this commit.
 
 ## Automated Checks
 
@@ -39,3 +41,5 @@ The cause was `break-inside: avoid` on `.resume-section` in `app/globals.css`, w
 Fixed in `74cbb56` by dropping `.resume-section` from that selector and adding `.resume-summary-band` and `.resume-summary` by name, so only individual careers (via the pre-existing `.resume-career` rule) and the two small header sections are kept intact, letting the career list start filling page 1 again.
 
 No PDF or screenshot is committed. The PDFs stay under `.print-verify/`, which `.gitignore` excludes.
+
+The earlier record's falsified figures came from a build before `74cbb56` and were re-taken here.
