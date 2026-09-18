@@ -451,6 +451,11 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error && error.message ? error.message : fallback;
 }
 
+function readCurrentMonth(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
 function toDisplayPhotoAsset(asset: LocalPhotoAsset): DisplayPhotoAsset {
   return { ...asset, objectUrl: URL.createObjectURL(asset.blob) };
 }
@@ -469,12 +474,11 @@ export default function Home() {
   const [talentPoolChoice, setTalentPoolChoice] =
     useState<TalentPoolChoice>("resume-only");
   const [showCareerSummary, setShowCareerSummary] = useState(true);
-  // The summary band ends a current career at this month. A lazy initializer
-  // reads the clock once, which keeps the render itself pure.
-  const [currentMonth] = useState(() => {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  });
+  // The summary band ends a current career at this month. The clock is read
+  // outside render, once at mount and again whenever the preview is entered
+  // or printed, so a tab left open across a month boundary does not print
+  // last month's tenure.
+  const [currentMonth, setCurrentMonth] = useState(readCurrentMonth);
   const [errors, setErrors] = useState<string[]>([]);
   const [fileNotice, setFileNotice] = useState<{
     tone: "neutral" | "error";
@@ -684,7 +688,10 @@ export default function Home() {
   }
 
   async function printResume() {
-    flushSync(() => setIsReviewExport(false));
+    flushSync(() => {
+      setCurrentMonth(readCurrentMonth());
+      setIsReviewExport(false);
+    });
 
     if (!(await prepareResumeImagesForPrint())) {
       return;
@@ -709,7 +716,10 @@ export default function Home() {
     }
 
     window.addEventListener("afterprint", restore);
-    flushSync(() => setIsReviewExport(true));
+    flushSync(() => {
+      setCurrentMonth(readCurrentMonth());
+      setIsReviewExport(true);
+    });
 
     if (!(await prepareResumeImagesForPrint())) {
       window.removeEventListener("afterprint", restore);
@@ -1349,6 +1359,7 @@ export default function Home() {
     setErrors(nextErrors);
 
     if (nextErrors.length === 0) {
+      setCurrentMonth(readCurrentMonth());
       moveToStep(4);
     }
   }
