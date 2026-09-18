@@ -3,7 +3,7 @@
 ## Run
 
 - Date: 2026-09-19
-- Commit: `8f826fa`
+- Commit: `5b4767e`
 - Command: `pnpm print:verify`, then `pnpm print:verify -- --skip-build --falsify`
 - Browser: Chromium installed by `pnpm exec playwright install chromium` (`Chrome Headless Shell 153.0.8010.12 (playwright chromium-headless-shell v1243)`), Playwright `1.63.0` (`pnpm exec playwright --version`)
 
@@ -40,6 +40,9 @@ Before the fix in `74cbb56`, `long.pdf` page 1 held only the header, the career-
 The cause was `break-inside: avoid` on `.resume-section` in `app/globals.css`, which grouped the entire career section (its `경력` heading plus all six career entries) as one indivisible block, so the whole block moved to page 2 whenever it could not fit as a unit.
 Fixed in `74cbb56` by dropping `.resume-section` from that selector and adding `.resume-summary-band` and `.resume-summary` by name, so only individual careers (via the pre-existing `.resume-career` rule) and the two small header sections are kept intact, letting the career list start filling page 1 again.
 
-No PDF or screenshot is committed. The PDFs stay under `.print-verify/`, which `.gitignore` excludes.
+The earlier record's falsified figures came from a build before `74cbb56` and were re-taken at `8f826fa`.
 
-The earlier record's falsified figures came from a build before `74cbb56` and were re-taken here.
+PR #12 review found that `page.tsx` read the current month once at mount, so a tab left open across a month boundary would print a current career one month short; `5b4767e` re-reads the month when the preview is entered or printed.
+Both runs were repeated at `5b4767e` with the same page counts and ratios as the table, which is expected because the fixtures do not span a month boundary.
+
+No PDF or screenshot is committed. The PDFs stay under `.print-verify/`, which `.gitignore` excludes.
