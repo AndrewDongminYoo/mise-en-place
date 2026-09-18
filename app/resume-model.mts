@@ -1312,3 +1312,25 @@ export function hasPublicRecordBadge(entry: CareerEntry): boolean {
     entry.qualificationEnd === entry.importedFields.qualificationEnd
   );
 }
+
+/**
+ * Every string the printed sheet adds on its own. The verification script
+ * checks the PDFs against these, so they live here rather than in the
+ * component, which Node cannot import.
+ */
+export const RESUME_SHEET_COPY = {
+  summaryTitle: "한눈에 보기",
+  summaryCaption: "포함된 경력에서 정리함",
+  durationPrefix: "주방 경력",
+  stationsLabel: "맡을 수 있는 스테이션",
+  skillsLabel: "기술",
+  equipmentLabel: "장비",
+  dutiesLabel: "주요 업무",
+  entryStationsLabel: "스테이션",
+  entryKitchenLabel: "기술·장비",
+  badgeLabel: "공공기록",
+  badgeTitle: "사업장명을 공공기록에서 불러옴",
+  legendWithBadge:
+    "✓ 표시가 있는 사업장명은 공공기록에서 불러왔습니다. 레스토랑명·근무 기간·직책은 본인이 확인했고, 그 외 내용은 본인이 작성했습니다.",
+  legendWithoutBadge: "모든 내용은 본인이 작성했습니다.",
+} as const;

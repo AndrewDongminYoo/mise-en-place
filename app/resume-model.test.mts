@@ -21,6 +21,7 @@ import {
   parseResumeDraft,
   removeCareerPhotoReference,
   removeMissingPhotoReferences,
+  RESUME_SHEET_COPY,
   selectCareerResumePhoto,
   serializeResumeDraft,
   summarizeIncludedCareers,
@@ -913,4 +914,12 @@ test("shows the public-record badge only on an unchanged document record", () =>
   assert.equal(hasPublicRecordBadge(demo), true);
   assert.equal(hasPublicRecordBadge(manual), false);
   assert.equal(hasPublicRecordBadge(edited), false);
+});
+
+// The badge and the legend name a source. `docs/specs/initial-product-scope.md`
+// forbids wording that reads as a certification of the career.
+test("keeps certification wording out of the sheet copy", () => {
+  for (const text of Object.values(RESUME_SHEET_COPY)) {
+    assert.equal(text.includes("인증"), false, text);
+  }
 });
