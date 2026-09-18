@@ -269,7 +269,7 @@ async function printCase(
   page: Page,
   testCase: Case,
   falsify: boolean,
-): Promise<Buffer> {
+): Promise<{ pdf: Buffer; profilePhotos: number; badges: number }> {
   await page.getByRole("button", { name: "이력서 미리보기" }).click();
   await page.locator(".resume-sheet").waitFor();
 
@@ -292,25 +292,26 @@ async function printCase(
   );
 
   // The print snapshot is taken from this DOM, so count the profile photo
-  // here: the review copy must have dropped it before the print call.
+  // and the badge here: the review copy must have dropped the photo before
+  // the print call, and the sheet is transparent rather than removed under
+  // `--falsify`, so both counts stay meaningful in that mode too.
   const profilePhotos = await page
     .locator(".resume-sheet img.resume-profile-photo")
     .count();
-
-  if (profilePhotos !== testCase.expectProfilePhotos) {
-    throw new Error(
-      `${testCase.name}: expected ${testCase.expectProfilePhotos} profile photo(s) in the sheet, found ${profilePhotos}`,
-    );
-  }
+  const badges = await page
+    .locator(".resume-sheet .public-record-badge")
+    .count();
 
   const targetDir = falsify ? FALSIFIED_OUTPUT_DIR : OUTPUT_DIR;
 
-  return page.pdf({
+  const pdf = await page.pdf({
     path: path.join(targetDir, `${testCase.name}.pdf`),
     format: "A4",
     preferCSSPageSize: true,
     printBackground: false,
   });
+
+  return { pdf, profilePhotos, badges };
 }
 
 async function inspectPdf(page: Page, pdf: Buffer): Promise<Inspection> {
@@ -392,10 +393,25 @@ function check(
 function assessCase(
   testCase: Case,
   inspection: Inspection,
+  counts: { profilePhotos: number; badges: number },
   falsify: boolean,
   failures: string[],
 ) {
   const ink = inspection.inkRatio.toFixed(4);
+
+  check(
+    failures,
+    counts.profilePhotos === testCase.expectProfilePhotos,
+    `${testCase.name}: expected ${testCase.expectProfilePhotos} profile photo(s) in the sheet, found ${counts.profilePhotos}`,
+  );
+
+  const expectedBadges = testCase.expectBadge ? 1 : 0;
+
+  check(
+    failures,
+    counts.badges === expectedBadges,
+    `${testCase.name}: expected ${expectedBadges} badge(s) in the sheet, found ${counts.badges}`,
+  );
 
   if (falsify) {
     check(
@@ -480,6 +496,9 @@ async function main() {
     ["exec", "next", "start", "--hostname", "127.0.0.1", "--port", String(port)],
     { cwd: ROOT, stdio: ["ignore", "ignore", "inherit"] },
   );
+  server.on("error", (error) => {
+    console.error(`next start could not be spawned: ${error.message}`);
+  });
   let browser: Browser | null = null;
   const failures: string[] = [];
 
@@ -498,13 +517,13 @@ async function main() {
           await uploadPhotos(page);
         }
 
-        const pdf = await printCase(page, testCase, falsify);
+        const { pdf, profilePhotos, badges } = await printCase(page, testCase, falsify);
         const inspection = await inspectPdf(page, pdf);
 
         console.log(
           `${testCase.name}: ${inspection.pageCount} page(s), ink ${inspection.inkRatio.toFixed(4)}`,
         );
-        assessCase(testCase, inspection, falsify, failures);
+        assessCase(testCase, inspection, { profilePhotos, badges }, falsify, failures);
       } finally {
         await context.close();
       }
