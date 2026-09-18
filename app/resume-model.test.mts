@@ -910,10 +910,16 @@ test("shows the public-record badge only on an unchanged document record", () =>
   const [demo] = createDemoCareerEntries();
   const manual = createBlankCareerEntry("manual");
   const edited: CareerEntry = { ...demo, legalEmployer: "다른 법인" };
+  const emptyEmployer: CareerEntry = {
+    ...demo,
+    legalEmployer: "",
+    importedFields: { ...demo.importedFields!, legalEmployer: "" },
+  };
 
   assert.equal(hasPublicRecordBadge(demo), true);
   assert.equal(hasPublicRecordBadge(manual), false);
   assert.equal(hasPublicRecordBadge(edited), false);
+  assert.equal(hasPublicRecordBadge(emptyEmployer), false);
 });
 
 // The badge and the legend name a source. `docs/specs/initial-product-scope.md`

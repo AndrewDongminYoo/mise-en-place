@@ -1298,8 +1298,9 @@ export function formatDuration(totalMonths: number): string {
 
 /**
  * The sheet marks an employer name that still reads exactly as the public
- * record supplied it. Step 2 does not let the person edit those fields on a
- * document record, so the comparison is defensive rather than reachable.
+ * record supplied it, and only when that employer name is present. Step 2
+ * does not let the person edit those fields on a document record, so the
+ * comparison is defensive rather than reachable.
  */
 export function hasPublicRecordBadge(entry: CareerEntry): boolean {
   if (entry.origin !== "document" || entry.importedFields === null) {
@@ -1307,6 +1308,7 @@ export function hasPublicRecordBadge(entry: CareerEntry): boolean {
   }
 
   return (
+    entry.legalEmployer !== "" &&
     entry.legalEmployer === entry.importedFields.legalEmployer &&
     entry.qualificationStart === entry.importedFields.qualificationStart &&
     entry.qualificationEnd === entry.importedFields.qualificationEnd
