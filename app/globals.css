@@ -2355,7 +2355,8 @@ button:disabled {
   }
 
   .resume-career,
-  .resume-section,
+  .resume-summary-band,
+  .resume-summary,
   .resume-career-photo,
   .resume-legend {
     break-inside: avoid;
