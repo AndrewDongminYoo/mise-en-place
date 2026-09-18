@@ -3,7 +3,7 @@
 ## Status
 
 The operator approved the design in chat on 2026-09-18 and this specification on 2026-09-19.
-Implemented on the `feat/resume-output-sheet` branch; the pull request number is added here when it opens.
+Implemented by PR #12.
 
 This document defines the resume-tool slice that strengthens the printed resume sheet.
 It adds a derived career summary band, replaces the repeated provenance tags on the sheet with one public-record badge and one legend, restructures each career entry, and adds a repeatable print verification.
