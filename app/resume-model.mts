@@ -645,6 +645,7 @@ export type ResumeDraft = {
   identity: ResumeIdentity;
   isDemoDraft: boolean;
   talentPoolChoice: TalentPoolChoice;
+  showCareerSummary: boolean;
 };
 
 export function collectReferencedPhotoIds(draft: ResumeDraft): string[] {
@@ -759,6 +760,7 @@ export function serializeResumeDraft(draft: ResumeDraft): string {
     },
     isDemoDraft: draft.isDemoDraft,
     talentPoolChoice: draft.talentPoolChoice,
+    showCareerSummary: draft.showCareerSummary,
   });
 }
 
@@ -1089,10 +1091,15 @@ export function parseResumeDraft(raw: string | null): ResumeDraft | null {
 
   const identity = readIdentity(value.identity, draftVersion);
   const talentPoolChoice = readString(value.talentPoolChoice);
+  // A draft written before the summary toggle existed carries no field, and
+  // it restores with the band shown, which is what the toggle defaults to.
+  const showCareerSummary =
+    value.showCareerSummary === undefined ? true : value.showCareerSummary;
 
   if (
     identity === null ||
     typeof value.isDemoDraft !== "boolean" ||
+    typeof showCareerSummary !== "boolean" ||
     talentPoolChoice === null ||
     !TALENT_POOL_CHOICES.includes(talentPoolChoice as TalentPoolChoice)
   ) {
@@ -1104,6 +1111,7 @@ export function parseResumeDraft(raw: string | null): ResumeDraft | null {
     identity,
     isDemoDraft: value.isDemoDraft,
     talentPoolChoice: talentPoolChoice as TalentPoolChoice,
+    showCareerSummary,
   };
 }
 

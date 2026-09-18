@@ -492,6 +492,7 @@ export default function Home() {
   const [isDemoDraft, setIsDemoDraft] = useState(false);
   const [talentPoolChoice, setTalentPoolChoice] =
     useState<TalentPoolChoice>("resume-only");
+  const [showCareerSummary, setShowCareerSummary] = useState(true);
   const [errors, setErrors] = useState<string[]>([]);
   const [fileNotice, setFileNotice] = useState<{
     tone: "neutral" | "error";
@@ -519,8 +520,14 @@ export default function Home() {
     [storedDraftRaw],
   );
   const currentDraft = useMemo<ResumeDraft>(
-    () => ({ careers, identity, isDemoDraft, talentPoolChoice }),
-    [careers, identity, isDemoDraft, talentPoolChoice],
+    () => ({
+      careers,
+      identity,
+      isDemoDraft,
+      talentPoolChoice,
+      showCareerSummary,
+    }),
+    [careers, identity, isDemoDraft, talentPoolChoice, showCareerSummary],
   );
   const currentDraftRaw = useMemo(
     () => serializeResumeDraft(currentDraft),
@@ -729,6 +736,7 @@ export default function Home() {
     setIdentity(nextIdentity);
     setIsDemoDraft(nextIsDemo);
     setTalentPoolChoice("resume-only");
+    setShowCareerSummary(true);
     releaseDisplayedPhotoAssets();
     setHasConfirmedCareers(false);
     moveToStep(2);
@@ -796,6 +804,7 @@ export default function Home() {
       setIdentity(restoredDraft.identity);
       setIsDemoDraft(restoredDraft.isDemoDraft);
       setTalentPoolChoice(restoredDraft.talentPoolChoice);
+      setShowCareerSummary(restoredDraft.showCareerSummary);
       revokeDisplayPhotoAssets(photoAssetsRef.current);
       replaceDisplayedPhotoAssets(
         new Map(
@@ -1045,6 +1054,7 @@ export default function Home() {
       identity: nextIdentity,
       isDemoDraft,
       talentPoolChoice,
+      showCareerSummary,
     });
   }
 
@@ -2500,6 +2510,19 @@ export default function Home() {
                 보내시기 전에 확인해 주세요. 인쇄 미리보기에서 실제 결과를 먼저
                 보실 수 있습니다.
               </p>
+              <label className="summary-toggle no-print">
+                <input
+                  type="checkbox"
+                  checked={showCareerSummary}
+                  onChange={(event) =>
+                    setShowCareerSummary(event.currentTarget.checked)
+                  }
+                />
+                <span>
+                  <strong>한눈에 보기를 이력서에 표시</strong>
+                  <small>내용을 바꾸려면 3단계에서 경력을 수정하세요.</small>
+                </span>
+              </label>
 
               <article
                 className="resume-sheet"

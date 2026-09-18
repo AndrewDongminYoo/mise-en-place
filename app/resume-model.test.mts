@@ -610,6 +610,7 @@ function completeDraft(): ResumeDraft {
     identity: completeIdentity,
     isDemoDraft: false,
     talentPoolChoice: "resume-only",
+    showCareerSummary: true,
   };
 }
 
@@ -663,6 +664,7 @@ test("serializes only the confirmed draft fields", () => {
     "careers",
     "identity",
     "isDemoDraft",
+    "showCareerSummary",
     "talentPoolChoice",
     "version",
   ]);
@@ -740,6 +742,32 @@ test("leaves the resume identity it was given alone", () => {
   toReviewIdentity(identity);
 
   assert.deepEqual(identity, completeIdentity);
+});
+
+test("restores a draft saved before the summary toggle with the band shown", () => {
+  const stored = JSON.parse(serializeResumeDraft(completeDraft()));
+  delete stored.showCareerSummary;
+
+  const restored = parseResumeDraft(JSON.stringify(stored));
+
+  assert.notEqual(restored, null);
+  assert.equal(restored!.showCareerSummary, true);
+});
+
+test("discards a draft whose summary toggle is not a boolean", () => {
+  const stored = JSON.parse(serializeResumeDraft(completeDraft()));
+  stored.showCareerSummary = "yes";
+
+  assert.equal(parseResumeDraft(JSON.stringify(stored)), null);
+});
+
+test("keeps a hidden summary band through a serialize and parse round trip", () => {
+  const draft: ResumeDraft = { ...completeDraft(), showCareerSummary: false };
+
+  assert.equal(
+    parseResumeDraft(serializeResumeDraft(draft))!.showCareerSummary,
+    false,
+  );
 });
 
 function summaryCareer(overrides: Partial<CareerEntry>): CareerEntry {
