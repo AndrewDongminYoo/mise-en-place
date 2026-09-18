@@ -4,7 +4,7 @@
 
 - Date: 2026-09-19
 - Commit: `74cbb56`
-- Command: `pnpm print:verify -- --skip-build`, then `pnpm print:verify -- --skip-build --falsify`
+- Command: `pnpm print:verify`, then `pnpm print:verify -- --skip-build --falsify`
 - Browser: Chromium installed by `pnpm exec playwright install chromium` (`Chrome Headless Shell 153.0.8010.12 (playwright chromium-headless-shell v1243)`), Playwright `1.63.0` (`pnpm exec playwright --version`)
 
 ## Automated Checks
@@ -25,7 +25,8 @@ Its PDFs are written under `.print-verify/falsified/`, apart from the real ones.
 ## Visual Review
 
 - `long.pdf`: 2 pages (was 3 before the fix in `74cbb56`); 검증 레스토랑 1 and 2 now render on page 1, directly below the career-summary band and the "경력" heading; the page break falls between 검증 레스토랑 2 and 검증 레스토랑 3, between two careers rather than inside one, and page 1 is no longer left mostly blank.
-- `photos.pdf`: still 2 pages; page 1 now carries the "경력" heading as well as the header and band, but 검증 레스토랑 1 still does not fit the remaining page-1 space because its career photo makes the entry taller, so it moves as a whole to page 2 along with 검증 레스토랑 2; this is the per-entry `break-inside: avoid` on `.resume-career` working as intended (an entry too tall for the remaining space moves whole rather than splitting), not the section-wide grouping defect that affected `long.pdf`. The profile photo still sits in the header next to the name, and the career photo for 검증 레스토랑 1 on page 2 still sits below its representative sentence with the caption "검증용 접시 · 소스와 플레이팅" clearly legible.
+- `photos.pdf`: still 2 pages; page 1 now carries the "경력" heading as well as the header and band, but 검증 레스토랑 1 still does not fit the remaining page-1 space because its career photo makes the entry taller, so it moves as a whole to page 2 along with 검증 레스토랑 2; this is the per-entry `break-inside: avoid` on `.resume-career` working as intended (an entry too tall for the remaining space moves whole rather than splitting), not the section-wide grouping defect that affected `long.pdf`.
+  The profile photo still sits in the header next to the name, and the career photo for 검증 레스토랑 1 on page 2 still sits below its representative sentence with the caption "검증용 접시 · 소스와 플레이팅" clearly legible.
 - `demo.pdf`: the band's longest row (기술: 파스타·생면 · 생선 필레·손질 · 수비드) renders on a single line at this content length and stays aligned with its label column, alongside the shorter 맡을 수 있는 스테이션 and 장비 rows.
 - `demo.pdf`: the "✓ 공공기록" public-record badge and the "예시 데이터" badge render as outlined, unfilled pills, and their text stays legible against the white page background.
 - `review.pdf`: the header shows the headline "Chef de Partie" as the title in place of the name, and there is no email or phone line.
