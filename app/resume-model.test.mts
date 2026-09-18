@@ -17,6 +17,7 @@ import {
   getEnrichmentErrors,
   getImportedCareerFieldProvenance,
   getPhotoReferenceErrors,
+  hasPublicRecordBadge,
   parseResumeDraft,
   removeCareerPhotoReference,
   removeMissingPhotoReferences,
@@ -874,4 +875,14 @@ test("formats a duration in years and months", () => {
   assert.equal(formatDuration(8), "8개월");
   assert.equal(formatDuration(24), "2년");
   assert.equal(formatDuration(40), "3년 4개월");
+});
+
+test("shows the public-record badge only on an unchanged document record", () => {
+  const [demo] = createDemoCareerEntries();
+  const manual = createBlankCareerEntry("manual");
+  const edited: CareerEntry = { ...demo, legalEmployer: "다른 법인" };
+
+  assert.equal(hasPublicRecordBadge(demo), true);
+  assert.equal(hasPublicRecordBadge(manual), false);
+  assert.equal(hasPublicRecordBadge(edited), false);
 });
