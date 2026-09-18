@@ -1114,3 +1114,176 @@ export function formatMonthRange(start: string, end: string) {
 
   return `${formatMonth(start)} - ${end ? formatMonth(end) : "현재"}`;
 }
+
+export type CareerSummary = {
+  totalMonths: number;
+  specialties: string[];
+  stations: string[];
+  skills: string[];
+  equipment: string[];
+};
+
+export const SUMMARY_LIMITS = {
+  stations: 8,
+  skills: 6,
+  equipment: 6,
+} as const;
+
+function toMonthIndex(month: string): number {
+  const [year, monthOfYear] = month.split("-").map(Number);
+  return year * 12 + (monthOfYear - 1);
+}
+
+/**
+ * Counts the months covered by at least one interval. Two careers that
+ * overlap share those months, so a plain sum would credit them twice.
+ */
+function countUnionMonths(
+  intervals: ReadonlyArray<readonly [number, number]>,
+): number {
+  const sorted = [...intervals].sort((a, b) => a[0] - b[0]);
+  let total = 0;
+  let open: [number, number] | null = null;
+
+  for (const [start, end] of sorted) {
+    if (open === null) {
+      open = [start, end];
+      continue;
+    }
+
+    if (start <= open[1] + 1) {
+      open[1] = Math.max(open[1], end);
+      continue;
+    }
+
+    total += open[1] - open[0] + 1;
+    open = [start, end];
+  }
+
+  if (open !== null) {
+    total += open[1] - open[0] + 1;
+  }
+
+  return total;
+}
+
+/**
+ * Orders the union of one bounded choice across careers by how many careers
+ * carry it, then by where it first appears when careers are read from the
+ * most recent to the oldest. Within a career the person's own order holds.
+ */
+function rankChoices(
+  careersByRecency: readonly CareerEntry[],
+  pick: (career: CareerEntry) => readonly string[],
+  limit: number,
+): string[] {
+  const counts = new Map<string, number>();
+  const firstSeen = new Map<string, number>();
+  let position = 0;
+
+  for (const career of careersByRecency) {
+    const seenInCareer = new Set<string>();
+
+    for (const item of pick(career)) {
+      if (seenInCareer.has(item)) {
+        continue;
+      }
+
+      seenInCareer.add(item);
+      counts.set(item, (counts.get(item) ?? 0) + 1);
+
+      if (!firstSeen.has(item)) {
+        firstSeen.set(item, position);
+      }
+
+      position += 1;
+    }
+  }
+
+  return [...counts.keys()]
+    .sort(
+      (a, b) =>
+        counts.get(b)! - counts.get(a)! ||
+        firstSeen.get(a)! - firstSeen.get(b)!,
+    )
+    .slice(0, limit);
+}
+
+export function summarizeIncludedCareers(
+  entries: readonly CareerEntry[],
+  options: { today: string },
+): CareerSummary {
+  const included = entries.filter((entry) => entry.included);
+  const intervals: Array<readonly [number, number]> = [];
+
+  for (const entry of included) {
+    if (!MONTH_PATTERN.test(entry.employmentStart)) {
+      continue;
+    }
+
+    const end = entry.isCurrent ? options.today : entry.employmentEnd;
+
+    if (!MONTH_PATTERN.test(end)) {
+      continue;
+    }
+
+    const startIndex = toMonthIndex(entry.employmentStart);
+    const endIndex = toMonthIndex(end);
+
+    if (endIndex < startIndex) {
+      continue;
+    }
+
+    intervals.push([startIndex, endIndex]);
+  }
+
+  // `sort` is stable, so careers that share a start month keep the order of
+  // the `entries` array.
+  const byRecency = [...included].sort((a, b) =>
+    b.employmentStart.localeCompare(a.employmentStart),
+  );
+  const specialtyValues = new Set(
+    included.flatMap((entry) => entry.culinarySpecialties),
+  );
+
+  return {
+    totalMonths: countUnionMonths(intervals),
+    specialties: CULINARY_SPECIALTY_OPTIONS.filter((option) =>
+      specialtyValues.has(option.value),
+    ).map((option) => option.label),
+    stations: rankChoices(
+      byRecency,
+      (career) => career.stations,
+      SUMMARY_LIMITS.stations,
+    ),
+    skills: rankChoices(
+      byRecency,
+      (career) => career.skills,
+      SUMMARY_LIMITS.skills,
+    ),
+    equipment: rankChoices(
+      byRecency,
+      (career) => career.equipment,
+      SUMMARY_LIMITS.equipment,
+    ),
+  };
+}
+
+export function formatDuration(totalMonths: number): string {
+  if (totalMonths <= 0) {
+    return "";
+  }
+
+  const years = Math.floor(totalMonths / 12);
+  const months = totalMonths % 12;
+
+  if (years === 0) {
+    return `${months}개월`;
+  }
+
+  if (months === 0) {
+    return `${years}년`;
+  }
+
+  return `${years}년 ${months}개월`;
+}

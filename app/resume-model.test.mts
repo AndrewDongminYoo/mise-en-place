@@ -8,6 +8,7 @@ import {
   createBlankCareerEntry,
   createDemoCareerEntries,
   createImportedCareerEntries,
+  formatDuration,
   formatMonthRange,
   getCareerErrors,
   getCareerPhotoDescriptionError,
@@ -21,6 +22,8 @@ import {
   removeMissingPhotoReferences,
   selectCareerResumePhoto,
   serializeResumeDraft,
+  summarizeIncludedCareers,
+  SUMMARY_LIMITS,
   toReviewIdentity,
   toggleBoundedChoice,
   toggleCulinarySpecialty,
@@ -736,4 +739,139 @@ test("leaves the resume identity it was given alone", () => {
   toReviewIdentity(identity);
 
   assert.deepEqual(identity, completeIdentity);
+});
+
+function summaryCareer(overrides: Partial<CareerEntry>): CareerEntry {
+  return {
+    ...createBlankCareerEntry("manual"),
+    restaurantName: "요약 테스트",
+    role: "Commis",
+    ...overrides,
+  };
+}
+
+test("counts overlapping employment months once", () => {
+  const summary = summarizeIncludedCareers(
+    [
+      summaryCareer({ employmentStart: "2023-01", employmentEnd: "2023-06" }),
+      summaryCareer({ employmentStart: "2023-04", employmentEnd: "2023-12" }),
+    ],
+    { today: "2026-09" },
+  );
+
+  assert.equal(summary.totalMonths, 12);
+});
+
+test("adds adjacent employment periods", () => {
+  const summary = summarizeIncludedCareers(
+    [
+      summaryCareer({ employmentStart: "2022-01", employmentEnd: "2022-12" }),
+      summaryCareer({ employmentStart: "2023-01", employmentEnd: "2023-03" }),
+    ],
+    { today: "2026-09" },
+  );
+
+  assert.equal(summary.totalMonths, 15);
+});
+
+test("ends a current career at today", () => {
+  const summary = summarizeIncludedCareers(
+    [
+      summaryCareer({
+        employmentStart: "2026-01",
+        employmentEnd: "2020-01",
+        isCurrent: true,
+      }),
+    ],
+    { today: "2026-09" },
+  );
+
+  assert.equal(summary.totalMonths, 9);
+});
+
+test("ignores excluded careers and skips an invalid start for the duration", () => {
+  const summary = summarizeIncludedCareers(
+    [
+      summaryCareer({
+        employmentStart: "2024-01",
+        employmentEnd: "2024-12",
+        included: false,
+        stations: ["콜드 / Garde Manger"],
+      }),
+      summaryCareer({
+        employmentStart: "",
+        employmentEnd: "2024-12",
+        stations: ["핫 / Hot"],
+      }),
+    ],
+    { today: "2026-09" },
+  );
+
+  assert.equal(summary.totalMonths, 0);
+  assert.deepEqual(summary.stations, ["핫 / Hot"]);
+});
+
+test("orders summary choices by career count, then by recency", () => {
+  const summary = summarizeIncludedCareers(
+    [
+      summaryCareer({
+        employmentStart: "2022-01",
+        employmentEnd: "2023-12",
+        stations: ["그릴 / Grill", "콜드 / Garde Manger"],
+      }),
+      summaryCareer({
+        employmentStart: "2024-01",
+        employmentEnd: "2025-06",
+        stations: ["핫 / Hot", "그릴 / Grill"],
+      }),
+    ],
+    { today: "2026-09" },
+  );
+
+  assert.deepEqual(summary.stations, ["그릴 / Grill", "핫 / Hot", "콜드 / Garde Manger"]);
+});
+
+test("keeps array order for careers that share a start month", () => {
+  const summary = summarizeIncludedCareers(
+    [
+      summaryCareer({ employmentStart: "2024-01", employmentEnd: "2024-06", skills: ["소스"] }),
+      summaryCareer({ employmentStart: "2024-01", employmentEnd: "2024-06", skills: ["칼 기술"] }),
+    ],
+    { today: "2026-09" },
+  );
+
+  assert.deepEqual(summary.skills, ["소스", "칼 기술"]);
+});
+
+test("cuts each summary list at its limit", () => {
+  const stations = Array.from({ length: 10 }, (_, index) => `스테이션 ${index}`);
+  const summary = summarizeIncludedCareers(
+    [summaryCareer({ employmentStart: "2024-01", employmentEnd: "2024-06", stations })],
+    { today: "2026-09" },
+  );
+
+  assert.equal(summary.stations.length, SUMMARY_LIMITS.stations);
+  assert.deepEqual(summary.stations, stations.slice(0, 8));
+});
+
+test("lists specialties in the taxonomy order with their labels", () => {
+  const summary = summarizeIncludedCareers(
+    [
+      summaryCareer({
+        employmentStart: "2024-01",
+        employmentEnd: "2024-06",
+        culinarySpecialties: ["pastry", "restaurant"],
+      }),
+    ],
+    { today: "2026-09" },
+  );
+
+  assert.deepEqual(summary.specialties, ["레스토랑 조리", "제과·패스트리"]);
+});
+
+test("formats a duration in years and months", () => {
+  assert.equal(formatDuration(0), "");
+  assert.equal(formatDuration(8), "8개월");
+  assert.equal(formatDuration(24), "2년");
+  assert.equal(formatDuration(40), "3년 4개월");
 });
