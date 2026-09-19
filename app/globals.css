@@ -800,8 +800,7 @@ button {
   font-weight: 700;
 }
 
-.tag-row,
-.resume-provenance {
+.tag-row {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
@@ -1722,6 +1721,75 @@ fieldset {
   line-height: 1.8;
 }
 
+.resume-summary-band {
+  padding-top: 26px;
+}
+
+.resume-summary-heading-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #b8bbb5;
+}
+
+/* The band's heading sits inside the row, so `.resume-section > h3` does not
+   reach it. Repeat the label treatment without that rule's border. */
+.resume-summary-heading-row h3 {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.resume-summary-caption {
+  margin: 0;
+  color: #777c74;
+  font-family: var(--font-label);
+  font-size: 0.6rem;
+  letter-spacing: 0.03em;
+}
+
+.resume-summary-headline {
+  margin: 0 0 14px;
+  font-family: var(--font-editorial);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.resume-summary-grid {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.resume-summary-grid > div {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 14px;
+}
+
+/* Korean labels in the monospace label face read too airy at the 0.08em the
+   English `Station` labels used, so these sit tighter. */
+.resume-summary-grid dt,
+.resume-duties dt,
+.resume-kitchen-line dt {
+  color: #747971;
+  font-family: var(--font-label);
+  font-size: 0.61rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.resume-summary-grid dd {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
 .resume-careers {
   display: grid;
   gap: 34px;
@@ -1747,18 +1815,31 @@ fieldset {
   overflow-wrap: anywhere;
 }
 
-.resume-career header p {
-  margin: 5px 0;
+.resume-career-heading {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.resume-career-title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  align-items: baseline;
+}
+
+.resume-career-role {
+  margin: 0;
   color: #474b46;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 650;
 }
 
-.resume-career header .resume-location {
-  margin-top: 3px;
+.resume-career-period {
+  margin: 0;
   color: #6b7069;
-  font-size: 0.7rem;
-  font-weight: 500;
+  font-size: 0.74rem;
+  font-weight: 550;
 }
 
 .resume-career header small {
@@ -1771,11 +1852,6 @@ fieldset {
   flex-wrap: wrap;
   gap: 6px;
   align-items: center;
-}
-
-.resume-provenance {
-  max-width: 220px;
-  justify-content: flex-end;
 }
 
 .resume-highlights {
@@ -1819,45 +1895,74 @@ fieldset {
   line-height: 1.45;
 }
 
-.resume-bullets {
-  display: grid;
-  gap: 8px;
-  padding-left: 18px;
-  margin: 0 0 18px;
-  font-size: 0.82rem;
-  line-height: 1.65;
-}
-
-.resume-bullets li::marker {
-  color: var(--red);
-}
-
-.resume-skills {
-  display: grid;
-  gap: 8px;
-  padding: 14px 0;
+.resume-duties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: baseline;
   margin: 0 0 12px;
-  border-top: 1px solid #dedfdc;
-  border-bottom: 1px solid #dedfdc;
+  font-size: 0.78rem;
 }
 
-.resume-skills > div {
-  display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: 14px;
-}
-
-.resume-skills dt {
-  color: #747971;
-  font-family: var(--font-label);
-  font-size: 0.61rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.resume-skills dd {
+.resume-duties dd {
   margin: 0;
+}
+
+.resume-representative {
+  padding-left: 14px;
+  margin: 0 0 16px;
+  border-left: 3px solid var(--red);
+  font-family: var(--font-editorial);
+  font-size: 0.98rem;
+  line-height: 1.7;
+}
+
+.resume-kitchen-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  padding-top: 12px;
+  margin: 0;
+  border-top: 1px solid #dedfdc;
   font-size: 0.72rem;
+}
+
+.resume-kitchen-line > div {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.resume-kitchen-line dd {
+  margin: 0;
+}
+
+.public-record-badge {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  padding: 2px 7px;
+  border: 1px solid #2f5fb3;
+  border-radius: 999px;
+  background: #e8effb;
+  color: #1f4a94;
+  font-size: 0.6rem;
+  font-weight: 720;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.resume-legend {
+  padding-top: 20px;
+  margin-top: 34px;
+  border-top: 1px solid #b8bbb5;
+  color: #6b7069;
+  font-size: 0.64rem;
+  line-height: 1.6;
+}
+
+.resume-legend p {
+  margin: 0;
 }
 
 .talent-pool-panel {
@@ -1876,6 +1981,30 @@ fieldset {
   font-size: 0.6rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.summary-toggle {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  width: min(100%, 820px);
+  margin: 0 auto 18px;
+  font-size: 0.82rem;
+}
+
+.summary-toggle input {
+  margin-top: 3px;
+  accent-color: var(--red);
+}
+
+.summary-toggle span {
+  display: grid;
+  gap: 2px;
+}
+
+.summary-toggle small {
+  color: var(--muted);
+  font-size: 0.72rem;
 }
 
 .talent-pool-panel h2 {
@@ -2160,13 +2289,13 @@ button:disabled {
     width: 100%;
   }
 
-  .resume-provenance {
-    max-width: none;
-    justify-content: flex-start;
+  .resume-summary-grid > div {
+    grid-template-columns: 1fr;
+    gap: 4px;
   }
 
-  .resume-skills > div {
-    grid-template-columns: 1fr;
+  .resume-summary-heading-row {
+    flex-direction: column;
     gap: 4px;
   }
 
@@ -2226,8 +2355,10 @@ button:disabled {
   }
 
   .resume-career,
-  .resume-section,
-  .resume-career-photo {
+  .resume-summary-band,
+  .resume-summary,
+  .resume-career-photo,
+  .resume-legend {
     break-inside: avoid;
   }
 }

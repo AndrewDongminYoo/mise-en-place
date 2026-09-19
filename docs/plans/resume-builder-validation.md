@@ -77,6 +77,7 @@ Before each moderated Track A session, confirm these conditions:
 - A participant who does not add photos can complete the existing workflow.
 - A participant who adds photos can edit each required description and change the representative-photo selection.
 - The standard PDF and the review PDF follow the photo visibility rules in `docs/specs/resume-restaurant-metadata-and-local-media.md`.
+- `pnpm print:verify` passes on the build the session will use, and `pnpm print:verify --skip-build --falsify` fails its ink check on every case.
 - First, confirm that an intentional request makes the network guard report a failure.
 - Then, confirm that the actual photo workflow sends no photo file, Blob, Object URL, or photo description through an HTTP or HTTPS request.
 - At the end of the session, the participant can delete the stored draft and all local photos from the device.

@@ -31,6 +31,10 @@ import {
 
 import { normalizePhoto } from "./photo-normalizer.mts";
 
+import { ProvenanceTag } from "./provenance-tag";
+
+import { ResumeSheet } from "./resume-sheet";
+
 import {
   CULINARY_SPECIALTY_OPTIONS,
   PROVENANCE_LABELS,
@@ -47,19 +51,17 @@ import {
   getCareerErrors,
   getCareerPhotoDescriptionError,
   getCulinaryChoiceGroups,
-  getEmployerLabel,
   getEnrichmentErrors,
-  getImportedCareerFieldProvenance,
   parseResumeDraft,
   removeCareerPhotoReference,
   removeMissingPhotoReferences,
   selectCareerResumePhoto,
   serializeResumeDraft,
+  summarizeIncludedCareers,
   toReviewIdentity,
   toggleBoundedChoice,
   toggleCulinarySpecialty,
   type CareerEntry,
-  type CareerPhotoReference,
   type CulinaryChoiceGroup,
   type CulinaryChoiceKind,
   type CulinarySpecialty,
@@ -370,18 +372,6 @@ function Field({
   );
 }
 
-function ProvenanceTag({
-  kind,
-}: {
-  kind: keyof typeof PROVENANCE_LABELS;
-}) {
-  return (
-    <span className={"provenance-tag provenance-" + kind}>
-      {PROVENANCE_LABELS[kind]}
-    </span>
-  );
-}
-
 function formatFileSize(bytes: number) {
   if (bytes < 1024) {
     return bytes + " B";
@@ -461,18 +451,9 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error && error.message ? error.message : fallback;
 }
 
-function getResumePhotoReference(
-  career: CareerEntry,
-): CareerPhotoReference | null {
-  if (!career.resumePhotoId) {
-    return null;
-  }
-
-  return (
-    career.portfolioPhotos.find(
-      (photo) => photo.assetId === career.resumePhotoId,
-    ) ?? null
-  );
+function readCurrentMonth(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
 function toDisplayPhotoAsset(asset: LocalPhotoAsset): DisplayPhotoAsset {
@@ -492,6 +473,12 @@ export default function Home() {
   const [isDemoDraft, setIsDemoDraft] = useState(false);
   const [talentPoolChoice, setTalentPoolChoice] =
     useState<TalentPoolChoice>("resume-only");
+  const [showCareerSummary, setShowCareerSummary] = useState(true);
+  // The summary band ends a current career at this month. The clock is read
+  // outside render, once at mount and again whenever the preview is entered
+  // or printed, so a tab left open across a month boundary does not print
+  // last month's tenure.
+  const [currentMonth, setCurrentMonth] = useState(readCurrentMonth);
   const [errors, setErrors] = useState<string[]>([]);
   const [fileNotice, setFileNotice] = useState<{
     tone: "neutral" | "error";
@@ -519,8 +506,14 @@ export default function Home() {
     [storedDraftRaw],
   );
   const currentDraft = useMemo<ResumeDraft>(
-    () => ({ careers, identity, isDemoDraft, talentPoolChoice }),
-    [careers, identity, isDemoDraft, talentPoolChoice],
+    () => ({
+      careers,
+      identity,
+      isDemoDraft,
+      talentPoolChoice,
+      showCareerSummary,
+    }),
+    [careers, identity, isDemoDraft, talentPoolChoice, showCareerSummary],
   );
   const currentDraftRaw = useMemo(
     () => serializeResumeDraft(currentDraft),
@@ -620,11 +613,22 @@ export default function Home() {
   const sheetIdentity = isReviewExport
     ? toReviewIdentity(identity)
     : identity;
-  const sheetProfilePhotoUrl = sheetIdentity.profilePhotoId
-    ? photoAssets.get(sheetIdentity.profilePhotoId)?.objectUrl
-    : undefined;
   const currentCopy = STEP_COPY[currentStep - 1];
-  const includedCareers = careers.filter((career) => career.included);
+  const includedCareers = useMemo(
+    () => careers.filter((career) => career.included),
+    [careers],
+  );
+  const photoUrls = useMemo(
+    () =>
+      new Map(
+        [...photoAssets].map(([id, asset]) => [id, asset.objectUrl] as const),
+      ),
+    [photoAssets],
+  );
+  const careerSummary = useMemo(
+    () => summarizeIncludedCareers(includedCareers, { today: currentMonth }),
+    [includedCareers, currentMonth],
+  );
   const hasDraft = careers.length > 0;
   const isManualOnlyDraft =
     currentStep === 2 && careers.every((career) => career.origin === "manual");
@@ -684,7 +688,10 @@ export default function Home() {
   }
 
   async function printResume() {
-    flushSync(() => setIsReviewExport(false));
+    flushSync(() => {
+      setCurrentMonth(readCurrentMonth());
+      setIsReviewExport(false);
+    });
 
     if (!(await prepareResumeImagesForPrint())) {
       return;
@@ -709,7 +716,10 @@ export default function Home() {
     }
 
     window.addEventListener("afterprint", restore);
-    flushSync(() => setIsReviewExport(true));
+    flushSync(() => {
+      setCurrentMonth(readCurrentMonth());
+      setIsReviewExport(true);
+    });
 
     if (!(await prepareResumeImagesForPrint())) {
       window.removeEventListener("afterprint", restore);
@@ -729,6 +739,7 @@ export default function Home() {
     setIdentity(nextIdentity);
     setIsDemoDraft(nextIsDemo);
     setTalentPoolChoice("resume-only");
+    setShowCareerSummary(true);
     releaseDisplayedPhotoAssets();
     setHasConfirmedCareers(false);
     moveToStep(2);
@@ -796,6 +807,7 @@ export default function Home() {
       setIdentity(restoredDraft.identity);
       setIsDemoDraft(restoredDraft.isDemoDraft);
       setTalentPoolChoice(restoredDraft.talentPoolChoice);
+      setShowCareerSummary(restoredDraft.showCareerSummary);
       revokeDisplayPhotoAssets(photoAssetsRef.current);
       replaceDisplayedPhotoAssets(
         new Map(
@@ -1045,6 +1057,7 @@ export default function Home() {
       identity: nextIdentity,
       isDemoDraft,
       talentPoolChoice,
+      showCareerSummary,
     });
   }
 
@@ -1346,6 +1359,7 @@ export default function Home() {
     setErrors(nextErrors);
 
     if (nextErrors.length === 0) {
+      setCurrentMonth(readCurrentMonth());
       moveToStep(4);
     }
   }
@@ -2500,168 +2514,29 @@ export default function Home() {
                 보내시기 전에 확인해 주세요. 인쇄 미리보기에서 실제 결과를 먼저
                 보실 수 있습니다.
               </p>
+              <label className="summary-toggle no-print">
+                <input
+                  type="checkbox"
+                  checked={showCareerSummary}
+                  onChange={(event) =>
+                    setShowCareerSummary(event.currentTarget.checked)
+                  }
+                />
+                <span>
+                  <strong>한눈에 보기를 이력서에 표시</strong>
+                  <small>내용을 바꾸려면 3단계에서 경력을 수정하세요.</small>
+                </span>
+              </label>
 
-              <article
-                className="resume-sheet"
-                data-print-root
+              <ResumeSheet
+                identity={sheetIdentity}
+                careers={includedCareers}
+                summary={careerSummary}
+                showSummary={showCareerSummary}
+                photoUrls={photoUrls}
+                isDemo={isDemoDraft}
                 ref={resumeSheetRef}
-              >
-                <header className="resume-header">
-                  <div className="resume-identity-lockup">
-                    {sheetProfilePhotoUrl ? (
-                      <img
-                        className="resume-profile-photo"
-                        src={sheetProfilePhotoUrl}
-                        alt={`${sheetIdentity.name || "사용자"} 프로필 사진`}
-                      />
-                    ) : null}
-                    <div>
-                      <p className="resume-label">
-                        CULINARY RESUME{" "}
-                        {isDemoDraft ? (
-                          <span className="demo-tag">예시 이력서</span>
-                        ) : null}
-                      </p>
-                      {/* Without a name the headline becomes the sheet's own
-                          heading, so the review copy keeps the same heading
-                          levels rather than skipping from the page to h3. */}
-                      <h2>{sheetIdentity.name || sheetIdentity.headline}</h2>
-                      {sheetIdentity.name ? (
-                        <p className="resume-headline">
-                          {sheetIdentity.headline}
-                        </p>
-                      ) : null}
-                    </div>
-                  </div>
-                  {sheetIdentity.email || sheetIdentity.phone ? (
-                    <address>
-                      {sheetIdentity.email ? (
-                        <span>{sheetIdentity.email}</span>
-                      ) : null}
-                      {sheetIdentity.phone ? (
-                        <span>{sheetIdentity.phone}</span>
-                      ) : null}
-                    </address>
-                  ) : null}
-                </header>
-
-                {sheetIdentity.summary ? (
-                  <section className="resume-section resume-summary">
-                    <h3>경력 요약</h3>
-                    <p>{sheetIdentity.summary}</p>
-                    <ProvenanceTag kind="authored" />
-                  </section>
-                ) : null}
-
-                <section className="resume-section">
-                  <h3>경력</h3>
-                  <div className="resume-careers">
-                    {includedCareers.map((career) => {
-                      const resumePhoto = getResumePhotoReference(career);
-                      const resumePhotoUrl = resumePhoto
-                        ? photoAssets.get(resumePhoto.assetId)?.objectUrl
-                        : undefined;
-
-                      return (
-                        <article className="resume-career" key={career.id}>
-                        <header>
-                          <div>
-                            <h4>{career.restaurantName}</h4>
-                            <p>
-                              {career.role} ·{" "}
-                              {formatMonthRange(
-                                career.employmentStart,
-                                career.employmentEnd,
-                              )}
-                            </p>
-                            {career.restaurantLocation ? (
-                              <p className="resume-location">
-                                {career.restaurantLocation}
-                              </p>
-                            ) : null}
-                            {career.legalEmployer ? (
-                              <small className="resume-employer">
-                                <span>
-                                  {getEmployerLabel(career.origin)}:{" "}
-                                  {career.legalEmployer}
-                                </span>
-                                {career.origin === "document" ? (
-                                  <ProvenanceTag
-                                    kind={getImportedCareerFieldProvenance(
-                                      career,
-                                      "legalEmployer",
-                                    )}
-                                  />
-                                ) : null}
-                              </small>
-                            ) : null}
-                          </div>
-                          <div className="resume-provenance">
-                            {career.isDemo ? (
-                              <span className="demo-tag">예시 데이터</span>
-                            ) : null}
-                            <ProvenanceTag kind="confirmed" />
-                          </div>
-                        </header>
-
-                        {career.restaurantHighlights.length > 0 ? (
-                          <ul className="resume-highlights">
-                            {career.restaurantHighlights.map((highlight) => (
-                              <li key={highlight}>{highlight}</li>
-                            ))}
-                          </ul>
-                        ) : null}
-
-                        {resumePhoto && resumePhotoUrl ? (
-                          <figure className="resume-career-photo">
-                            <img
-                              src={resumePhotoUrl}
-                              alt={resumePhoto.description}
-                            />
-                            <figcaption>{resumePhoto.description}</figcaption>
-                          </figure>
-                        ) : null}
-
-                        <ul className="resume-bullets">
-                          {career.responsibilities.map((responsibility) => (
-                            <li key={responsibility}>{responsibility}</li>
-                          ))}
-                          {career.representativeExperience ? (
-                            <li>{career.representativeExperience}</li>
-                          ) : null}
-                        </ul>
-
-                        {career.stations.length > 0 ||
-                        career.skills.length > 0 ||
-                        career.equipment.length > 0 ? (
-                          <dl className="resume-skills">
-                            {career.stations.length > 0 ? (
-                              <div>
-                                <dt>Station</dt>
-                                <dd>{career.stations.join(" · ")}</dd>
-                              </div>
-                            ) : null}
-                            {career.skills.length > 0 ? (
-                              <div>
-                                <dt>Skills</dt>
-                                <dd>{career.skills.join(" · ")}</dd>
-                              </div>
-                            ) : null}
-                            {career.equipment.length > 0 ? (
-                              <div>
-                                <dt>Equipment</dt>
-                                <dd>{career.equipment.join(" · ")}</dd>
-                              </div>
-                            ) : null}
-                          </dl>
-                        ) : null}
-                        <ProvenanceTag kind="authored" />
-                      </article>
-                      );
-                    })}
-                  </div>
-                </section>
-              </article>
+              />
 
               <fieldset className="talent-pool-panel no-print">
                 <legend>이력서 완성 후 선택</legend>

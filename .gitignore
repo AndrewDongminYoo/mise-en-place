@@ -49,3 +49,7 @@ next-env.d.ts
 # research notes holding participant answers - this repository is public
 /docs/notes/interview-*.md
 /docs/notes/session-*.md
+
+# print verification output - the PDF rule above already covers the files,
+# this covers anything else the script writes there
+/.print-verify/
