@@ -25,7 +25,7 @@ That stopped being true on 2026-09-03: the confirmed record is written to `local
 **Every Track A session is still a single sitting.** Storage was one reason for that rule and is no longer one, but the rule is an operating decision this protocol reserves to the operator rather than a consequence of the gap, and the remaining reasons are unchanged: one moderator, one room, and a 60-minute block.
 Change it deliberately if a session needs it, not because this paragraph stopped applying.
 
-What did change is the artifact. The printed or exported output produced in the room is no longer the *only* thing a participant leaves with, because the draft survives on their own device.
+What did change is the artifact. The printed or exported output produced in the room is no longer the _only_ thing a participant leaves with, because the draft survives on their own device.
 
 It also shapes one threshold directly.
 What a participant leaves with is part of the record, and now has two parts: the printed or exported output, and whether the draft is still on their device.
@@ -110,14 +110,14 @@ The consent promises that the document does not leave the machine, which says no
 
 One participant, one moderator, one sitting: 60 minutes.
 
-| Phase | Minutes | What happens |
-| --- | --- | --- |
-| Consent and warm-up | 5 | Consent script. Ask what they do now and how long they have cooked. |
-| Prior resume | 5 | Ask when they last wrote a resume, what they used, and what was hardest. Ask before they see the prototype, so the answer is not shaped by it. |
-| Task | 30 | Hand over the prototype with one instruction and observe. |
-| Post-task questions | 10 | Threshold questions below, in the fixed order given. |
-| Talent-pool choice | 5 | Observed, not asked about, until it has been made. |
-| Debrief | 5 | Open questions, then explain the product if they ask. |
+| Phase               | Minutes | What happens                                                                                                                                   |
+| ------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Consent and warm-up | 5       | Consent script. Ask what they do now and how long they have cooked.                                                                            |
+| Prior resume        | 5       | Ask when they last wrote a resume, what they used, and what was hardest. Ask before they see the prototype, so the answer is not shaped by it. |
+| Task                | 30      | Hand over the prototype with one instruction and observe.                                                                                      |
+| Post-task questions | 10      | Threshold questions below, in the fixed order given.                                                                                           |
+| Talent-pool choice  | 5       | Observed, not asked about, until it has been made.                                                                                             |
+| Debrief             | 5       | Open questions, then explain the product if they ask.                                                                                          |
 
 The review phase does not run during these Track A sessions.
 The operator selected the plan's existing sequence on 2026-09-07.
@@ -145,14 +145,14 @@ A reminder in the middle of a stuck moment resolves the stuck moment.
 Every intervention is recorded at its level.
 Use the lowest level that moves the session, and wait at least 30 seconds before escalating.
 
-| Level | Intervention |
-| --- | --- |
-| 0 | None. |
-| 1 | Repeat the task instruction verbatim, adding nothing. |
-| 2 | Ask what they are trying to do, without answering it. |
-| 3 | Point at the region of the screen, without naming the control. |
-| 4 | Name the control. |
-| 5 | Perform the step for them. |
+| Level | Intervention                                                   |
+| ----- | -------------------------------------------------------------- |
+| 0     | None.                                                          |
+| 1     | Repeat the task instruction verbatim, adding nothing.          |
+| 2     | Ask what they are trying to do, without answering it.          |
+| 3     | Point at the region of the screen, without naming the control. |
+| 4     | Name the control.                                              |
+| 5     | Perform the step for them.                                     |
 
 Record the highest level used, per step, per participant.
 A step that needed level 5 did not complete unaided, and that is a result rather than a failure of the session.
@@ -264,13 +264,13 @@ Only the reconciliation summary below is committed.
 
 ## Step Outcomes
 
-| Step | Reached | Highest help level | Time | Errors seen | Notes |
-| --- | --- | --- | --- | --- | --- |
-| Start |  |  |  |  |  |
-| Career confirmation |  |  |  |  |  |
-| Enrichment |  |  |  |  |  |
-| Preview |  |  |  |  |  |
-| Output |  |  |  |  |  |
+| Step                | Reached | Highest help level | Time | Errors seen | Notes |
+| ------------------- | ------- | ------------------ | ---- | ----------- | ----- |
+| Start               |         |                    |      |             |       |
+| Career confirmation |         |                    |      |             |       |
+| Enrichment          |         |                    |      |             |       |
+| Preview             |         |                    |      |             |       |
+| Output              |         |                    |      |             |       |
 
 ## Corrections and Exclusions
 
@@ -282,9 +282,9 @@ One line per field the participant could not answer, with what they said while s
 
 ## Thresholds
 
-- Completed:  (yes / partial / no), with the highest help level used
+- Completed: (yes / partial / no), with the highest help level used
 - Intent, verbatim:
-- Talent-pool selection:  (time taken, re-read yes/no, reason if unprompted)
+- Talent-pool selection: (time taken, re-read yes/no, reason if unprompted)
 - Review requested: not offered — sequenced after Track A
 
 ## Follow-up (day 14)

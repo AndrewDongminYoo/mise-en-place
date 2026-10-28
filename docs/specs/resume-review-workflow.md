@@ -43,12 +43,12 @@ A second reviewer role would add a recruiting problem, a quality-control problem
 
 Rejected alternatives:
 
-| Alternative | Why it is rejected for this slice |
-| --- | --- |
-| Peer review by another culinary professional | Requires a participant pool that does not exist yet, and exposes one participant's resume to another before any consent model is defined. |
-| Paid professional resume writer | Introduces a payment flow, a contractor relationship, and a rewriting incentive that conflicts with the authored-content rule below. |
-| AI-generated review | `docs/specs/initial-product-scope.md` excludes AI-authored or embellished career claims in its deferred scope, which carries this row on its own. Its privacy boundary separately forbids sending the source document or extracted document text to an AI service, and does not reach authored resume content. |
-| Head chef or restaurant reviewer | Mixes Track A with Track B, and makes an employer a gatekeeper of a document the person has not chosen to share with employers. |
+| Alternative                                  | Why it is rejected for this slice                                                                                                                                                                                                                                                                              |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Peer review by another culinary professional | Requires a participant pool that does not exist yet, and exposes one participant's resume to another before any consent model is defined.                                                                                                                                                                      |
+| Paid professional resume writer              | Introduces a payment flow, a contractor relationship, and a rewriting incentive that conflicts with the authored-content rule below.                                                                                                                                                                           |
+| AI-generated review                          | `docs/specs/initial-product-scope.md` excludes AI-authored or embellished career claims in its deferred scope, which carries this row on its own. Its privacy boundary separately forbids sending the source document or extracted document text to an AI service, and does not reach authored resume content. |
+| Head chef or restaurant reviewer             | Mixes Track A with Track B, and makes an employer a gatekeeper of a document the person has not chosen to share with employers.                                                                                                                                                                                |
 
 Revisit this decision only when completion evidence shows that review affects whether participants use the resume.
 
@@ -225,10 +225,10 @@ Do not build these for the validation slice:
 
 ## Open Decisions
 
-| Decision | State |
-| --- | --- |
-| Draft continuity mechanism for asynchronous review | Resolved 2026-09-03 — browser-local `localStorage` persistence with an explicit restore, PR #5. Covers one device; see the prerequisite section above. |
-| Review validation sequence | Resolved 2026-09-07 — run review with a fresh participant pool after Track A passes. |
-| Whether review remains free after Track A | `[UNKNOWN]` — depends on the Track A outcome and the Track B revenue hypothesis. |
-| Reviewer type after validation | `[UNKNOWN]` — reconsider only with evidence that review changed resume usefulness. |
-| Consent wording for sending a resume export to the operator | Resolved 2026-09-07 — items 12 to 15 of the consent script are approved for the separate review validation. |
+| Decision                                                    | State                                                                                                                                                  |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Draft continuity mechanism for asynchronous review          | Resolved 2026-09-03 — browser-local `localStorage` persistence with an explicit restore, PR #5. Covers one device; see the prerequisite section above. |
+| Review validation sequence                                  | Resolved 2026-09-07 — run review with a fresh participant pool after Track A passes.                                                                   |
+| Whether review remains free after Track A                   | `[UNKNOWN]` — depends on the Track A outcome and the Track B revenue hypothesis.                                                                       |
+| Reviewer type after validation                              | `[UNKNOWN]` — reconsider only with evidence that review changed resume usefulness.                                                                     |
+| Consent wording for sending a resume export to the operator | Resolved 2026-09-07 — items 12 to 15 of the consent script are approved for the separate review validation.                                            |

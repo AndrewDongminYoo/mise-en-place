@@ -67,10 +67,7 @@ Create `app/resume-model.test.mts` with Node tests for these behaviors:
 test("limits primary responsibilities to three choices", () => {
   const selected = ["서비스 준비", "스테이션 운영", "발주·재고"];
 
-  assert.deepEqual(
-    toggleBoundedChoice(selected, "메뉴 개발", 3),
-    selected,
-  );
+  assert.deepEqual(toggleBoundedChoice(selected, "메뉴 개발", 3), selected);
 });
 
 test("requires one complete included career before confirmation", () => {

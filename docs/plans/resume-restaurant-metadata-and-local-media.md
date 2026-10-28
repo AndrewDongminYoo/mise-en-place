@@ -67,9 +67,7 @@
     ...overrides,
   });
 
-  const makeCareer = (
-    overrides: Partial<CareerEntry> = {},
-  ): CareerEntry => ({
+  const makeCareer = (overrides: Partial<CareerEntry> = {}): CareerEntry => ({
     ...createBlankCareerEntry(),
     restaurantName: "테스트 키친",
     employmentStart: "2024-01",
@@ -79,9 +77,7 @@
     ...overrides,
   });
 
-  const makeDraft = (
-    overrides: Partial<ResumeDraft> = {},
-  ): ResumeDraft => ({
+  const makeDraft = (overrides: Partial<ResumeDraft> = {}): ResumeDraft => ({
     careers: [makeCareer()],
     identity: makeIdentity(),
     isDemoDraft: false,
@@ -141,7 +137,9 @@
       }),
     ]);
 
-    assert.deepEqual(errors, ["테스트 키친의 첫 번째 작업 사진에 메뉴명과 본인이 맡은 부분을 입력해 주세요."]);
+    assert.deepEqual(errors, [
+      "테스트 키친의 첫 번째 작업 사진에 메뉴명과 본인이 맡은 부분을 입력해 주세요.",
+    ]);
   });
 
   test("removes the profile photo from a review identity", () => {
@@ -390,9 +388,7 @@
     indexedDB?: IDBFactory,
   ): Promise<void>;
 
-  export async function clearPhotoAssets(
-    indexedDB?: IDBFactory,
-  ): Promise<void>;
+  export async function clearPhotoAssets(indexedDB?: IDBFactory): Promise<void>;
   ```
 
   데이터베이스는 `mise-en-place-media`, 버전은 `1`, 객체 저장소는 `photos`, 키 경로는 `id`를 사용합니다.

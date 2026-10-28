@@ -30,30 +30,32 @@
 
 ## File Map
 
-| File | Responsibility | Change |
-| --- | --- | --- |
-| `app/resume-model.mts` | Pure data rules, draft schema, sheet copy | Add `CareerSummary`, `SUMMARY_LIMITS`, `summarizeIncludedCareers`, `formatDuration`, `hasPublicRecordBadge`, `RESUME_SHEET_COPY`, `showCareerSummary` in the draft |
-| `app/resume-model.test.mts` | Tests for the above | Add tests, update the key-set test and `completeDraft()` |
-| `app/provenance-tag.tsx` | The `ProvenanceTag` component that steps 2 and 3 use | Create by moving it out of `page.tsx` |
-| `app/resume-sheet.tsx` | The stateless printed sheet | Create |
-| `app/page.tsx` | Wizard state, toggle, print-mode logic | Add `showCareerSummary` state and toggle, render `ResumeSheet`, remove the inline sheet and the moved helpers |
-| `app/globals.css` | Styles | Add band, badge, entry, legend, toggle styles; remove `.resume-bullets`, `.resume-skills`, `.resume-provenance` |
-| `scripts/print-verify.mts` | On-demand print verification | Create |
-| `package.json`, `pnpm-lock.yaml` | Dependency and script | Add `playwright` and `print:verify` |
-| `.gitignore` | Ignore rules | Add `/.print-verify/` |
-| `docs/notes/<date>-resume-print-verification.md` | Verification record | Create |
-| `docs/plans/resume-builder-validation.md` | Track A preflight | Add the `print:verify` bullet |
-| `docs/specs/resume-output-sheet.md` | Spec status | Mark implemented |
+| File                                             | Responsibility                                       | Change                                                                                                                                                             |
+| ------------------------------------------------ | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `app/resume-model.mts`                           | Pure data rules, draft schema, sheet copy            | Add `CareerSummary`, `SUMMARY_LIMITS`, `summarizeIncludedCareers`, `formatDuration`, `hasPublicRecordBadge`, `RESUME_SHEET_COPY`, `showCareerSummary` in the draft |
+| `app/resume-model.test.mts`                      | Tests for the above                                  | Add tests, update the key-set test and `completeDraft()`                                                                                                           |
+| `app/provenance-tag.tsx`                         | The `ProvenanceTag` component that steps 2 and 3 use | Create by moving it out of `page.tsx`                                                                                                                              |
+| `app/resume-sheet.tsx`                           | The stateless printed sheet                          | Create                                                                                                                                                             |
+| `app/page.tsx`                                   | Wizard state, toggle, print-mode logic               | Add `showCareerSummary` state and toggle, render `ResumeSheet`, remove the inline sheet and the moved helpers                                                      |
+| `app/globals.css`                                | Styles                                               | Add band, badge, entry, legend, toggle styles; remove `.resume-bullets`, `.resume-skills`, `.resume-provenance`                                                    |
+| `scripts/print-verify.mts`                       | On-demand print verification                         | Create                                                                                                                                                             |
+| `package.json`, `pnpm-lock.yaml`                 | Dependency and script                                | Add `playwright` and `print:verify`                                                                                                                                |
+| `.gitignore`                                     | Ignore rules                                         | Add `/.print-verify/`                                                                                                                                              |
+| `docs/notes/<date>-resume-print-verification.md` | Verification record                                  | Create                                                                                                                                                             |
+| `docs/plans/resume-builder-validation.md`        | Track A preflight                                    | Add the `print:verify` bullet                                                                                                                                      |
+| `docs/specs/resume-output-sheet.md`              | Spec status                                          | Mark implemented                                                                                                                                                   |
 
 ---
 
 ### Task 1: Career summary calculation
 
 **Files:**
+
 - Modify: `app/resume-model.mts` (append after `formatMonthRange`, the last function in the file)
 - Test: `app/resume-model.test.mts`
 
 **Interfaces:**
+
 - Consumes: `CareerEntry`, `CULINARY_SPECIALTY_OPTIONS`, and the module-private `MONTH_PATTERN` from `app/resume-model.mts`.
 - Produces:
   - `type CareerSummary = { totalMonths: number; specialties: string[]; stations: string[]; skills: string[]; equipment: string[] }`
@@ -167,14 +169,26 @@ test("orders summary choices by career count, then by recency", () => {
     { today: "2026-09" },
   );
 
-  assert.deepEqual(summary.stations, ["그릴 / Grill", "핫 / Hot", "콜드 / Garde Manger"]);
+  assert.deepEqual(summary.stations, [
+    "그릴 / Grill",
+    "핫 / Hot",
+    "콜드 / Garde Manger",
+  ]);
 });
 
 test("keeps array order for careers that share a start month", () => {
   const summary = summarizeIncludedCareers(
     [
-      summaryCareer({ employmentStart: "2024-01", employmentEnd: "2024-06", skills: ["소스"] }),
-      summaryCareer({ employmentStart: "2024-01", employmentEnd: "2024-06", skills: ["칼 기술"] }),
+      summaryCareer({
+        employmentStart: "2024-01",
+        employmentEnd: "2024-06",
+        skills: ["소스"],
+      }),
+      summaryCareer({
+        employmentStart: "2024-01",
+        employmentEnd: "2024-06",
+        skills: ["칼 기술"],
+      }),
     ],
     { today: "2026-09" },
   );
@@ -183,9 +197,18 @@ test("keeps array order for careers that share a start month", () => {
 });
 
 test("cuts each summary list at its limit", () => {
-  const stations = Array.from({ length: 10 }, (_, index) => `스테이션 ${index}`);
+  const stations = Array.from(
+    { length: 10 },
+    (_, index) => `스테이션 ${index}`,
+  );
   const summary = summarizeIncludedCareers(
-    [summaryCareer({ employmentStart: "2024-01", employmentEnd: "2024-06", stations })],
+    [
+      summaryCareer({
+        employmentStart: "2024-01",
+        employmentEnd: "2024-06",
+        stations,
+      }),
+    ],
     { today: "2026-09" },
   );
 
@@ -433,10 +456,12 @@ git commit -m "feat(resume): summarize included careers for the sheet"
 ### Task 2: Public-record badge rule
 
 **Files:**
+
 - Modify: `app/resume-model.mts` (append after `formatDuration`)
 - Test: `app/resume-model.test.mts`
 
 **Interfaces:**
+
 - Consumes: `CareerEntry`, `createDemoCareerEntries`, `createBlankCareerEntry`.
 - Produces: `function hasPublicRecordBadge(entry: CareerEntry): boolean`
 
@@ -513,12 +538,14 @@ git commit -m "feat(resume): decide when a career shows the public-record badge"
 ### Task 3: `showCareerSummary` in the draft, the page state, and the toggle
 
 **Files:**
+
 - Modify: `app/resume-model.mts` (`ResumeDraft` type, `serializeResumeDraft`, `parseResumeDraft`)
 - Modify: `app/page.tsx` (state, `currentDraft`, `persistPhotoDraft`, `beginDraft`, `restoreStoredDraft`, step 4 markup)
 - Modify: `app/globals.css` (toggle style)
 - Test: `app/resume-model.test.mts`
 
 **Interfaces:**
+
 - Consumes: `ResumeDraft` from Task 0 state of the file.
 - Produces: `ResumeDraft.showCareerSummary: boolean`, and in `page.tsx` the state pair `showCareerSummary` / `setShowCareerSummary`.
 
@@ -538,14 +565,14 @@ In `app/resume-model.test.mts`, change `completeDraft()` so its returned object 
 Change the expected key list in `test("serializes only the confirmed draft fields", ...)` to:
 
 ```ts
-  assert.deepEqual(Object.keys(stored as object).sort(), [
-    "careers",
-    "identity",
-    "isDemoDraft",
-    "showCareerSummary",
-    "talentPoolChoice",
-    "version",
-  ]);
+assert.deepEqual(Object.keys(stored as object).sort(), [
+  "careers",
+  "identity",
+  "isDemoDraft",
+  "showCareerSummary",
+  "talentPoolChoice",
+  "version",
+]);
 ```
 
 Append:
@@ -611,30 +638,30 @@ In `serializeResumeDraft`, after `talentPoolChoice: draft.talentPoolChoice,` add
 In `parseResumeDraft`, replace the block that starts with `const identity = readIdentity(value.identity, draftVersion);` and ends with the `return` with:
 
 ```ts
-  const identity = readIdentity(value.identity, draftVersion);
-  const talentPoolChoice = readString(value.talentPoolChoice);
-  // A draft written before the summary toggle existed carries no field, and
-  // it restores with the band shown, which is what the toggle defaults to.
-  const showCareerSummary =
-    value.showCareerSummary === undefined ? true : value.showCareerSummary;
+const identity = readIdentity(value.identity, draftVersion);
+const talentPoolChoice = readString(value.talentPoolChoice);
+// A draft written before the summary toggle existed carries no field, and
+// it restores with the band shown, which is what the toggle defaults to.
+const showCareerSummary =
+  value.showCareerSummary === undefined ? true : value.showCareerSummary;
 
-  if (
-    identity === null ||
-    typeof value.isDemoDraft !== "boolean" ||
-    typeof showCareerSummary !== "boolean" ||
-    talentPoolChoice === null ||
-    !TALENT_POOL_CHOICES.includes(talentPoolChoice as TalentPoolChoice)
-  ) {
-    return null;
-  }
+if (
+  identity === null ||
+  typeof value.isDemoDraft !== "boolean" ||
+  typeof showCareerSummary !== "boolean" ||
+  talentPoolChoice === null ||
+  !TALENT_POOL_CHOICES.includes(talentPoolChoice as TalentPoolChoice)
+) {
+  return null;
+}
 
-  return {
-    careers,
-    identity,
-    isDemoDraft: value.isDemoDraft,
-    talentPoolChoice: talentPoolChoice as TalentPoolChoice,
-    showCareerSummary,
-  };
+return {
+  careers,
+  identity,
+  isDemoDraft: value.isDemoDraft,
+  talentPoolChoice: talentPoolChoice as TalentPoolChoice,
+  showCareerSummary,
+};
 ```
 
 - [ ] **Step 4: Run the tests to verify they pass**
@@ -652,22 +679,22 @@ Expected: `pass 88`, `fail 0`.
 After the `talentPoolChoice` state declaration add:
 
 ```ts
-  const [showCareerSummary, setShowCareerSummary] = useState(true);
+const [showCareerSummary, setShowCareerSummary] = useState(true);
 ```
 
 Change `currentDraft`:
 
 ```ts
-  const currentDraft = useMemo<ResumeDraft>(
-    () => ({
-      careers,
-      identity,
-      isDemoDraft,
-      talentPoolChoice,
-      showCareerSummary,
-    }),
-    [careers, identity, isDemoDraft, talentPoolChoice, showCareerSummary],
-  );
+const currentDraft = useMemo<ResumeDraft>(
+  () => ({
+    careers,
+    identity,
+    isDemoDraft,
+    talentPoolChoice,
+    showCareerSummary,
+  }),
+  [careers, identity, isDemoDraft, talentPoolChoice, showCareerSummary],
+);
 ```
 
 In `persistPhotoDraft`, add `showCareerSummary,` after `talentPoolChoice,`.
@@ -675,13 +702,13 @@ In `persistPhotoDraft`, add `showCareerSummary,` after `talentPoolChoice,`.
 In `beginDraft`, after `setTalentPoolChoice("resume-only");` add:
 
 ```ts
-    setShowCareerSummary(true);
+setShowCareerSummary(true);
 ```
 
 In `restoreStoredDraft`, after `setTalentPoolChoice(restoredDraft.talentPoolChoice);` add:
 
 ```ts
-      setShowCareerSummary(restoredDraft.showCareerSummary);
+setShowCareerSummary(restoredDraft.showCareerSummary);
 ```
 
 Confirm with `grep -n "talentPoolChoice" app/page.tsx` that no other object literal builds a `ResumeDraft`.
@@ -691,19 +718,17 @@ Confirm with `grep -n "talentPoolChoice" app/page.tsx` that no other object lite
 In the `currentStep === 4` block, directly after the `<p className="review-export-note field-hint no-print">…</p>` element and before `<article className="resume-sheet" …>`, add:
 
 ```tsx
-              <label className="summary-toggle no-print">
-                <input
-                  type="checkbox"
-                  checked={showCareerSummary}
-                  onChange={(event) =>
-                    setShowCareerSummary(event.currentTarget.checked)
-                  }
-                />
-                <span>
-                  <strong>한눈에 보기를 이력서에 표시</strong>
-                  <small>내용을 바꾸려면 3단계에서 경력을 수정하세요.</small>
-                </span>
-              </label>
+<label className="summary-toggle no-print">
+  <input
+    type="checkbox"
+    checked={showCareerSummary}
+    onChange={(event) => setShowCareerSummary(event.currentTarget.checked)}
+  />
+  <span>
+    <strong>한눈에 보기를 이력서에 표시</strong>
+    <small>내용을 바꾸려면 3단계에서 경력을 수정하세요.</small>
+  </span>
+</label>
 ```
 
 The sheet does not read the value yet. Task 4 connects it.
@@ -760,6 +785,7 @@ git commit -m "feat(resume): let the person show or hide the career summary band
 ### Task 4: `ResumeSheet` component, sheet copy, and styles
 
 **Files:**
+
 - Modify: `app/resume-model.mts` (add `RESUME_SHEET_COPY`)
 - Create: `app/provenance-tag.tsx`
 - Create: `app/resume-sheet.tsx`
@@ -768,6 +794,7 @@ git commit -m "feat(resume): let the person show or hide the career summary band
 - Test: `app/resume-model.test.mts` (one copy test)
 
 **Interfaces:**
+
 - Consumes: `CareerSummary`, `summarizeIncludedCareers`, `formatDuration`, `hasPublicRecordBadge` (Tasks 1 and 2), `showCareerSummary` state (Task 3).
 - Produces:
   - `RESUME_SHEET_COPY` in `app/resume-model.mts` (the script in Task 5 imports it).
@@ -1139,37 +1166,37 @@ Delete from `page.tsx`:
 Add, directly after the `includedCareers` declaration:
 
 ```ts
-  const photoUrls = useMemo(
-    () =>
-      new Map(
-        [...photoAssets].map(([id, asset]) => [id, asset.objectUrl] as const),
-      ),
-    [photoAssets],
-  );
-  const careerSummary = useMemo(
-    () => summarizeIncludedCareers(includedCareers, { today: currentMonth }),
-    [includedCareers, currentMonth],
-  );
+const photoUrls = useMemo(
+  () =>
+    new Map(
+      [...photoAssets].map(([id, asset]) => [id, asset.objectUrl] as const),
+    ),
+  [photoAssets],
+);
+const careerSummary = useMemo(
+  () => summarizeIncludedCareers(includedCareers, { today: currentMonth }),
+  [includedCareers, currentMonth],
+);
 ```
 
 `includedCareers` is currently a plain `careers.filter(...)` on every render. Wrap it so the memo above has a stable input:
 
 ```ts
-  const includedCareers = useMemo(
-    () => careers.filter((career) => career.included),
-    [careers],
-  );
+const includedCareers = useMemo(
+  () => careers.filter((career) => career.included),
+  [careers],
+);
 ```
 
 Add the month once per session, next to the other `useState` calls:
 
 ```ts
-  // The summary band ends a current career at this month. A lazy initializer
-  // reads the clock once, which keeps the render itself pure.
-  const [currentMonth] = useState(() => {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  });
+// The summary band ends a current career at this month. A lazy initializer
+// reads the clock once, which keeps the render itself pure.
+const [currentMonth] = useState(() => {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+});
 ```
 
 If `pnpm lint` reports a React purity rule on this initializer, move the read into a `useEffect` that calls a `setCurrentMonth` setter once and start the state at `""`; `summarizeIncludedCareers` skips a current career while `today` is `""`, so the first paint shows the band without that career's months and the effect corrects it immediately.
@@ -1177,15 +1204,15 @@ If `pnpm lint` reports a React purity rule on this initializer, move the read in
 Replace the whole `<article className="resume-sheet" data-print-root ref={resumeSheetRef}>…</article>` element in the `currentStep === 4` block with:
 
 ```tsx
-              <ResumeSheet
-                identity={sheetIdentity}
-                careers={includedCareers}
-                summary={careerSummary}
-                showSummary={showCareerSummary}
-                photoUrls={photoUrls}
-                isDemo={isDemoDraft}
-                ref={resumeSheetRef}
-              />
+<ResumeSheet
+  identity={sheetIdentity}
+  careers={includedCareers}
+  summary={careerSummary}
+  showSummary={showCareerSummary}
+  photoUrls={photoUrls}
+  isDemo={isDemoDraft}
+  ref={resumeSheetRef}
+/>
 ```
 
 `sheetIdentity` stays as it is: `isReviewExport ? toReviewIdentity(identity) : identity`.
@@ -1380,26 +1407,26 @@ In `app/globals.css`:
 6. Inside the `@media (max-width: 640px)` rule, where the deleted `.resume-skills > div` block was, add:
 
 ```css
-  .resume-summary-grid > div {
-    grid-template-columns: 1fr;
-    gap: 4px;
-  }
+.resume-summary-grid > div {
+  grid-template-columns: 1fr;
+  gap: 4px;
+}
 
-  .resume-summary-heading-row {
-    flex-direction: column;
-    gap: 4px;
-  }
+.resume-summary-heading-row {
+  flex-direction: column;
+  gap: 4px;
+}
 ```
 
 7. Inside the `@media print` rule, change the `break-inside` selector list to:
 
 ```css
-  .resume-career,
-  .resume-section,
-  .resume-career-photo,
-  .resume-legend {
-    break-inside: avoid;
-  }
+.resume-career,
+.resume-section,
+.resume-career-photo,
+.resume-legend {
+  break-inside: avoid;
+}
 ```
 
 - [ ] **Step 8: Verify the build and look at the sheet**
@@ -1438,12 +1465,14 @@ git commit -m "feat(resume): print a summary band, a public-record badge and a l
 ### Task 5: Print verification script
 
 **Files:**
+
 - Modify: `package.json` (`devDependencies`, `scripts`)
 - Modify: `pnpm-lock.yaml` (regenerated)
 - Modify: `.gitignore`
 - Create: `scripts/print-verify.mts`
 
 **Interfaces:**
+
 - Consumes: `RESUME_DRAFT_STORAGE_KEY`, `RESUME_SHEET_COPY`, `createBlankCareerEntry`, `createDemoCareerEntries`, `serializeResumeDraft`, `CareerEntry`, `ResumeDraft`, `ResumeIdentity` from `app/resume-model.mts`. The button labels `저장된 내용 이어가기`, `요리 경력 보완하기`, `이력서 미리보기`, `인쇄 · PDF 저장`, `리뷰용 사본`, the checkbox label `한눈에 보기를 이력서에 표시`, and the selectors `.profile-photo-editor input[type=file]`, `.profile-photo-editor img`, `.career-photo-add input[type=file]`, `textarea[id^="photo-description-"]`, and the radio label `이 사진을 PDF에 사용` from `app/page.tsx`.
 - Produces: `pnpm print:verify [--skip-build] [--falsify]`, PDFs under `.print-verify/`.
 
@@ -1496,7 +1525,12 @@ import { createServer } from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
+import {
+  chromium,
+  type Browser,
+  type BrowserContext,
+  type Page,
+} from "playwright";
 
 import {
   RESUME_DRAFT_STORAGE_KEY,
@@ -1589,7 +1623,9 @@ const CASES: Case[] = [
   },
   {
     name: "long",
-    draft: buildDraft(Array.from({ length: 6 }, (_, index) => manualCareer(index))),
+    draft: buildDraft(
+      Array.from({ length: 6 }, (_, index) => manualCareer(index)),
+    ),
     review: false,
     photos: false,
     expectSummary: true,
@@ -1735,7 +1771,9 @@ async function uploadPhotos(page: Page) {
     .locator(".career-photo-add input[type=file]")
     .first()
     .setInputFiles({ name: "dish.png", mimeType: "image/png", buffer });
-  const description = page.locator('textarea[id^="photo-description-"]').first();
+  const description = page
+    .locator('textarea[id^="photo-description-"]')
+    .first();
   await description.waitFor();
   await description.fill("검증용 접시 · 소스와 플레이팅");
   await page.getByLabel("이 사진을 PDF에 사용").first().check();
@@ -1756,7 +1794,8 @@ async function printCase(
   }
 
   await page.evaluate(() => {
-    (window as Window & { __printRequested?: boolean }).__printRequested = false;
+    (window as Window & { __printRequested?: boolean }).__printRequested =
+      false;
   });
   await page
     .getByRole("button", {
@@ -1764,7 +1803,9 @@ async function printCase(
     })
     .click();
   await page.waitForFunction(
-    () => (window as Window & { __printRequested?: boolean }).__printRequested === true,
+    () =>
+      (window as Window & { __printRequested?: boolean }).__printRequested ===
+      true,
   );
 
   // The print snapshot is taken from this DOM, so count the profile photo
@@ -1811,7 +1852,11 @@ async function inspectPdf(page: Page, pdf: Buffer): Promise<Inspection> {
       let inked = 0;
 
       for (let offset = 0; offset < data.length; offset += 4) {
-        if (data[offset] < 245 || data[offset + 1] < 245 || data[offset + 2] < 245) {
+        if (
+          data[offset] < 245 ||
+          data[offset + 1] < 245 ||
+          data[offset + 2] < 245
+        ) {
           inked += 1;
         }
       }
@@ -1853,11 +1898,7 @@ async function servePdfjs(context: BrowserContext) {
   });
 }
 
-function check(
-  failures: string[],
-  condition: boolean,
-  message: string,
-) {
+function check(failures: string[], condition: boolean, message: string) {
   if (!condition) {
     failures.push(message);
   }
@@ -1894,12 +1935,14 @@ function assessCase(
   );
   check(
     failures,
-    text.includes(normalize(RESUME_SHEET_COPY.summaryTitle)) === testCase.expectSummary,
+    text.includes(normalize(RESUME_SHEET_COPY.summaryTitle)) ===
+      testCase.expectSummary,
     `${testCase.name}: summary band presence should be ${testCase.expectSummary}`,
   );
   check(
     failures,
-    text.includes(normalize(RESUME_SHEET_COPY.badgeLabel)) === testCase.expectBadge,
+    text.includes(normalize(RESUME_SHEET_COPY.badgeLabel)) ===
+      testCase.expectBadge,
     `${testCase.name}: badge presence should be ${testCase.expectBadge}`,
   );
   check(
@@ -1947,7 +1990,15 @@ async function main() {
   const baseUrl = `http://127.0.0.1:${port}`;
   const server = spawn(
     "pnpm",
-    ["exec", "next", "start", "--hostname", "127.0.0.1", "--port", String(port)],
+    [
+      "exec",
+      "next",
+      "start",
+      "--hostname",
+      "127.0.0.1",
+      "--port",
+      String(port),
+    ],
     { cwd: ROOT, stdio: ["ignore", "ignore", "inherit"] },
   );
   let browser: Browser | null = null;
@@ -2067,9 +2118,11 @@ git commit -m "test(resume): verify the printed sheet from a production build on
 ### Task 6: Verification record
 
 **Files:**
+
 - Create: `docs/notes/<today>-resume-print-verification.md` (use the run date in `YYYY-MM-DD`)
 
 **Interfaces:**
+
 - Consumes: the six PDFs and the console output of Task 5, and the commit hash `git rev-parse --short HEAD`.
 
 - [ ] **Step 1: Read the PDFs**
@@ -2105,14 +2158,14 @@ Create the file with these sections and fill each from the run, not from memory:
 
 ## Automated Checks
 
-| Case | Pages | Page 1 ink ratio | Falsified ink ratio | Result |
-| --- | --- | --- | --- | --- |
-| demo | <n> | <ratio> | <ratio> | pass |
-| long | <n> | <ratio> | <ratio> | pass |
-| photos | <n> | <ratio> | <ratio> | pass |
-| review | <n> | <ratio> | <ratio> | pass |
-| photos-review | <n> | <ratio> | <ratio> | pass |
-| no-summary | <n> | <ratio> | <ratio> | pass |
+| Case          | Pages | Page 1 ink ratio | Falsified ink ratio | Result |
+| ------------- | ----- | ---------------- | ------------------- | ------ |
+| demo          | <n>   | <ratio>          | <ratio>             | pass   |
+| long          | <n>   | <ratio>          | <ratio>             | pass   |
+| photos        | <n>   | <ratio>          | <ratio>             | pass   |
+| review        | <n>   | <ratio>          | <ratio>             | pass   |
+| photos-review | <n>   | <ratio>          | <ratio>             | pass   |
+| no-summary    | <n>   | <ratio>          | <ratio>             | pass   |
 
 `INK_THRESHOLD` is `<value>`: below one third of the lowest real ratio (`<ratio>`) and above three times the highest falsified ratio (`<ratio>`).
 Falsified run: the ink check failed on all 6 cases, exit code 0.
@@ -2147,6 +2200,7 @@ git commit -m "docs(resume): record the first print verification run"
 ### Task 7: Documentation companions, second opinion, and pull request
 
 **Files:**
+
 - Modify: `docs/plans/resume-builder-validation.md` (Track A Session Preflight)
 - Modify: `docs/specs/resume-output-sheet.md` (Status)
 
@@ -2212,21 +2266,21 @@ Arm the review watch the skill describes before reporting the PR as open.
 
 **Spec coverage**
 
-| Spec section | Task |
-| --- | --- |
-| Career Summary Band contents and omission rules | Task 1 (calculation), Task 4 (render) |
-| Public Record Badge and Legend | Task 2 (rule), Task 4 (render, copy) |
-| Career Entry Layout, eight items | Task 4 Step 5 |
-| Display Toggle | Task 3 Steps 6 and 7 |
-| `summarizeIncludedCareers`, `formatDuration`, `SUMMARY_LIMITS` | Task 1 |
-| `hasPublicRecordBadge` | Task 2 |
-| Draft Schema | Task 3 |
-| Component Boundary | Task 4 Steps 4 to 6 |
-| Styles and Print | Task 4 Step 7 |
-| Print Verification setup, behavior, cases, checks, `--falsify` | Task 5 |
-| Visual Review note | Task 6 |
-| Tests | Tasks 1 to 4 |
-| Acceptance: preflight bullet, spec status, lockfile in the same commit, no CI reference | Tasks 5 and 7 |
+| Spec section                                                                            | Task                                  |
+| --------------------------------------------------------------------------------------- | ------------------------------------- |
+| Career Summary Band contents and omission rules                                         | Task 1 (calculation), Task 4 (render) |
+| Public Record Badge and Legend                                                          | Task 2 (rule), Task 4 (render, copy)  |
+| Career Entry Layout, eight items                                                        | Task 4 Step 5                         |
+| Display Toggle                                                                          | Task 3 Steps 6 and 7                  |
+| `summarizeIncludedCareers`, `formatDuration`, `SUMMARY_LIMITS`                          | Task 1                                |
+| `hasPublicRecordBadge`                                                                  | Task 2                                |
+| Draft Schema                                                                            | Task 3                                |
+| Component Boundary                                                                      | Task 4 Steps 4 to 6                   |
+| Styles and Print                                                                        | Task 4 Step 7                         |
+| Print Verification setup, behavior, cases, checks, `--falsify`                          | Task 5                                |
+| Visual Review note                                                                      | Task 6                                |
+| Tests                                                                                   | Tasks 1 to 4                          |
+| Acceptance: preflight bullet, spec status, lockfile in the same commit, no CI reference | Tasks 5 and 7                         |
 
 **Placeholder scan:** the `<…>` markers in Task 6 are fields for measured values from the run, each named. No other placeholders remain.
 

@@ -93,12 +93,12 @@ Each included career renders in this order:
 3. The original employer line (`원문 사업장명:` for a document record, `법인명:` for a manual record with a value), with the badge when applicable.
    Omit the line when a manual record has no employer value.
 4. `restaurantHighlights` as the existing list, when present.
-5. `주요 업무` as one inline line that joins the selected responsibilities with ` · `.
+5. `주요 업무` as one inline line that joins the selected responsibilities with `·`.
    Omit the line when the list is empty.
 6. The representative experience as one emphasized paragraph with a left rule.
    Omit it when empty.
 7. The selected resume photo with its description as the caption, when present.
-8. One compact line with `스테이션` and `기술·장비`, each followed by its values joined with ` · `.
+8. One compact line with `스테이션` and `기술·장비`, each followed by its values joined with `·`.
    Omit a label whose list is empty, and omit the line when both are empty.
 
 The demo tag `예시 데이터` stays where it is today.
@@ -150,7 +150,7 @@ Rules:
   1. The number of included careers that contain the item, descending.
   2. The first appearance when careers are walked from the most recent `employmentStart` to the oldest, ascending.
   3. When two careers share `employmentStart`, their order in the `entries` array.
-  Within one career, items keep the order the person selected them in.
+     Within one career, items keep the order the person selected them in.
 - Cut each list at `SUMMARY_LIMITS`: 8 stations, 6 skills, 6 equipment items.
   Export the limits as one constant.
 
@@ -252,14 +252,14 @@ The falsified run writes its PDFs under `.print-verify/falsified/`, so the real 
 
 ### Cases
 
-| Case | Fixture | Output |
-| --- | --- | --- |
-| `demo` | `createDemoCareerEntries()` with a demo identity | `.print-verify/demo.pdf` |
-| `long` | 6 manual careers without photos, each with responsibilities, stations, skills, and equipment | `.print-verify/long.pdf` |
-| `photos` | 2 careers, with one PNG uploaded through the step 3 file input as a profile photo and one as a career photo selected for the PDF | `.print-verify/photos.pdf` |
-| `review` | The `demo` fixture after the review-copy button is clicked | `.print-verify/review.pdf` |
-| `photos-review` | The `photos` fixture after the review-copy button is clicked | `.print-verify/photos-review.pdf` |
-| `no-summary` | The `demo` fixture with `showCareerSummary: false` | `.print-verify/no-summary.pdf` |
+| Case            | Fixture                                                                                                                          | Output                            |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| `demo`          | `createDemoCareerEntries()` with a demo identity                                                                                 | `.print-verify/demo.pdf`          |
+| `long`          | 6 manual careers without photos, each with responsibilities, stations, skills, and equipment                                     | `.print-verify/long.pdf`          |
+| `photos`        | 2 careers, with one PNG uploaded through the step 3 file input as a profile photo and one as a career photo selected for the PDF | `.print-verify/photos.pdf`        |
+| `review`        | The `demo` fixture after the review-copy button is clicked                                                                       | `.print-verify/review.pdf`        |
+| `photos-review` | The `photos` fixture after the review-copy button is clicked                                                                     | `.print-verify/photos-review.pdf` |
+| `no-summary`    | The `demo` fixture with `showCareerSummary: false`                                                                               | `.print-verify/no-summary.pdf`    |
 
 The `photos-review` case reads the boundary that `docs/specs/resume-review-workflow.md` assigns to the product: with a profile photo stored, the review copy must print without it.
 

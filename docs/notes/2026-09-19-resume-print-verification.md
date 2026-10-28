@@ -11,14 +11,14 @@ Both runs, the normal and the falsified, were made at this commit.
 
 ## Automated Checks
 
-| Case | Pages | Page 1 ink ratio | Falsified ink ratio | Result |
-| --- | --- | --- | --- | --- |
-| demo | 1 | 0.0410 | 0.0000 | pass |
-| long | 2 | 0.0402 | 0.0000 | pass |
-| photos | 2 | 0.0223 | 0.0000 | pass |
-| review | 1 | 0.0399 | 0.0000 | pass |
-| photos-review | 2 | 0.0214 | 0.0000 | pass |
-| no-summary | 1 | 0.0336 | 0.0000 | pass |
+| Case          | Pages | Page 1 ink ratio | Falsified ink ratio | Result |
+| ------------- | ----- | ---------------- | ------------------- | ------ |
+| demo          | 1     | 0.0410           | 0.0000              | pass   |
+| long          | 2     | 0.0402           | 0.0000              | pass   |
+| photos        | 2     | 0.0223           | 0.0000              | pass   |
+| review        | 1     | 0.0399           | 0.0000              | pass   |
+| photos-review | 2     | 0.0214           | 0.0000              | pass   |
+| no-summary    | 1     | 0.0336           | 0.0000              | pass   |
 
 `INK_THRESHOLD` is `0.002`: below one third of the lowest real ratio (`0.0214 / 3 = 0.0071`) and above three times the highest falsified ratio (`3 × 0.0000 = 0.0000`, displayed at four decimals).
 Falsified run: the ink check failed on all 6 cases, as it must, and the run exited 0.

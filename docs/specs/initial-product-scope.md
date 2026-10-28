@@ -71,11 +71,11 @@ Do not populate those fields from the employment-history document.
 
 Preserve provenance at the field level.
 
-| Label | Meaning |
-| --- | --- |
+| Label                       | Meaning                                                                                               |
+| --------------------------- | ----------------------------------------------------------------------------------------------------- |
 | Imported from public record | The browser extracted the original employer name or qualification date from a user-provided document. |
-| Confirmed by the person | The person reviewed or corrected a restaurant name, employment month, or role. |
-| Written by the person | The person supplied responsibilities, achievements, skills, equipment, or portfolio information. |
+| Confirmed by the person     | The person reviewed or corrected a restaurant name, employment month, or role.                        |
+| Written by the person       | The person supplied responsibilities, achievements, skills, equipment, or portfolio information.      |
 
 These labels describe the source of a field.
 They do not certify the complete career record, job performance, role, or employment period.

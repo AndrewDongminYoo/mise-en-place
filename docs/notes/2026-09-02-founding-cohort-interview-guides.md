@@ -297,26 +297,31 @@ One file per interview, kept outside this repository next to the mapping, named 
 ## Coded Answers
 
 ### A1 Most recent job change
+
 - 계기:
 - 탐색 기간:
 - 공백:
 
 ### A2 Channels
+
 - 사용:
 - 성사:
 
 ### A3 What differed after starting
+
 | 항목 | 자발/유도 | 어떻게 달랐는지 | 알게 된 시점 | 대응 |
-| --- | --- | --- | --- | --- |
+| ---- | --------- | --------------- | ------------ | ---- |
 
 The 자발/유도 column is required wherever a coded item can arrive from a probe, in guide B as well as here.
 
 ### A4 Information that would have prevented it
+
 - 필요했던 정보:
 - 면접에서 물었는지:
 - 묻기 어려웠던 이유:
 
 ### A5 Deal-breakers
+
 - 거절 조건 (경험 기반 여부 표시):
 - 감수 가능 조건:
 
