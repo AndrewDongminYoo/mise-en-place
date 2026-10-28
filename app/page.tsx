@@ -222,9 +222,7 @@ function SpecialtyChoiceGroup({
 
           return (
             <label
-              className={
-                "specialty-option" + (checked ? " is-selected" : "")
-              }
+              className={"specialty-option" + (checked ? " is-selected" : "")}
               key={option.value}
             >
               <input
@@ -291,9 +289,7 @@ function GroupedChoiceGroup({
 
                 return (
                   <label
-                    className={
-                      "choice-chip" + (checked ? " is-selected" : "")
-                    }
+                    className={"choice-chip" + (checked ? " is-selected" : "")}
                     key={option}
                   >
                     <input
@@ -491,9 +487,7 @@ export default function Home() {
   const [isReviewExport, setIsReviewExport] = useState(false);
   const [photoAssets, setPhotoAssets] = useState<
     Map<string, DisplayPhotoAsset>
-  >(
-    () => new Map(),
-  );
+  >(() => new Map());
   const [photoOperation, setPhotoOperation] = useState<string | null>(null);
   const [hasPendingPhotoClear, setHasPendingPhotoClear] = useState(false);
   const storedDraftRaw = useSyncExternalStore(
@@ -610,9 +604,7 @@ export default function Home() {
   // The review copy renders from a stripped identity rather than from an
   // edited draft, so the person keeps their own name while the sheet that
   // leaves the device carries none.
-  const sheetIdentity = isReviewExport
-    ? toReviewIdentity(identity)
-    : identity;
+  const sheetIdentity = isReviewExport ? toReviewIdentity(identity) : identity;
   const currentCopy = STEP_COPY[currentStep - 1];
   const includedCareers = useMemo(
     () => careers.filter((career) => career.included),
@@ -793,9 +785,7 @@ export default function Home() {
     try {
       const referencedIds = collectReferencedPhotoIds(storedDraft);
       const restoredAssets = await getPhotoAssets(referencedIds);
-      const missingIds = referencedIds.filter(
-        (id) => !restoredAssets.has(id),
-      );
+      const missingIds = referencedIds.filter((id) => !restoredAssets.has(id));
       const restoredDraft = removeMissingPhotoReferences(
         storedDraft,
         missingIds,
@@ -822,14 +812,10 @@ export default function Home() {
 
       if (missingIds.length > 0) {
         writeStoredDraft(restoredDraft);
-        setErrors([
-          "사진 일부를 이 브라우저에서 찾지 못해 제외했습니다.",
-        ]);
+        setErrors(["사진 일부를 이 브라우저에서 찾지 못해 제외했습니다."]);
       }
 
-      await deleteOrphanedPhotoAssets(
-        collectReferencedPhotoIds(restoredDraft),
-      );
+      await deleteOrphanedPhotoAssets(collectReferencedPhotoIds(restoredDraft));
     } catch {
       setErrors([
         "저장된 사진을 복원하지 못했습니다. 브라우저 저장 공간을 확인해 주세요.",
@@ -1015,7 +1001,11 @@ export default function Home() {
     }
 
     setFileNotice(null);
-    beginDraft(createImportedCareerEntries(result.records), EMPTY_IDENTITY, false);
+    beginDraft(
+      createImportedCareerEntries(result.records),
+      EMPTY_IDENTITY,
+      false,
+    );
   }
 
   function updateCareer(id: string, patch: Partial<CareerEntry>) {
@@ -1112,9 +1102,7 @@ export default function Home() {
         await deletePhotoAsset(previousId).catch(() => undefined);
       }
     } catch (error) {
-      setErrors([
-        getErrorMessage(error, "프로필 사진을 추가하지 못했습니다."),
-      ]);
+      setErrors([getErrorMessage(error, "프로필 사진을 추가하지 못했습니다.")]);
     } finally {
       setPhotoOperation(null);
     }
@@ -1174,9 +1162,7 @@ export default function Home() {
       nextAssets.set(savedAsset.id, toDisplayPhotoAsset(savedAsset));
       replaceDisplayedPhotoAssets(nextAssets);
     } catch (error) {
-      setErrors([
-        getErrorMessage(error, "작업 사진을 추가하지 못했습니다."),
-      ]);
+      setErrors([getErrorMessage(error, "작업 사진을 추가하지 못했습니다.")]);
     } finally {
       setPhotoOperation(null);
     }
@@ -1335,9 +1321,7 @@ export default function Home() {
 
     if (nextErrors.length === 0) {
       if (writeStoredDraft(currentDraft)) {
-        void deleteOrphanedPhotoAssets(
-          collectReferencedPhotoIds(currentDraft),
-        );
+        void deleteOrphanedPhotoAssets(collectReferencedPhotoIds(currentDraft));
       }
       setHasConfirmedCareers(true);
       moveToStep(3);
@@ -1415,7 +1399,11 @@ export default function Home() {
   return (
     <div className="app-shell">
       <header className="app-header no-print">
-        <a className="brand-lockup" href="#main-content" aria-label="본문으로 이동">
+        <a
+          className="brand-lockup"
+          href="#main-content"
+          aria-label="본문으로 이동"
+        >
           <span className="brand-mark" aria-hidden="true">
             M
           </span>
@@ -1520,14 +1508,16 @@ export default function Home() {
                   <p className="panel-kicker">검증 중인 빠른 시작</p>
                   <h2>국민건강보험공단 직접 발급 PDF</h2>
                   <p className="panel-copy">
-                    공단에서 직접 발급한 텍스트 PDF 한 양식만 진단합니다.
-                    정부24 발급본이나 다른 양식은 직접 입력으로 이어집니다.
+                    공단에서 직접 발급한 텍스트 PDF 한 양식만 진단합니다. 정부24
+                    발급본이나 다른 양식은 직접 입력으로 이어집니다.
                   </p>
                 </div>
 
                 <form className="pdf-import-form" onSubmit={handlePdfImport}>
                   <label className="file-picker">
-                    <span>{hasSelectedPdf ? "PDF 다시 선택하기" : "PDF 선택하기"}</span>
+                    <span>
+                      {hasSelectedPdf ? "PDF 다시 선택하기" : "PDF 선택하기"}
+                    </span>
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -1546,7 +1536,9 @@ export default function Home() {
                       maxLength={128}
                       disabled={isImportingPdf}
                     />
-                    <small>직접 발급본에 설정된 비밀번호를 입력해 주세요.</small>
+                    <small>
+                      직접 발급본에 설정된 비밀번호를 입력해 주세요.
+                    </small>
                   </label>
 
                   <button
@@ -1576,8 +1568,8 @@ export default function Home() {
                     onClick={startManualEntry}
                   >
                     {hasDraft
-                        ? "새 이력서로 직접 입력하기"
-                        : "직접 입력으로 계속하기"}
+                      ? "새 이력서로 직접 입력하기"
+                      : "직접 입력으로 계속하기"}
                     <span aria-hidden="true">→</span>
                   </button>
                 ) : null}
@@ -1630,7 +1622,9 @@ export default function Home() {
                     onClick={startManualEntry}
                     disabled={isImportingPdf}
                   >
-                    {hasDraft || storedDraft ? "새로 작성하기" : "직접 입력하기"}
+                    {hasDraft || storedDraft
+                      ? "새로 작성하기"
+                      : "직접 입력하기"}
                     <span aria-hidden="true">→</span>
                   </button>
                   {storedDraft || hasPendingPhotoClear ? (
@@ -1655,7 +1649,9 @@ export default function Home() {
                 >
                   <span>
                     <strong>예시 데이터로 흐름 보기</strong>
-                    <small>실제 경력으로 오해하지 않도록 계속 표시합니다.</small>
+                    <small>
+                      실제 경력으로 오해하지 않도록 계속 표시합니다.
+                    </small>
                   </span>
                   <span aria-hidden="true">↗</span>
                 </button>
@@ -1812,7 +1808,8 @@ export default function Home() {
                           <div>
                             <span className="field-label">주요 이력</span>
                             <span className="field-hint">
-                              수상·선정 명칭과 당시 적용 시기를 함께 적어 주세요.
+                              수상·선정 명칭과 당시 적용 시기를 함께 적어
+                              주세요.
                             </span>
                           </div>
                           <ProvenanceTag kind="authored" />
@@ -1870,7 +1867,8 @@ export default function Home() {
                           onClick={() => addRestaurantHighlight(career.id)}
                           disabled={career.restaurantHighlights.length >= 5}
                         >
-                          주요 이력 추가 ({career.restaurantHighlights.length}/5)
+                          주요 이력 추가 ({career.restaurantHighlights.length}
+                          /5)
                         </button>
                       </section>
                     </div>
@@ -1973,7 +1971,11 @@ export default function Home() {
                 </article>
               ))}
 
-              <button className="add-career-button" type="button" onClick={addCareer}>
+              <button
+                className="add-career-button"
+                type="button"
+                onClick={addCareer}
+              >
                 <span aria-hidden="true">＋</span>
                 근무 이력 추가하기
               </button>
@@ -2250,8 +2252,7 @@ export default function Home() {
                       value={career.representativeExperience}
                       onChange={(event) =>
                         updateCareer(career.id, {
-                          representativeExperience:
-                            event.currentTarget.value,
+                          representativeExperience: event.currentTarget.value,
                         })
                       }
                       placeholder="예: 디너 서비스에서 파스타 스테이션을 독립 운영하고 계절 메뉴 테스트를 보조했습니다."
@@ -2304,8 +2305,7 @@ export default function Home() {
                             const showPhotoDescriptionError =
                               photoDescriptionError !== null &&
                               errors.includes(photoDescriptionError);
-                            const photoDescriptionErrorId =
-                              `photo-description-${photo.assetId}-error`;
+                            const photoDescriptionErrorId = `photo-description-${photo.assetId}-error`;
 
                             return (
                               <article

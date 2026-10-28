@@ -41,10 +41,7 @@ test("accepts the declared still photo types", () => {
     "image/heic",
     "image/heif",
   ]) {
-    assert.equal(
-      validatePhotoFile({ name: "photo", size: 100, type }),
-      null,
-    );
+    assert.equal(validatePhotoFile({ name: "photo", size: 100, type }), null);
   }
 });
 

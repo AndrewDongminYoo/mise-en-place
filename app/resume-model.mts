@@ -45,10 +45,7 @@ export type ResumeIdentity = {
   profilePhotoId: string | null;
 };
 
-export type TalentPoolChoice =
-  | "resume-only"
-  | "selected-only"
-  | "private-pool";
+export type TalentPoolChoice = "resume-only" | "selected-only" | "private-pool";
 
 export const ROLE_SUGGESTIONS = [
   "Commis",
@@ -357,11 +354,7 @@ export function createDemoCareerEntries(): CareerEntry[] {
       role: "Chef de Partie",
       culinarySpecialties: ["restaurant"],
       stations: ["핫 / Hot", "파스타·면"],
-      responsibilities: [
-        "서비스 준비",
-        "스테이션 운영",
-        "메뉴 개발",
-      ],
+      responsibilities: ["서비스 준비", "스테이션 운영", "메뉴 개발"],
       skills: ["파스타·생면", "생선 필레·손질", "수비드"],
       equipment: ["콤비오븐"],
       representativeExperience:
@@ -396,7 +389,9 @@ export function getImportedCareerFieldProvenance(
     return "authored";
   }
 
-  return entry[field] === entry.importedFields[field] ? "imported" : "confirmed";
+  return entry[field] === entry.importedFields[field]
+    ? "imported"
+    : "confirmed";
 }
 
 export function toggleBoundedChoice(
@@ -456,13 +451,19 @@ export function removeCareerPhotoReference(
     portfolioPhotos: entry.portfolioPhotos.filter(
       (photo) => photo.assetId !== assetId,
     ),
-    resumePhotoId:
-      entry.resumePhotoId === assetId ? null : entry.resumePhotoId,
+    resumePhotoId: entry.resumePhotoId === assetId ? null : entry.resumePhotoId,
   };
 }
 
 function toKoreanOrdinal(index: number): string {
-  const ordinals = ["첫 번째", "두 번째", "세 번째", "네 번째", "다섯 번째", "여섯 번째"];
+  const ordinals = [
+    "첫 번째",
+    "두 번째",
+    "세 번째",
+    "네 번째",
+    "다섯 번째",
+    "여섯 번째",
+  ];
 
   return ordinals[index] ?? `${index + 1}번째`;
 }
@@ -615,9 +616,7 @@ export function getEnrichmentErrors(
     }
 
     if (entry.responsibilities.length === 0) {
-      errors.push(
-        `${restaurantName}의 주요 업무를 한 개 이상 선택해 주세요.`,
-      );
+      errors.push(`${restaurantName}의 주요 업무를 한 개 이상 선택해 주세요.`);
     }
   }
 
@@ -850,7 +849,9 @@ function hasValidCareerPhotoReferences(
   );
 }
 
-function readImportedFields(value: unknown): ImportedCareerFields | null | false {
+function readImportedFields(
+  value: unknown,
+): ImportedCareerFields | null | false {
   if (value === null) {
     return null;
   }
@@ -1011,7 +1012,10 @@ function readCareerEntry(
   };
 }
 
-function readIdentity(value: unknown, draftVersion: number): ResumeIdentity | null {
+function readIdentity(
+  value: unknown,
+  draftVersion: number,
+): ResumeIdentity | null {
   if (!isRecord(value)) {
     return null;
   }

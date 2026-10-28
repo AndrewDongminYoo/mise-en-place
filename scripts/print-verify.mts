@@ -16,7 +16,12 @@ import { createServer } from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
+import {
+  chromium,
+  type Browser,
+  type BrowserContext,
+  type Page,
+} from "playwright";
 
 import {
   RESUME_DRAFT_STORAGE_KEY,
@@ -113,7 +118,9 @@ const CASES: Case[] = [
   },
   {
     name: "long",
-    draft: buildDraft(Array.from({ length: 6 }, (_, index) => manualCareer(index))),
+    draft: buildDraft(
+      Array.from({ length: 6 }, (_, index) => manualCareer(index)),
+    ),
     review: false,
     photos: false,
     expectSummary: true,
@@ -259,7 +266,9 @@ async function uploadPhotos(page: Page) {
     .locator(".career-photo-add input[type=file]")
     .first()
     .setInputFiles({ name: "dish.png", mimeType: "image/png", buffer });
-  const description = page.locator('textarea[id^="photo-description-"]').first();
+  const description = page
+    .locator('textarea[id^="photo-description-"]')
+    .first();
   await description.waitFor();
   await description.fill("검증용 접시 · 소스와 플레이팅");
   await page.getByLabel("이 사진을 PDF에 사용").first().check();
@@ -280,7 +289,8 @@ async function printCase(
   }
 
   await page.evaluate(() => {
-    (window as Window & { __printRequested?: boolean }).__printRequested = false;
+    (window as Window & { __printRequested?: boolean }).__printRequested =
+      false;
   });
   await page
     .getByRole("button", {
@@ -288,7 +298,9 @@ async function printCase(
     })
     .click();
   await page.waitForFunction(
-    () => (window as Window & { __printRequested?: boolean }).__printRequested === true,
+    () =>
+      (window as Window & { __printRequested?: boolean }).__printRequested ===
+      true,
   );
 
   // The print snapshot is taken from this DOM, so count the profile photo
@@ -338,7 +350,11 @@ async function inspectPdf(page: Page, pdf: Buffer): Promise<Inspection> {
       let inked = 0;
 
       for (let offset = 0; offset < data.length; offset += 4) {
-        if (data[offset] < 245 || data[offset + 1] < 245 || data[offset + 2] < 245) {
+        if (
+          data[offset] < 245 ||
+          data[offset + 1] < 245 ||
+          data[offset + 2] < 245
+        ) {
           inked += 1;
         }
       }
@@ -380,11 +396,7 @@ async function servePdfjs(context: BrowserContext) {
   });
 }
 
-function check(
-  failures: string[],
-  condition: boolean,
-  message: string,
-) {
+function check(failures: string[], condition: boolean, message: string) {
   if (!condition) {
     failures.push(message);
   }
@@ -436,12 +448,14 @@ function assessCase(
   );
   check(
     failures,
-    text.includes(normalize(RESUME_SHEET_COPY.summaryTitle)) === testCase.expectSummary,
+    text.includes(normalize(RESUME_SHEET_COPY.summaryTitle)) ===
+      testCase.expectSummary,
     `${testCase.name}: summary band presence should be ${testCase.expectSummary}`,
   );
   check(
     failures,
-    text.includes(normalize(RESUME_SHEET_COPY.badgeLabel)) === testCase.expectBadge,
+    text.includes(normalize(RESUME_SHEET_COPY.badgeLabel)) ===
+      testCase.expectBadge,
     `${testCase.name}: badge presence should be ${testCase.expectBadge}`,
   );
   check(
@@ -493,7 +507,15 @@ async function main() {
   const baseUrl = `http://127.0.0.1:${port}`;
   const server = spawn(
     "pnpm",
-    ["exec", "next", "start", "--hostname", "127.0.0.1", "--port", String(port)],
+    [
+      "exec",
+      "next",
+      "start",
+      "--hostname",
+      "127.0.0.1",
+      "--port",
+      String(port),
+    ],
     { cwd: ROOT, stdio: ["ignore", "ignore", "inherit"] },
   );
   server.on("error", (error) => {
@@ -517,13 +539,23 @@ async function main() {
           await uploadPhotos(page);
         }
 
-        const { pdf, profilePhotos, badges } = await printCase(page, testCase, falsify);
+        const { pdf, profilePhotos, badges } = await printCase(
+          page,
+          testCase,
+          falsify,
+        );
         const inspection = await inspectPdf(page, pdf);
 
         console.log(
           `${testCase.name}: ${inspection.pageCount} page(s), ink ${inspection.inkRatio.toFixed(4)}`,
         );
-        assessCase(testCase, inspection, { profilePhotos, badges }, falsify, failures);
+        assessCase(
+          testCase,
+          inspection,
+          { profilePhotos, badges },
+          falsify,
+          failures,
+        );
       } finally {
         await context.close();
       }

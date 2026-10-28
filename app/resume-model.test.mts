@@ -90,10 +90,7 @@ test("round trips restaurant metadata and photo references", () => {
 test("normalizes authored restaurant metadata when saving a draft", () => {
   const draft = completeDraft();
   draft.careers[0].restaurantLocation = "  서울 용산구 한남동  ";
-  draft.careers[0].restaurantHighlights = [
-    "  미쉐린 1스타 (2024)  ",
-    "   ",
-  ];
+  draft.careers[0].restaurantHighlights = ["  미쉐린 1스타 (2024)  ", "   "];
   draft.careers[0].portfolioPhotos = [
     { assetId: "work-a", description: "  파스타 · 소스와 마감  " },
   ];
@@ -185,7 +182,10 @@ test("selects at most one representative photo from the same career", () => {
     resumePhotoId: "work-a",
   };
 
-  assert.equal(selectCareerResumePhoto(entry, "work-b").resumePhotoId, "work-b");
+  assert.equal(
+    selectCareerResumePhoto(entry, "work-b").resumePhotoId,
+    "work-b",
+  );
   assert.equal(selectCareerResumePhoto(entry, null).resumePhotoId, null);
   assert.throws(
     () => selectCareerResumePhoto(entry, "work-c"),
@@ -264,10 +264,7 @@ test("removes missing profile and career photo references", () => {
 test("limits primary responsibilities to three choices", () => {
   const selected = ["서비스 준비", "스테이션 운영", "발주·재고"];
 
-  assert.deepEqual(
-    toggleBoundedChoice(selected, "메뉴 개발", 3),
-    selected,
-  );
+  assert.deepEqual(toggleBoundedChoice(selected, "메뉴 개발", 3), selected);
 });
 
 test("lets a selected choice be removed at the limit", () => {
@@ -284,10 +281,9 @@ test("shows techniques only for the selected culinary specialties", () => {
     ["restaurant"],
     "skills",
   ).flatMap((group) => group.options);
-  const bakerySkills = getCulinaryChoiceGroups(
-    ["bakery"],
-    "skills",
-  ).flatMap((group) => group.options);
+  const bakerySkills = getCulinaryChoiceGroups(["bakery"], "skills").flatMap(
+    (group) => group.options,
+  );
 
   assert.equal(restaurantSkills.includes("수비드"), true);
   assert.equal(restaurantSkills.includes("반죽 발효 관리"), false);
@@ -450,7 +446,9 @@ test("rejects a supplied malformed email", () => {
   };
 
   assert.deepEqual(
-    getEnrichmentErrors({ ...completeIdentity, email: "not-an-email" }, [entry]),
+    getEnrichmentErrors({ ...completeIdentity, email: "not-an-email" }, [
+      entry,
+    ]),
     ["올바른 이메일 주소를 입력해 주세요."],
   );
 });
@@ -858,14 +856,26 @@ test("orders summary choices by career count, then by recency", () => {
     { today: "2026-09" },
   );
 
-  assert.deepEqual(summary.stations, ["그릴 / Grill", "핫 / Hot", "콜드 / Garde Manger"]);
+  assert.deepEqual(summary.stations, [
+    "그릴 / Grill",
+    "핫 / Hot",
+    "콜드 / Garde Manger",
+  ]);
 });
 
 test("keeps array order for careers that share a start month", () => {
   const summary = summarizeIncludedCareers(
     [
-      summaryCareer({ employmentStart: "2024-01", employmentEnd: "2024-06", skills: ["소스"] }),
-      summaryCareer({ employmentStart: "2024-01", employmentEnd: "2024-06", skills: ["칼 기술"] }),
+      summaryCareer({
+        employmentStart: "2024-01",
+        employmentEnd: "2024-06",
+        skills: ["소스"],
+      }),
+      summaryCareer({
+        employmentStart: "2024-01",
+        employmentEnd: "2024-06",
+        skills: ["칼 기술"],
+      }),
     ],
     { today: "2026-09" },
   );
@@ -874,9 +884,18 @@ test("keeps array order for careers that share a start month", () => {
 });
 
 test("cuts each summary list at its limit", () => {
-  const stations = Array.from({ length: 10 }, (_, index) => `스테이션 ${index}`);
+  const stations = Array.from(
+    { length: 10 },
+    (_, index) => `스테이션 ${index}`,
+  );
   const summary = summarizeIncludedCareers(
-    [summaryCareer({ employmentStart: "2024-01", employmentEnd: "2024-06", stations })],
+    [
+      summaryCareer({
+        employmentStart: "2024-01",
+        employmentEnd: "2024-06",
+        stations,
+      }),
+    ],
     { today: "2026-09" },
   );
 

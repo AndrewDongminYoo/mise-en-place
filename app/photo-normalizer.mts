@@ -88,10 +88,7 @@ function loadImage(file: File): Promise<{
   });
 }
 
-function encodeJpeg(
-  canvas: HTMLCanvasElement,
-  quality: number,
-): Promise<Blob> {
+function encodeJpeg(canvas: HTMLCanvasElement, quality: number): Promise<Blob> {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {

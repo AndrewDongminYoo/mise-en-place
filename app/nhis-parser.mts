@@ -160,7 +160,12 @@ export function parseNhisQualificationPages(
     const acquiredHeader = findLabel(page.items, "자격취득일");
     const lostHeader = findLabel(page.items, "자격상실일");
 
-    if (!subscriberHeader || !employerHeader || !acquiredHeader || !lostHeader) {
+    if (
+      !subscriberHeader ||
+      !employerHeader ||
+      !acquiredHeader ||
+      !lostHeader
+    ) {
       return fallback;
     }
 
@@ -296,9 +301,7 @@ export function parseNhisQualificationPages(
         rowItems.filter((item) => itemX(item) >= lostBoundary),
       );
       const qualificationStart = parseCertificateDate(acquiredText);
-      const qualificationEnd = lostText
-        ? parseCertificateDate(lostText)
-        : "";
+      const qualificationEnd = lostText ? parseCertificateDate(lostText) : "";
 
       if (
         !legalEmployer ||

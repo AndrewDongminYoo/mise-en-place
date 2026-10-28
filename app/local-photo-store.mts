@@ -71,11 +71,11 @@ function openPhotoDatabase(indexedDB?: IDBFactory): Promise<IDBDatabase> {
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () =>
-      reject(
-        request.error ?? new Error("사진 저장소를 열지 못했습니다."),
-      );
+      reject(request.error ?? new Error("사진 저장소를 열지 못했습니다."));
     request.onblocked = () =>
-      reject(new Error("열려 있는 다른 탭 때문에 사진 저장소를 열지 못했습니다."));
+      reject(
+        new Error("열려 있는 다른 탭 때문에 사진 저장소를 열지 못했습니다."),
+      );
   });
 }
 
@@ -164,7 +164,10 @@ export async function getPhotoAssets(
   const database = await openPhotoDatabase(indexedDB);
 
   try {
-    const transaction = database.transaction(LOCAL_PHOTO_STORE_NAME, "readonly");
+    const transaction = database.transaction(
+      LOCAL_PHOTO_STORE_NAME,
+      "readonly",
+    );
     const completed = transactionDone(transaction);
     const store = transaction.objectStore(LOCAL_PHOTO_STORE_NAME);
     const values = await Promise.all(
@@ -208,9 +211,7 @@ export async function deletePhotoAsset(
   }
 }
 
-export async function clearPhotoAssets(
-  indexedDB?: IDBFactory,
-): Promise<void> {
+export async function clearPhotoAssets(indexedDB?: IDBFactory): Promise<void> {
   const database = await openPhotoDatabase(indexedDB);
 
   try {
@@ -246,7 +247,9 @@ export async function deleteOrphanedPhotoAssets(
 
     await readCompleted;
 
-    const storedIds = keys.filter((key): key is string => typeof key === "string");
+    const storedIds = keys.filter(
+      (key): key is string => typeof key === "string",
+    );
     const { missingIds, orphanedIds } = reconcilePhotoAssetIds(
       referencedIds,
       storedIds,
@@ -263,9 +266,7 @@ export async function deleteOrphanedPhotoAssets(
     const deleteCompleted = transactionDone(deleteTransaction);
     const store = deleteTransaction.objectStore(LOCAL_PHOTO_STORE_NAME);
 
-    await Promise.all(
-      orphanedIds.map((id) => requestResult(store.delete(id))),
-    );
+    await Promise.all(orphanedIds.map((id) => requestResult(store.delete(id))));
     await deleteCompleted;
 
     return { missingIds, deletedOrphanIds: orphanedIds };

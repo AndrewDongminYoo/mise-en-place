@@ -17,10 +17,10 @@
   --line: rgba(32, 35, 31, 0.16);
   --line-strong: rgba(32, 35, 31, 0.34);
   --shadow-paper: 0 22px 60px rgba(58, 48, 34, 0.12);
-  --font-interface: var(--font-geist-sans), "Apple SD Gothic Neo",
-    "Noto Sans KR", sans-serif;
-  --font-editorial: "Iowan Old Style", "Palatino Linotype", "Noto Serif KR",
-    "Batang", serif;
+  --font-interface:
+    var(--font-geist-sans), "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --font-editorial:
+    "Iowan Old Style", "Palatino Linotype", "Noto Serif KR", "Batang", serif;
   --font-label: var(--font-geist-mono), "SFMono-Regular", Consolas, monospace;
 }
 
@@ -37,7 +37,11 @@ body {
   min-width: 320px;
   margin: 0;
   background:
-    radial-gradient(circle at 85% 5%, rgba(182, 64, 47, 0.08), transparent 28rem),
+    radial-gradient(
+      circle at 85% 5%,
+      rgba(182, 64, 47, 0.08),
+      transparent 28rem
+    ),
     linear-gradient(180deg, var(--paper-soft) 0, var(--paper) 36rem);
   color: var(--ink);
   font-family: var(--font-interface);
