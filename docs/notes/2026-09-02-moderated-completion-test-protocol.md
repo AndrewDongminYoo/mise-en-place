@@ -91,8 +91,19 @@ Removing the identifiers does not make publishing the totals something the parti
 It also offers an exclusion, so the answer is a second thing to record: the session sheet carries "Included in published totals" beside the consent line, and a participant who declines is left out of every count in the reconciliation.
 
 Item 7 is an absolute technical claim, so verify it before the first session of each build rather than asserting it.
-Open the browser devtools network panel, run one import, and confirm that no request leaves the page.
-Record that check on the sheet. An added error reporter or analytics tag would falsify the promise silently.
+An added error reporter or analytics tag would falsify the promise silently.
+
+The first import in a new tab loads the application's own code: same-origin `GET` requests for files under `/_next/static/`, with no body.
+The operator decided on 2026-10-31 that the moderator imports once before the participant arrives, so that this loading happens before the check and before the session.
+Use any PDF that is not a qualification certificate, such as a page printed to PDF from the browser.
+In the tab the session will use:
+
+1. Open the browser devtools network panel and import that PDF once. This is the warm-up; its requests are expected.
+2. Clear the network panel, import the same PDF again, and confirm that no request leaves the page.
+3. Record that check on the sheet.
+
+Keep that tab open for the session; after a reload, repeat the warm-up.
+`pnpm preflight:verify` runs the same steps with a PDF it prints itself, and `docs/notes/2026-10-31-track-a-dry-run.md` records the result for the current build.
 
 If a participant brings their own qualification certificate, the document boundary in `docs/specs/initial-product-scope.md` section "Privacy and Security Boundary" applies to the session exactly as it applies to the product.
 Do not photograph the screen while the document is open, and do not copy any extracted value into the notes.
