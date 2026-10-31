@@ -42,7 +42,10 @@ Do not build account synchronization, real-time chat, recommendation algorithms,
 - `docs/specs/initial-product-scope.md` defines the current product boundaries and validation gates.
 - `docs/plans/resume-builder-validation.md` defines the resume-tool validation sequence.
 - `docs/plans/founding-cohort-validation.md` defines the hiring-network validation sequence.
+- `docs/specs/resume-review-workflow.md` defines the resume-review operating model that the first product milestone requires.
 - `docs/notes/2026-08-market-research.md` records market observations and their evidence status.
+- `docs/notes/2026-09-02-founding-cohort-interview-guides.md` holds the Track B interview guides, anonymization rules, and note template.
+- `docs/notes/2026-09-02-moderated-completion-test-protocol.md` holds the Track A session protocol and the observable definitions of the gate's behavioral thresholds.
 - `docs/notes/` stores working evidence and research.
 - `docs/plans/` stores approved execution plans.
 - `docs/specs/` stores approved product and technical requirements.
