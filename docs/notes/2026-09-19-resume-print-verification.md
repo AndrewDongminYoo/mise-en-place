@@ -2,19 +2,23 @@
 
 ## Run
 
-- Date: 2026-09-19
-- Commit: `5b4767e`
+- Date: 2026-10-31
+- Commit: `0aef5eb`
 - Command: `pnpm print:verify`, then `pnpm print:verify -- --skip-build --falsify`
-- Browser: Chromium installed by `pnpm exec playwright install chromium` (`Chrome Headless Shell 153.0.8010.12 (playwright chromium-headless-shell v1243)`), Playwright `1.63.0` (`pnpm exec playwright --version`)
+- Browser: Chromium installed by `pnpm exec playwright install chromium` (headless Chromium `156.0.8078.4`, Playwright Chromium revision 1248), Playwright `1.64.1` (`pnpm exec playwright --version`)
 
 Both runs, the normal and the falsified, were made at this commit.
+The first record was made at `5b4767e` on 2026-09-19 with Playwright `1.63.0` and Chromium revision 1243.
+It was re-run at `0aef5eb` for the Track A dry run in `docs/notes/2026-10-31-track-a-dry-run.md`, after dependency updates and a formatter pass changed `app/`, `scripts/print-verify.mts`, `package.json`, and `pnpm-lock.yaml`.
+Page counts did not change, and only the `long` ratio moved, from `0.0402` to `0.0401`.
+The visual review below was checked again against the new PDFs and still holds.
 
 ## Automated Checks
 
 | Case          | Pages | Page 1 ink ratio | Falsified ink ratio | Result |
 | ------------- | ----- | ---------------- | ------------------- | ------ |
 | demo          | 1     | 0.0410           | 0.0000              | pass   |
-| long          | 2     | 0.0402           | 0.0000              | pass   |
+| long          | 2     | 0.0401           | 0.0000              | pass   |
 | photos        | 2     | 0.0223           | 0.0000              | pass   |
 | review        | 1     | 0.0399           | 0.0000              | pass   |
 | photos-review | 2     | 0.0214           | 0.0000              | pass   |
@@ -43,6 +47,6 @@ Fixed in `74cbb56` by dropping `.resume-section` from that selector and adding `
 The earlier record's falsified figures came from a build before `74cbb56` and were re-taken at `8f826fa`.
 
 PR #12 review found that `page.tsx` read the current month once at mount, so a tab left open across a month boundary would print a current career one month short; `5b4767e` re-reads the month when the preview is entered or printed.
-Both runs were repeated at `5b4767e` with the same page counts and ratios as the table, which is expected because the fixtures do not span a month boundary.
+Both runs were repeated at `5b4767e` with the same page counts and ratios as the record made then, which is expected because the fixtures do not span a month boundary.
 
 No PDF or screenshot is committed. The PDFs stay under `.print-verify/`, which `.gitignore` excludes.
