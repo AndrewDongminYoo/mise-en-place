@@ -17,10 +17,12 @@ It contains text only: no PDF, screenshot, certificate, or participant data.
 Session 1 can run on a later commit only when this command prints nothing:
 
 ```bash
-git diff --stat 0aef5eb <session commit> -- app scripts package.json pnpm-lock.yaml
+git diff --stat 0aef5eb <session commit> -- . ':(exclude)docs' ':(exclude)*.md'
 ```
 
 Any output means this dry run does not cover the session build, so run it again first.
+The check excludes documentation instead of listing code paths, so a new root file such as `next.config.ts`, an instrumentation file, or a script tag in `public/` also counts.
+A list of only `app`, `scripts`, `package.json`, and `pnpm-lock.yaml` would miss those files, and consent item 7 warns that an added error reporter or analytics tag would break the document promise without any visible change.
 Record the build commit on every session sheet, as the protocol requires.
 
 ## Preflight Results
@@ -43,6 +45,7 @@ Record the build commit on every session sheet, as the protocol requires.
 
 The browser checks ran from a one-off Playwright script kept outside the repository.
 It is not a gate, and `pnpm print:verify` stays the only committed Playwright script.
+The script was not kept, so a rerun of the browser checks follows the conditions in the preflight and the developer-tools procedure in the protocol.
 
 - The network guard listens on the browser context, so worker requests are included.
   After the page has loaded, every HTTP or HTTPS request counts as a failure.
