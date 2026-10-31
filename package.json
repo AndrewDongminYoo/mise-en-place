@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "node --experimental-strip-types --test app/*.test.mts",
     "typecheck": "next typegen && tsc --noEmit",
+    "preflight:verify": "node --experimental-strip-types scripts/preflight-verify.mts",
     "print:verify": "node --experimental-strip-types scripts/print-verify.mts"
   },
   "dependencies": {
