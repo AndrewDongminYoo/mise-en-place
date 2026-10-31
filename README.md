@@ -73,9 +73,10 @@ pnpm test
 pnpm build
 pnpm start
 pnpm print:verify
+pnpm preflight:verify
 ```
 
-`pnpm print:verify` prints the resume sheet through Playwright and checks the PDFs; it runs on demand, not in CI.
+`pnpm print:verify` prints the resume sheet through Playwright and checks the PDFs, and `pnpm preflight:verify` walks the Track A session preflight in a browser; both run on demand, not in CI.
 
 ## License
 
