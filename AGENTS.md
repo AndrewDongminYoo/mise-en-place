@@ -49,6 +49,6 @@ Do not build account synchronization, real-time chat, recommendation algorithms,
 
 ## Repository Conventions
 
-This repository uses Next.js 16.3.3, React 19.2.8, TypeScript, Tailwind CSS 4, and pnpm 11.22.0.
+This repository uses Next.js, React, TypeScript, Tailwind CSS 4, and pnpm; `package.json` and `pnpm-lock.yaml` own the exact versions.
 Use the scripts in `package.json` through pnpm.
 Keep the validation documents current when an approved product decision changes the target segment, profile schema, deferred scope, or validation gate.
