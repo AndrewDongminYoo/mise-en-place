@@ -82,6 +82,8 @@ Before each moderated Track A session, confirm these conditions:
 - Then, confirm that the actual photo workflow sends no photo file, Blob, Object URL, or photo description through an HTTP or HTTPS request.
 - At the end of the session, the participant can delete the stored draft and all local photos from the device.
 
+`docs/notes/2026-10-31-track-a-dry-run.md` records the dry run of these conditions before session 1, the commit it covers, and the check that tells whether a session build is still that commit.
+
 ## Step 3: Run Moderated Completion Tests
 
 Run the workflow with 10 culinary professionals.

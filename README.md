@@ -68,9 +68,14 @@ Available scripts:
 ```bash
 pnpm dev
 pnpm lint
+pnpm typecheck
+pnpm test
 pnpm build
 pnpm start
+pnpm print:verify
 ```
+
+`pnpm print:verify` prints the resume sheet through Playwright and checks the PDFs; it runs on demand, not in CI.
 
 ## License
 
