@@ -2365,4 +2365,8 @@ button:disabled {
   .resume-legend {
     break-inside: avoid;
   }
+
+  .resume-section > h3 {
+    break-after: avoid;
+  }
 }
