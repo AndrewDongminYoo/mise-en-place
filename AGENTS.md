@@ -35,7 +35,7 @@ Prefer concrete operating facts and deal-breakers over vague culture statements 
 List only employers and roles that pass the minimum verification in `docs/specs/initial-product-scope.md`.
 Do not accept placeholders such as "negotiable," "company policy," or "to be discussed later" for required working-condition fields.
 Do not introduce a culinary professional to an employer that fails verification.
-Do not build account synchronization, real-time chat, recommendation algorithms, public reviews, mobile apps, or an administration dashboard during either validation track unless the operator explicitly changes the scope.
+Do not build account synchronization, real-time chat, recommendation algorithms, public reviews, mobile apps, or an administration dashboard during either validation track unless the user explicitly changes the scope.
 
 ## Project Sources of Truth
 
