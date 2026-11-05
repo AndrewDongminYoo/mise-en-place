@@ -240,7 +240,7 @@ The private culinary professional profile contains:
 - Career direction across management, ownership, and specialist craft.
 - Explicit deal-breakers.
 
-The operator reviews both profiles and makes 3 to 5 manual introductions each week.
+Both profiles are reviewed and 3 to 5 manual introductions are made each week.
 Each introduction explains the relevant facts and known mismatches.
 The validation flow does not calculate an AI or rules-based compatibility score.
 

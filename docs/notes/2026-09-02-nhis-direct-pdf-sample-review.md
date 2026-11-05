@@ -2,8 +2,8 @@
 
 ## Scope
 
-An operator-supplied certificate from the National Health Insurance Service direct issuance flow was reviewed locally.
-The source remains only in the operator's primary checkout under `.samples/`, which the local `.git/info/exclude` excludes.
+A supplied certificate from the National Health Insurance Service direct issuance flow was reviewed locally.
+The source remains only in the primary checkout under `.samples/`, which the local `.git/info/exclude` excludes.
 The source is not present in this feature worktree, and Git does not track it.
 This note contains no password, identity value, employer name, qualification date, or extracted document text.
 

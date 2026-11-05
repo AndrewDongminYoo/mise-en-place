@@ -2,7 +2,7 @@
 
 ## Evidence Status
 
-This note combines research supplied by the operator with official pages reviewed on 2026-08-30.
+This note combines supplied research with official pages reviewed on 2026-08-30.
 The current direct checks cover Foodscout, the Work24 integrated career certificate, Saramin's National Health Insurance career import, the National Health Insurance certificate guide, and relevant Personal Information Protection Act provisions.
 Other named services, international comparisons, market statistics, and reported industry practices remain research leads.
 Recheck time-sensitive claims before public use or a business decision.
@@ -14,7 +14,7 @@ The tool should convert an employment-history skeleton into a culinary-career re
 Generic PDF extraction is only an input shortcut.
 
 The long-term opportunity remains a professional hiring network where culinary professionals and verified restaurants evaluate concrete fit before they meet.
-The operator reports that compensation and working conditions often remain undisclosed until the final interview stage, while some well-known restaurants attract applicants despite reported compensation below the statutory minimum.
+The supplied research reports that compensation and working conditions often remain undisclosed until the final interview stage, while some well-known restaurants attract applicants despite reported compensation below the statutory minimum.
 This repository has not independently measured the prevalence of that practice.
 
 ## Employment-Import Baseline
@@ -72,7 +72,7 @@ They do not establish what Foodscout offers after login, through manual operatio
 
 ## Research Leads
 
-The operator-supplied research identifies these domestic services for later comparison:
+The supplied research identifies these domestic services for later comparison:
 
 - 푸드앤잡.
 - 외식과사람들.
@@ -89,7 +89,7 @@ It identifies these international product patterns for later comparison:
 
 These comparisons were not independently checked during repository initialization.
 
-The operator identifies 점핏, 원티드, and 리멤버 as positioning references for a trusted professional network and long-term career management.
+점핏, 원티드, and 리멤버 are identified as positioning references for a trusted professional network and long-term career management.
 This reference does not approve any specific feature from those products.
 
 ## Product Implications

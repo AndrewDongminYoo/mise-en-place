@@ -2136,9 +2136,9 @@ Open each file under `.print-verify/` with the Read tool, which renders PDF page
 - `review.pdf`: that the header shows the headline as the title and no contact line.
 - `photos-review.pdf`: that the header has no profile photo while the career photo below the representative sentence is still there.
 
-- [ ] **Step 2: Send the PDFs to the operator**
+- [ ] **Step 2: Send the PDFs to the user**
 
-The operator works remotely and cannot open `.print-verify/`.
+The user works remotely and cannot open `.print-verify/`.
 Load `SendUserFile` with `ToolSearch` (`select:SendUserFile`) and send the six PDFs.
 They hold fixture data only, so nothing personal leaves the machine.
 
