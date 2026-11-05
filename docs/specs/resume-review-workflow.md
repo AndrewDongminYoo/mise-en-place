@@ -2,7 +2,7 @@
 
 ## Status
 
-Approved by the operator on 2026-09-02.
+Approved on 2026-09-02.
 
 `docs/specs/initial-product-scope.md` section "Resume Review Milestone" records resume review as a required part of the first product milestone and defers four decisions to a separate specification: reviewer type, assignment model, response time, and payment model.
 This document settles those four decisions for the validation slice only, and adds the review data boundary and feedback model that the four decisions depend on.
@@ -10,7 +10,7 @@ This document settles those four decisions for the validation slice only, and ad
 The four decisions are approved, but the reasoning behind each one is a chosen default rather than evidence.
 Each names the alternative it rejected, so a later decision can reverse it cheaply once Track A produces evidence.
 
-The operator selected the existing sequential validation order on 2026-09-07.
+The existing sequential validation order was selected on 2026-09-07.
 Track A sessions run without review, and the review gate runs with a fresh participant pool only after Track A passes.
 
 ## Scope
@@ -36,9 +36,9 @@ A reviewed resume is still an unverified self-authored record, and the product m
 
 ## Decision 1: Reviewer Type
 
-**Decision.** The operator is the only reviewer during the review-validation slice.
+**Decision.** The moderator is the only reviewer during the review-validation slice.
 
-The operator runs the moderated sessions in `docs/notes/2026-09-02-moderated-completion-test-protocol.md` and is the person who must read each review failure point.
+The moderator runs the moderated sessions in `docs/notes/2026-09-02-moderated-completion-test-protocol.md` and is the person who must read each review failure point.
 A second reviewer role would add a recruiting problem, a quality-control problem, and a consent question before there is any evidence that review changes resume usefulness.
 
 Rejected alternatives:
@@ -54,12 +54,12 @@ Revisit this decision only when completion evidence shows that review affects wh
 
 ## Decision 2: Assignment Model
 
-**Decision.** Review is requested explicitly by the culinary professional and assigned manually to the operator in a single queue.
+**Decision.** Review is requested explicitly by the culinary professional and assigned manually to the reviewer in a single queue.
 
 Review never starts automatically when a resume reaches preview.
 The person asks for it, in the same way the talent-pool choice is asked separately from resume creation.
 
-The queue is a dated list held by the operator.
+The queue is a dated list held by the reviewer.
 Each entry records the request date, the participant identifier used in the validation notes, the review date, and the completion date.
 There is no routing rule, no capacity model, and no assignment interface.
 
@@ -71,7 +71,7 @@ That would make review a step of the product rather than a choice, and it would 
 **Decision.** The stated target is 2 business days from request to returned feedback, and the committed limit is 3 business days.
 
 The target is stated to the person before they request a review, so a request is an informed choice rather than an open wait.
-When the committed limit cannot be met, the operator tells the person the new date before the limit passes rather than after.
+When the committed limit cannot be met, the reviewer tells the person the new date before the limit passes rather than after.
 
 These numbers are a starting commitment for a single reviewer with at most 10 participants.
 They are not a service level for any later product.
@@ -97,20 +97,20 @@ Do not present review as a trial of a paid feature, and do not collect payment d
 Review is the first workflow that requires resume content to leave the device.
 It therefore needs its own boundary, and that boundary must not weaken the one in `docs/specs/initial-product-scope.md`.
 
-The operator approved consent items 12 to 15 in `docs/notes/2026-09-02-moderated-completion-test-protocol.md` on 2026-09-07.
+Consent items 12 to 15 in `docs/notes/2026-09-02-moderated-completion-test-protocol.md` were approved on 2026-09-07.
 Those items cover the export, its channel, its deletion, and the identity-free review copy.
 They apply only when the separate review validation begins after Track A passes.
 
 Rules for the validation slice:
 
 - The person exports the resume themselves, through the print or PDF output that the product already provides.
-- The person sends that export to the operator through a channel the person already controls and chooses.
+- The person sends that export to the reviewer through a channel the person already controls and chooses.
 - The application does not upload the resume, does not transmit it to a review service, and does not gain a server-side review store.
 - The original source document is never part of a review request, and the reviewer never asks for it.
 - The product removes the identity and contact fields from the review export before the person sends it. Review works without them, so removal is the default rather than an option the person has to think of.
-- The operator deletes the received export **as soon as the review is returned**, which is what consent item 13 promises, and records that deletion date in the review queue entry.
+- The reviewer deletes the received export **as soon as the review is returned**, which is what consent item 13 promises, and records that deletion date in the review queue entry.
   This is not the 90-day point that `docs/notes/2026-09-02-founding-cohort-interview-guides.md` sets for research notes. A resume export is the participant's own document, not a coded note, and it is deleted on completion rather than on that schedule.
-- Deletion covers the operator's local copy **and** the message thread on whichever channel carried it. A deletion that leaves the file in a chat history has not happened.
+- Deletion covers the reviewer's local copy **and** the message thread on whichever channel carried it. A deletion that leaves the file in a chat history has not happened.
 - Review feedback is returned as text, not as a rewritten resume file.
 
 This keeps the review loop inside the existing browser-local boundary and needs no new persistence, no account, and no new dependency.
@@ -168,7 +168,7 @@ This section recorded the prerequisite while it was open; the paragraphs below s
 The prototype used to hold the resume in page state only, so reloading lost the draft and a person who left for a review and returned could not apply feedback to the resume they wrote.
 Two ways to satisfy it were offered: run every review inside one moderated session with the draft kept open, or add a browser-local export and import of the confirmed structured record as a file.
 
-The operator approved a third mechanism instead.
+A third mechanism was approved instead.
 The confirmed structured record is written to `localStorage` once the person passes the step-2 confirmation, and `restoreStoredDraft` in `app/page.tsx` brings it back on an explicit action rather than silently.
 The source document, its extracted text and its password are still never stored, so the privacy boundary in `docs/specs/initial-product-scope.md` is unchanged.
 
@@ -231,4 +231,4 @@ Do not build these for the validation slice:
 | Review validation sequence                                  | Resolved 2026-09-07 — run review with a fresh participant pool after Track A passes.                                                                   |
 | Whether review remains free after Track A                   | `[UNKNOWN]` — depends on the Track A outcome and the Track B revenue hypothesis.                                                                       |
 | Reviewer type after validation                              | `[UNKNOWN]` — reconsider only with evidence that review changed resume usefulness.                                                                     |
-| Consent wording for sending a resume export to the operator | Resolved 2026-09-07 — items 12 to 15 of the consent script are approved for the separate review validation.                                            |
+| Consent wording for sending a resume export to the reviewer | Resolved 2026-09-07 — items 12 to 15 of the consent script are approved for the separate review validation.                                            |

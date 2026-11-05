@@ -89,7 +89,7 @@ Before each moderated Track A session, confirm these conditions:
 
 Run the workflow with 10 culinary professionals.
 Run these Track A sessions without the resume-review phase.
-The operator selected the plan's existing sequence on 2026-09-07: reconcile the Track A gate before the separate review validation begins.
+The plan's existing sequence was selected on 2026-09-07: reconcile the Track A gate before the separate review validation begins.
 Observe where each participant stops, needs help, changes an imported field, or cannot describe a culinary-career detail.
 Do not add a field because one participant requests it.
 Add or promote a structured field only when repeated evidence shows that it affects completion or resume usefulness.

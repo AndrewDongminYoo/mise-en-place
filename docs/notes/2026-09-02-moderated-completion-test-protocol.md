@@ -13,7 +13,7 @@ It does not restate the record list or the gate numbers.
 Read it with both documents above open.
 
 This is a working protocol, not a specification.
-The operator approved the review sequence and consent items 12 to 15 on 2026-09-07.
+The review sequence and consent items 12 to 15 were approved on 2026-09-07.
 Revise it after the first session if a definition proves unobservable.
 
 ## The Constraint This Protocol Operates Under
@@ -22,7 +22,7 @@ This section described a prototype that held the resume in page state only, wher
 That stopped being true on 2026-09-03: the confirmed record is written to `localStorage` and restored on an explicit action, so a participant returning on the same device and browser keeps their draft.
 `docs/specs/resume-review-workflow.md` section "Prerequisite: Draft Continuity" records the mechanism.
 
-**Every Track A session is still a single sitting.** Storage was one reason for that rule and is no longer one, but the rule is an operating decision this protocol reserves to the operator rather than a consequence of the gap, and the remaining reasons are unchanged: one moderator, one room, and a 60-minute block.
+**Every Track A session is still a single sitting.** Storage was one reason for that rule and is no longer one, but the rule is an operating decision this protocol reserves to the moderator rather than a consequence of the gap, and the remaining reasons are unchanged: one moderator, one room, and a 60-minute block.
 Change it deliberately if a session needs it, not because this paragraph stopped applying.
 
 What did change is the artifact. The printed or exported output produced in the room is no longer the _only_ thing a participant leaves with, because the draft survives on their own device.
@@ -40,7 +40,7 @@ Record each participant's experience in months so the band can be examined after
 
 Screen out:
 
-- Anyone the operator currently manages, employs, or has employed.
+- Anyone the moderator currently manages, employs, or has employed.
   They cannot decline a task or report that a step was confusing.
 - Anyone who has already seen the prototype.
 - Anyone recruited through their own employer.
@@ -75,7 +75,7 @@ In the later review validation, read these items before review is offered:
 14. 검토용 이력서에는 앱이 이름과 연락처를 넣지 않습니다. 검토에 필요하지 않은 정보를 저에게 남기지 않기 위한 것입니다.
 15. 검토를 받지 않으셔도 오늘 참여에는 아무 영향이 없습니다.
 
-The operator approved items 12 to 15 on 2026-09-07 for the separate review validation that follows a passing Track A gate.
+Items 12 to 15 were approved on 2026-09-07 for the separate review validation that follows a passing Track A gate.
 Item 14 states that the application removes identity and contact fields instead of asking the participant to remember that step.
 This wording matches the identity-free export prerequisite in `docs/specs/resume-review-workflow.md`.
 Do not read these items or offer review during Track A completion-test sessions.
@@ -94,7 +94,7 @@ Item 7 is an absolute technical claim, so verify it before the first session of 
 An added error reporter or analytics tag would falsify the promise silently.
 
 The first import in a new tab loads the application's own code: same-origin `GET` requests for files under `/_next/static/`, with no body.
-The operator decided on 2026-10-31 that the moderator imports once before the participant arrives, so that this loading happens before the check and before the session.
+It was decided on 2026-10-31 that the moderator imports once before the participant arrives, so that this loading happens before the check and before the session.
 Use any PDF that is not a qualification certificate, such as a page printed to PDF from the browser.
 In the tab the session will use:
 
@@ -131,13 +131,13 @@ One participant, one moderator, one sitting: 60 minutes.
 | Debrief             | 5       | Open questions, then explain the product if they ask.                                                                                          |
 
 The review phase does not run during these Track A sessions.
-The operator selected the plan's existing sequence on 2026-09-07.
+The plan's existing sequence was selected on 2026-09-07.
 First, run and reconcile the Track A gate.
 If Track A passes, run the review gate with a fresh participant pool.
 Read consent items 12 to 15 before review is offered in those later sessions.
 The later review cohort adds a 15-minute review offer after the debrief.
 If the participant accepts, they create and send the identity-free review copy in that sitting.
-The operator can return feedback in that sitting or within the stated response target.
+The reviewer can return feedback in that sitting or within the stated response target.
 Offer the review instead of scheduling it: the participant asks for it or does not, and either answer is the measurement.
 Review outcomes never count toward the three Track A thresholds.
 

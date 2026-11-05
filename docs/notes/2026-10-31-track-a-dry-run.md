@@ -59,7 +59,7 @@ Run it after `pnpm print:verify`, or without `--skip-build` to build first.
 
 ## Findings and Decisions
 
-The first run at `0aef5eb` found three things. The operator decided the first two on 2026-10-31.
+The first run at `0aef5eb` found three things. The first two were decided on 2026-10-31.
 
 1. **The first import in a tab downloads application code.**
    Importing a PDF made 6 `GET` requests for `/_next/static/chunks/*.js` on the same origin, each with an empty body, and a second import in the same tab made none.

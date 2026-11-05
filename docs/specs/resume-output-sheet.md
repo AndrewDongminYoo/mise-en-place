@@ -2,7 +2,7 @@
 
 ## Status
 
-The operator approved the design in chat on 2026-09-18 and this specification on 2026-09-19.
+The design was approved in chat on 2026-09-18 and this specification on 2026-09-19.
 Implemented by PR #12.
 
 This document defines the resume-tool slice that strengthens the printed resume sheet.
@@ -25,7 +25,7 @@ This slice adds a print verification that runs on demand.
 
 ## Product Decisions
 
-Each decision names the alternative the operator rejected, so a later decision can reverse it with the reason in view.
+Each decision names the alternative that was rejected, so a later decision can reverse it with the reason in view.
 
 - **Summary band contents: duration, specialties, stations, skills, and equipment.** Rejected: duration and stations only (too small to change the first impression), and no duration (removes the number a reader looks for first).
 - **The band carries a caption and a display toggle, not a new provenance label.** The band reorganizes facts the person confirmed or authored, which `docs/specs/initial-product-scope.md` allows under "The product may organize supplied facts".
@@ -283,7 +283,7 @@ No image file is committed.
 
 ### Visual Review
 
-The operator opens the PDFs and records these observations in `docs/notes/<date>-resume-print-verification.md`:
+The user opens the PDFs and records these observations in `docs/notes/<date>-resume-print-verification.md`:
 
 - The commit the run used, the automated check results, and the result of the `--falsify` run.
 - Where page breaks fall in `long.pdf`.
