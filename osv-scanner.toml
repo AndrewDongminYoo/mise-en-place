@@ -1,2 +1,6 @@
 # osv-scanner suppressions. Every entry names the GHSA, the affected version, why no fix
 # exists today, when it was approved, and what event triggers re-evaluation.
+
+[[IgnoredVulns]]
+id = "GHSA-fc5q-39xc-vjpf"
+reason = "picomatch@2.3.2 and picomatch@4.0.7 have no patched release as of 2026-11-18. GitHub advisory data reports no first patched version for the affected range <= 4.0.7, and npm view picomatch versions ends at 4.0.7. Reachability evidence: both versions are reached only through the eslint-config-next@16.4.6 devDependency (2.3.2 via @next/eslint-plugin-next -> fast-glob -> micromatch; 4.0.7 via typescript-eslint and eslint-import-resolver-typescript -> tinyglobby/fdir), pnpm why picomatch --prod prints nothing, and no first-party source in app/, scripts/ or next.config.ts imports a glob library. Re-evaluate before passing user-supplied glob patterns to any tool. Approved on 2026-11-18. Remove when a picomatch release outside the affected range is available."
